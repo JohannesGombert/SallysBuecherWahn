@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Book, ReadingStatus } from '../types'
 import { STATUS_LABELS, STATUS_ORDER } from '../types'
 import { StarRating } from './StarRating'
+import { Icon } from './Icon'
 import { updateBook, deleteBook } from '../lib/booksRepo'
 
 interface Props {
@@ -13,7 +14,7 @@ interface Props {
 
 export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
   const [notes, setNotes] = useState(book.notes ?? '')
-  const [saving, setSaving] = useState(false)
+  const [saved, setSaved] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
 
   async function patch(p: Partial<Book>) {
@@ -22,9 +23,9 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
   }
 
   async function saveNotes() {
-    setSaving(true)
     await patch({ notes })
-    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 1500)
   }
 
   async function handleDelete() {
@@ -35,46 +36,53 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-40 flex items-end justify-center bg-night-950/60 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div
-        className="card max-h-[92vh] w-full max-w-lg overflow-y-auto rounded-b-none rounded-t-3xl p-6 sm:rounded-3xl"
+        className="card max-h-[92vh] w-full max-w-lg animate-fade-up overflow-y-auto rounded-b-none rounded-t-3xl p-6 sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex gap-4">
-          <div className="h-40 w-28 flex-shrink-0 overflow-hidden rounded-xl bg-brand-100 shadow-book dark:bg-brand-900/40">
+        <div className="mb-2 flex justify-end">
+          <button onClick={onClose} className="btn-ghost !rounded-full !px-3" aria-label="Schließen">
+            <Icon name="close" />
+          </button>
+        </div>
+
+        <div className="flex gap-5">
+          <div className="h-44 w-28 flex-shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 shadow-book ring-1 ring-brand-900/10 dark:from-brand-800 dark:to-night-900">
             {book.cover_url ? (
               <img src={book.cover_url} alt="" className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center text-4xl">📖</div>
+              <div className="flex h-full items-center justify-center text-white/80">
+                <Icon name="book" className="h-10 w-10" strokeWidth={1.5} />
+              </div>
             )}
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="font-display text-xl font-bold leading-tight">
-              {book.title}
-            </h2>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <h2 className="font-display text-2xl font-bold leading-tight">{book.title}</h2>
+            <p className="mt-1 text-sm text-brand-900/55 dark:text-paper-200/55">
               {book.authors.join(', ') || 'Unbekannt'}
             </p>
             {book.publisher && (
-              <p className="mt-1 text-xs text-slate-400">
+              <p className="mt-1 text-xs text-brand-900/40 dark:text-paper-200/40">
                 {book.publisher}
                 {book.published_date ? ` · ${book.published_date}` : ''}
               </p>
             )}
             {book.page_count ? (
-              <p className="text-xs text-slate-400">{book.page_count} Seiten</p>
+              <p className="text-xs text-brand-900/40 dark:text-paper-200/40">
+                {book.page_count} Seiten
+              </p>
             ) : null}
-            <div className="mt-2">
+            <div className="mt-3">
               <StarRating value={book.rating} onChange={(r) => patch({ rating: r })} />
             </div>
           </div>
         </div>
 
-        {/* Status-Wechsel */}
-        <div className="mt-5">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <div className="mt-6">
+          <p className="mb-2 text-xs font-bold uppercase tracking-wider text-brand-900/40 dark:text-paper-200/40">
             Status
           </p>
           <div className="flex flex-wrap gap-2">
@@ -82,11 +90,7 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
               <button
                 key={s}
                 onClick={() => patch({ status: s })}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition ${
-                  book.status === s
-                    ? 'bg-brand-600 text-white'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-white/10 dark:text-slate-300'
-                }`}
+                className={`chip ${book.status === s ? 'chip-on' : 'chip-off'}`}
               >
                 {STATUS_LABELS[s]}
               </button>
@@ -95,18 +99,18 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
         </div>
 
         {book.description && (
-          <div className="mt-5">
-            <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          <div className="mt-6">
+            <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-brand-900/40 dark:text-paper-200/40">
               Beschreibung
             </p>
-            <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
+            <p className="text-sm leading-relaxed text-brand-900/70 dark:text-paper-200/70">
               {book.description}
             </p>
           </div>
         )}
 
-        <div className="mt-5">
-          <p className="mb-1 text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <div className="mt-6">
+          <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-brand-900/40 dark:text-paper-200/40">
             Meine Notizen
           </p>
           <textarea
@@ -116,14 +120,18 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
             onBlur={saveNotes}
             placeholder="Gedanken, Lieblingszitate, Merkzettel …"
           />
-          {saving && <p className="mt-1 text-xs text-slate-400">Gespeichert ✓</p>}
+          {saved && (
+            <p className="mt-1 flex items-center gap-1 text-xs text-emerald-600 dark:text-emerald-400">
+              <Icon name="check" className="h-3.5 w-3.5" /> Gespeichert
+            </p>
+          )}
         </div>
 
-        <div className="mt-6 flex items-center justify-between">
+        <div className="mt-7 flex items-center justify-between">
           {confirmDelete ? (
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-red-500">Wirklich löschen?</span>
-              <button onClick={handleDelete} className="btn bg-red-500 text-white">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-sm text-ember-600">Wirklich löschen?</span>
+              <button onClick={handleDelete} className="btn bg-ember-600 text-white hover:bg-ember-700">
                 Ja, löschen
               </button>
               <button onClick={() => setConfirmDelete(false)} className="btn-ghost">
@@ -133,9 +141,9 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
           ) : (
             <button
               onClick={() => setConfirmDelete(true)}
-              className="text-sm text-red-500 hover:underline"
+              className="flex items-center gap-1.5 text-sm font-medium text-ember-600 hover:text-ember-700 hover:underline"
             >
-              Buch löschen
+              <Icon name="trash" className="h-4 w-4" /> Buch löschen
             </button>
           )}
           <button onClick={onClose} className="btn-primary">

@@ -11,7 +11,14 @@
       "Bash(grep -E '^\\\\.env$')",
       "Bash(git init *)",
       "Bash(git config *)",
-      "Bash(git add *)"
+      "Bash(git add *)",
+      "Bash(git commit -q -m 'Sallys BücherWahn – erste Version *)",
+      "Bash(git remote *)",
+      "Bash(git push *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' 'https://eoblehxwhdblwadnitws.supabase.co/rest/v1/books?select=id&limit=1' -H 'apikey: sb_publishable_ppQKDapxLLA5Vdh9f_6UFA_I1Co1QyD' -H 'Authorization: Bearer sb_publishable_ppQKDapxLLA5Vdh9f_6UFA_I1Co1QyD')",
+      "Bash(curl -s 'https://eoblehxwhdblwadnitws.supabase.co/rest/v1/books?select=id&limit=1' -H 'apikey: sb_publishable_ppQKDapxLLA5Vdh9f_6UFA_I1Co1QyD' -H 'Authorization: Bearer sb_publishable_ppQKDapxLLA5Vdh9f_6UFA_I1Co1QyD')",
+      "Bash(taskkill //F //IM node.exe //T)",
+      "Bash(git commit -q -m 'Design-Überarbeitung: cozy-modernes Leseratten-Design *)"
     ]
   }
 }
