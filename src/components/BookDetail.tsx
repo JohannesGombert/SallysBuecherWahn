@@ -4,6 +4,7 @@ import { STATUS_LABELS, STATUS_ORDER } from '../types'
 import { StarRating } from './StarRating'
 import { Icon } from './Icon'
 import { updateBook, deleteBook } from '../lib/booksRepo'
+import { amazonDeUrl } from '../lib/utils'
 
 interface Props {
   book: Book
@@ -88,6 +89,18 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
             <div className="mt-3">
               <StarRating value={book.rating} onChange={(r) => patch({ rating: r })} />
             </div>
+            {book.status === 'owned' && (
+              <a
+                href={amazonDeUrl(book)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn-ghost mt-3 !py-2 text-xs"
+              >
+                <Icon name="cart" className="h-4 w-4" />
+                Bei Amazon.de ansehen
+                <Icon name="external" className="h-3.5 w-3.5" />
+              </a>
+            )}
           </div>
         </div>
 

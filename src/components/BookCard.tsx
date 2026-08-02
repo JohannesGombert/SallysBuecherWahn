@@ -3,6 +3,7 @@ import type { Book } from '../types'
 import { STATUS_LABELS } from '../types'
 import { StarRating } from './StarRating'
 import { Icon } from './Icon'
+import { amazonDeUrl } from '../lib/utils'
 
 const statusColor: Record<string, string> = {
   wishlist: 'bg-pink-500/90 text-white',
@@ -14,12 +15,15 @@ const statusColor: Record<string, string> = {
 export function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
   const [imgError, setImgError] = useState(false)
   const showCover = book.cover_url && !imgError
+  const isUnread = book.status === 'owned'
+
   return (
-    <button
-      onClick={onClick}
-      className="group flex flex-col text-left focus-visible:outline-none"
-    >
-      <div className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 shadow-book ring-1 ring-brand-900/10 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-book-lg dark:from-brand-800 dark:to-night-900 dark:ring-white/10">
+    <div className="group flex flex-col text-left">
+      <button
+        onClick={onClick}
+        aria-label={`${book.title} öffnen`}
+        className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 shadow-book ring-1 ring-brand-900/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-book-lg focus-visible:outline-none dark:from-brand-800 dark:to-night-900 dark:ring-white/10"
+      >
         {/* Buchrücken-Kante */}
         <div className="absolute inset-y-0 left-0 z-10 w-2 bg-gradient-to-r from-black/25 to-transparent" />
         {showCover ? (
@@ -43,11 +47,29 @@ export function BookCard({ book, onClick }: { book: Book; onClick: () => void })
         >
           {STATUS_LABELS[book.status]}
         </span>
-      </div>
+      </button>
+
       <div className="flex flex-1 flex-col gap-0.5 px-1 pt-2.5">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-tight group-hover:text-brand-700 dark:group-hover:text-brand-300">
-          {book.title}
-        </h3>
+        {isUnread ? (
+          <a
+            href={amazonDeUrl(book)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Bei Amazon.de ansehen"
+            onClick={(e) => e.stopPropagation()}
+            className="inline-flex items-start gap-1 text-sm font-semibold leading-tight text-brand-700 hover:text-ember-500 hover:underline dark:text-brand-300"
+          >
+            <span className="line-clamp-2">{book.title}</span>
+            <Icon name="cart" className="mt-0.5 h-3.5 w-3.5 flex-shrink-0" />
+          </a>
+        ) : (
+          <button
+            onClick={onClick}
+            className="line-clamp-2 text-left text-sm font-semibold leading-tight group-hover:text-brand-700 dark:group-hover:text-brand-300"
+          >
+            {book.title}
+          </button>
+        )}
         <p className="line-clamp-1 text-xs text-brand-900/45 dark:text-paper-200/45">
           {book.authors.join(', ') || 'Unbekannt'}
         </p>
@@ -57,6 +79,6 @@ export function BookCard({ book, onClick }: { book: Book; onClick: () => void })
           </div>
         ) : null}
       </div>
-    </button>
+    </div>
   )
 }

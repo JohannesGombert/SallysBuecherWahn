@@ -18,6 +18,8 @@ export type IconName =
   | 'book'
   | 'sparkle'
   | 'stack'
+  | 'cart'
+  | 'external'
 
 const paths: Record<IconName, React.ReactNode> = {
   search: (
@@ -67,6 +69,20 @@ const paths: Record<IconName, React.ReactNode> = {
     <>
       <path d="M12 3l9 5-9 5-9-5z" />
       <path d="M3 12l9 5 9-5M3 16l9 5 9-5" />
+    </>
+  ),
+  cart: (
+    <>
+      <circle cx="9" cy="20" r="1.4" />
+      <circle cx="18" cy="20" r="1.4" />
+      <path d="M2 3h2.2l2.2 12.2a1.5 1.5 0 0 0 1.5 1.3h9.1a1.5 1.5 0 0 0 1.5-1.2L21 7H5.2" />
+    </>
+  ),
+  external: (
+    <>
+      <path d="M14 4h6v6" />
+      <path d="M20 4l-9 9" />
+      <path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />
     </>
   ),
 }
