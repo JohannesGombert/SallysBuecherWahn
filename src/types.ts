@@ -2,12 +2,15 @@ export type ReadingStatus = 'wishlist' | 'owned' | 'reading' | 'read'
 
 export const STATUS_LABELS: Record<ReadingStatus, string> = {
   wishlist: 'Wunschliste',
-  owned: 'Im Regal',
+  owned: 'Ungelesen',
   reading: 'Lese ich',
   read: 'Gelesen',
 }
 
 export const STATUS_ORDER: ReadingStatus[] = ['reading', 'owned', 'wishlist', 'read']
+
+// „Im Regal" = alles, was man besitzt (nicht auf der Wunschliste)
+export const SHELF_STATUSES: ReadingStatus[] = ['owned', 'reading', 'read']
 
 export interface Book {
   id: string

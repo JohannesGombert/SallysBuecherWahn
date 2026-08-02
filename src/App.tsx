@@ -3,7 +3,7 @@ import { useAuth } from './hooks/useAuth'
 import { supabase } from './lib/supabase'
 import { fetchBooks } from './lib/booksRepo'
 import type { Book, ReadingStatus } from './types'
-import { STATUS_LABELS, STATUS_ORDER } from './types'
+import { STATUS_LABELS, STATUS_ORDER, SHELF_STATUSES } from './types'
 import { Auth } from './components/Auth'
 import { BookCard } from './components/BookCard'
 import { BookDetail } from './components/BookDetail'
@@ -15,7 +15,7 @@ import { BookOpenTransition } from './components/BookOpenTransition'
 import { BookFrame } from './components/BookFrame'
 import { useRef } from 'react'
 
-type Filter = 'all' | ReadingStatus
+type Filter = 'all' | 'shelf' | ReadingStatus
 
 const STATUS_ICON: Record<ReadingStatus, IconName> = {
   reading: 'book',
@@ -84,8 +84,8 @@ export default function App() {
   }, [books])
 
   const stats = useMemo(() => {
-    const total = books.length
     const read = books.filter((b) => b.status === 'read').length
+    const shelf = books.filter((b) => SHELF_STATUSES.includes(b.status)).length
     const rated = books.filter((b) => (b.rating ?? 0) > 0)
     const avg = rated.length
       ? rated.reduce((s, b) => s + (b.rating ?? 0), 0) / rated.length
@@ -94,9 +94,9 @@ export default function App() {
       .filter((b) => b.status === 'read')
       .reduce((s, b) => s + (b.page_count ?? 0), 0)
     return {
-      total,
+      shelf,
       read,
-      pct: total ? Math.round((read / total) * 100) : 0,
+      pct: shelf ? Math.round((read / shelf) * 100) : 0,
       avg,
       ratedCount: rated.length,
       pagesRead,
@@ -106,7 +106,11 @@ export default function App() {
   const visible = useMemo(() => {
     const q = search.toLowerCase().trim()
     return books.filter((b) => {
-      if (filter !== 'all' && b.status !== filter) return false
+      if (filter === 'shelf') {
+        if (!SHELF_STATUSES.includes(b.status)) return false
+      } else if (filter !== 'all' && b.status !== filter) {
+        return false
+      }
       if (!q) return true
       return (
         b.title.toLowerCase().includes(q) ||
@@ -229,28 +233,31 @@ export default function App() {
             ))}
         </div>
 
-        {/* Bento-Statistik */}
+        {/* Bento-Statistik: Im Regal (Gruppe) + Lese-Status + Wunschliste */}
         <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {STATUS_ORDER.map((s) => {
-            const on = filter === s
+          {(
+            [
+              { key: 'shelf', label: 'Im Regal', icon: 'stack', tint: 'from-brand-500 to-brand-700', count: stats.shelf },
+              { key: 'read', label: STATUS_LABELS.read, icon: STATUS_ICON.read, tint: STATUS_TINT.read, count: counts.read ?? 0 },
+              { key: 'reading', label: STATUS_LABELS.reading, icon: STATUS_ICON.reading, tint: STATUS_TINT.reading, count: counts.reading ?? 0 },
+              { key: 'wishlist', label: STATUS_LABELS.wishlist, icon: STATUS_ICON.wishlist, tint: STATUS_TINT.wishlist, count: counts.wishlist ?? 0 },
+            ] as { key: Filter; label: string; icon: IconName; tint: string; count: number }[]
+          ).map((c) => {
+            const on = filter === c.key
             return (
               <button
-                key={s}
-                onClick={() => setFilter(on ? 'all' : s)}
+                key={c.key}
+                onClick={() => setFilter(on ? 'all' : c.key)}
                 className={`card relative overflow-hidden p-4 text-left transition-all duration-300 hover:-translate-y-0.5 ${
                   on ? 'ring-2 ring-ember-400' : ''
                 }`}
               >
-                <div
-                  className={`mb-2 inline-flex rounded-xl bg-gradient-to-br p-2 text-white ${STATUS_TINT[s]}`}
-                >
-                  <Icon name={STATUS_ICON[s]} className="h-4 w-4" />
+                <div className={`mb-2 inline-flex rounded-xl bg-gradient-to-br p-2 text-white ${c.tint}`}>
+                  <Icon name={c.icon} className="h-4 w-4" />
                 </div>
-                <div className="font-display text-3xl font-black leading-none">
-                  {counts[s] ?? 0}
-                </div>
+                <div className="font-display text-3xl font-black leading-none">{c.count}</div>
                 <div className="mt-1 text-xs font-medium text-brand-900/50 dark:text-paper-200/50">
-                  {STATUS_LABELS[s]}
+                  {c.label}
                 </div>
               </button>
             )
@@ -260,14 +267,14 @@ export default function App() {
         {/* Statistik */}
         {books.length > 0 && (
           <div className="mb-8 grid gap-3 sm:grid-cols-3">
-            {/* Lesefortschritt */}
+            {/* Regal-Lesefortschritt */}
             <div className="card p-4">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold uppercase tracking-wide text-brand-900/45 dark:text-paper-200/45">
-                  Lesefortschritt
+                  Regal gelesen
                 </span>
                 <span className="text-xs text-brand-900/45 dark:text-paper-200/45">
-                  {stats.read}/{stats.total}
+                  {stats.read}/{stats.shelf}
                 </span>
               </div>
               <div className="mt-2 font-display text-2xl font-black">{stats.pct}%</div>
@@ -278,7 +285,7 @@ export default function App() {
                 />
               </div>
               <p className="mt-2 text-xs text-brand-900/45 dark:text-paper-200/45">
-                {stats.read} von {stats.total} gelesen
+                {stats.read} von {stats.shelf} Büchern im Regal gelesen
               </p>
             </div>
 
@@ -338,6 +345,12 @@ export default function App() {
               className={`chip ${filter === 'all' ? 'chip-on' : 'chip-off'}`}
             >
               Alle ({counts.all})
+            </button>
+            <button
+              onClick={() => setFilter('shelf')}
+              className={`chip ${filter === 'shelf' ? 'chip-on' : 'chip-off'}`}
+            >
+              Im Regal ({stats.shelf})
             </button>
             {STATUS_ORDER.map((s) => (
               <button
