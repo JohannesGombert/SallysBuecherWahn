@@ -110,7 +110,7 @@ export default function App() {
       {entering && <BookOpenTransition />}
     <BookFrame>
       {/* Kopfzeile (Teil der Buchseite) */}
-      <header className="relative z-20 border-b border-brand-900/10 bg-paper-100/60 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 md:rounded-t-[2rem]">
+      <header className="relative z-20 border-b border-brand-900/10 bg-paper-100/60 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 sm:rounded-tl-3xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-center gap-2.5">
             <Logo className="h-8 w-8" />

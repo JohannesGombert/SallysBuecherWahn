@@ -106,19 +106,21 @@
 .page-leaf {
   position: absolute;
   inset: 0;
-  border-radius: 0 1.25rem 1.25rem 0;
+  border-radius: 0 0.75rem 0.75rem 0;
   transform-origin: left center;
   backface-visibility: hidden;
-  background: linear-gradient(to left, #e9d9bd, rgba(233, 217, 189, 0.15) 70%, transparent);
-  box-shadow: -6px 0 12px -6px rgba(0, 0, 0, 0.25);
-  animation: leaf-flutter 6.5s ease-in-out infinite;
+  background: linear-gradient(to left, #d8c6a5, #f0e6d4 40%, #f6efe1);
+  box-shadow: -10px 0 18px -8px rgba(0, 0, 0, 0.3);
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  animation: leaf-flutter 5.5s ease-in-out infinite;
 }
 .dark .page-leaf {
-  background: linear-gradient(to left, #2a2230, rgba(42, 34, 48, 0.15) 70%, transparent);
+  background: linear-gradient(to left, #1a141f, #2a2230 40%, #322838);
+  border-left-color: rgba(255, 255, 255, 0.06);
 }
 @keyframes leaf-flutter {
-  0%, 100% { transform: rotateY(0deg); }
-  50% { transform: rotateY(-26deg); }
+  0%, 100% { transform: rotateY(0deg) skewY(0deg); }
+  50% { transform: rotateY(-38deg) skewY(-1.2deg); }
 }
 
 /* Geschlossenes Buch (Login): Seitenkanten */
@@ -203,5 +205,9 @@
   }
   .book-overlay {
     animation: overlay-out 0.5s ease 1.25s forwards !important;
+  }
+  /* Sanftes Wehen ist ausdrücklich gewünscht und bleibt aktiv */
+  .page-leaf {
+    animation: leaf-flutter 5.5s ease-in-out infinite !important;
   }
 }
