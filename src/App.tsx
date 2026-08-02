@@ -7,6 +7,7 @@ import { STATUS_LABELS, STATUS_ORDER } from './types'
 import { Auth } from './components/Auth'
 import { BookCard } from './components/BookCard'
 import { BookDetail } from './components/BookDetail'
+import { StarRating } from './components/StarRating'
 import { AddBook } from './components/AddBook'
 import { Icon, type IconName } from './components/Icon'
 import { Logo } from './components/Logo'
@@ -79,6 +80,26 @@ export default function App() {
     const c: Record<string, number> = { all: books.length }
     for (const s of STATUS_ORDER) c[s] = books.filter((b) => b.status === s).length
     return c
+  }, [books])
+
+  const stats = useMemo(() => {
+    const total = books.length
+    const read = books.filter((b) => b.status === 'read').length
+    const rated = books.filter((b) => (b.rating ?? 0) > 0)
+    const avg = rated.length
+      ? rated.reduce((s, b) => s + (b.rating ?? 0), 0) / rated.length
+      : 0
+    const pagesRead = books
+      .filter((b) => b.status === 'read')
+      .reduce((s, b) => s + (b.page_count ?? 0), 0)
+    return {
+      total,
+      read,
+      pct: total ? Math.round((read / total) * 100) : 0,
+      avg,
+      ratedCount: rated.length,
+      pagesRead,
+    }
   }, [books])
 
   const visible = useMemo(() => {
@@ -178,6 +199,67 @@ export default function App() {
             )
           })}
         </div>
+
+        {/* Statistik */}
+        {books.length > 0 && (
+          <div className="mb-8 grid gap-3 sm:grid-cols-3">
+            {/* Lesefortschritt */}
+            <div className="card p-4">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold uppercase tracking-wide text-brand-900/45 dark:text-paper-200/45">
+                  Lesefortschritt
+                </span>
+                <span className="text-xs text-brand-900/45 dark:text-paper-200/45">
+                  {stats.read}/{stats.total}
+                </span>
+              </div>
+              <div className="mt-2 font-display text-2xl font-black">{stats.pct}%</div>
+              <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-900/10 dark:bg-white/10">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"
+                  style={{ width: `${stats.pct}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs text-brand-900/45 dark:text-paper-200/45">
+                {stats.read} von {stats.total} gelesen
+              </p>
+            </div>
+
+            {/* Durchschnittsbewertung */}
+            <div className="card p-4">
+              <span className="text-xs font-semibold uppercase tracking-wide text-brand-900/45 dark:text-paper-200/45">
+                ⌀ Bewertung
+              </span>
+              <div className="mt-2 flex items-baseline gap-2">
+                <span className="font-display text-2xl font-black">
+                  {stats.ratedCount ? stats.avg.toFixed(1) : '–'}
+                </span>
+                <span className="text-xs text-brand-900/45 dark:text-paper-200/45">von 5</span>
+              </div>
+              <div className="mt-2">
+                <StarRating value={Math.round(stats.avg)} size="sm" />
+              </div>
+              <p className="mt-2 text-xs text-brand-900/45 dark:text-paper-200/45">
+                {stats.ratedCount
+                  ? `${stats.ratedCount} ${stats.ratedCount === 1 ? 'Buch' : 'Bücher'} bewertet`
+                  : 'Noch nichts bewertet'}
+              </p>
+            </div>
+
+            {/* Gelesene Seiten */}
+            <div className="card p-4">
+              <span className="text-xs font-semibold uppercase tracking-wide text-brand-900/45 dark:text-paper-200/45">
+                Gelesene Seiten
+              </span>
+              <div className="mt-2 font-display text-2xl font-black">
+                {stats.pagesRead.toLocaleString('de-DE')}
+              </div>
+              <p className="mt-2 text-xs text-brand-900/45 dark:text-paper-200/45">
+                aus deinen gelesenen Büchern
+              </p>
+            </div>
+          </div>
+        )}
 
         {/* Suche + Filter */}
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center">
