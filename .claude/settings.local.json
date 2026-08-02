@@ -40,7 +40,8 @@
       "Bash(git commit -q -m 'Deutlich sichtbare Hintergrund-Bewegung *)",
       "WebFetch(domain:www.youtube.com)",
       "Bash(git commit -q -m 'Seiten flattern & woelben sich \\(boeige Wind-Bewegung\\) *)",
-      "Bash(git commit -q -m 'Realistischer Seitenfaecher als Canvas-Animation *)"
+      "Bash(git commit -q -m 'Realistischer Seitenfaecher als Canvas-Animation *)",
+      "Bash(git commit -q -m 'Statische Buchseite im Kerzenschein statt Animation *)"
     ]
   }
 }
