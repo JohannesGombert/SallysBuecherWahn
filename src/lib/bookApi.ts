@@ -22,10 +22,16 @@ function upgradeCover(url: string | undefined): string | null {
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY as string | undefined
 const keyParam = GOOGLE_KEY ? `&key=${GOOGLE_KEY}` : ''
 
-/** Versucht Google Books zuerst, dann Open Library als Fallback. */
+/**
+ * Fragt zuerst unseren Server-Proxy (Netlify-Function: Google Books → DNB),
+ * dann direkte Browser-Fallbacks (für lokale Entwicklung ohne Functions).
+ */
 export async function lookupIsbn(rawIsbn: string): Promise<BookLookupResult | null> {
   const isbn = cleanIsbn(rawIsbn)
   if (!isbn) return null
+
+  const proxied = await lookupProxy(isbn).catch(() => null)
+  if (proxied) return proxied
 
   const google = await lookupGoogle(isbn).catch(() => null)
   if (google) return google
@@ -36,6 +42,13 @@ export async function lookupIsbn(rawIsbn: string): Promise<BookLookupResult | nu
   // Letzter Versuch: Google-Freitextsuche nach der ISBN (findet manchmal mehr)
   const fallback = await searchBooks(isbn).catch(() => [])
   return fallback[0] ?? null
+}
+
+async function lookupProxy(isbn: string): Promise<BookLookupResult | null> {
+  const res = await fetch(`/api/isbn?isbn=${isbn}`)
+  if (!res.ok) return null
+  const data = await res.json()
+  return data && data.title ? (data as BookLookupResult) : null
 }
 
 async function lookupGoogle(isbn: string): Promise<BookLookupResult | null> {

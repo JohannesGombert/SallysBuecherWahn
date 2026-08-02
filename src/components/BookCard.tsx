@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import type { Book } from '../types'
 import { STATUS_LABELS } from '../types'
 import { StarRating } from './StarRating'
@@ -11,6 +12,8 @@ const statusColor: Record<string, string> = {
 }
 
 export function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
+  const [imgError, setImgError] = useState(false)
+  const showCover = book.cover_url && !imgError
   return (
     <button
       onClick={onClick}
@@ -19,11 +22,12 @@ export function BookCard({ book, onClick }: { book: Book; onClick: () => void })
       <div className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 shadow-book ring-1 ring-brand-900/10 transition-all duration-300 group-hover:-translate-y-1.5 group-hover:shadow-book-lg dark:from-brand-800 dark:to-night-900 dark:ring-white/10">
         {/* Buchrücken-Kante */}
         <div className="absolute inset-y-0 left-0 z-10 w-2 bg-gradient-to-r from-black/25 to-transparent" />
-        {book.cover_url ? (
+        {showCover ? (
           <img
-            src={book.cover_url}
+            src={book.cover_url!}
             alt={`Cover von ${book.title}`}
             loading="lazy"
+            onError={() => setImgError(true)}
             className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
           />
         ) : (

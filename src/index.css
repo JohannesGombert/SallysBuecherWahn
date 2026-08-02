@@ -100,4 +100,14 @@
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
+  /* Der einmalige Buch-Aufschlag ist ein bewusster Übergang und bleibt aktiv */
+  .book-3d {
+    animation: book-zoom 1.7s cubic-bezier(0.7, 0, 0.3, 1) forwards !important;
+  }
+  .book-cover-3d {
+    animation: cover-open 1.4s cubic-bezier(0.6, 0.01, 0.2, 1) 0.15s forwards !important;
+  }
+  .book-overlay {
+    animation: overlay-out 0.5s ease 1.25s forwards !important;
+  }
 }

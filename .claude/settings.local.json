@@ -22,7 +22,13 @@
       "Bash(git commit -q -m 'Interaktiver KineticGrid-Hintergrund auf dem Login *)",
       "Bash(curl -s 'https://www.googleapis.com/books/v1/volumes?q=isbn:9783404164448&country=DE')",
       "Bash(curl -s https://openlibrary.org/isbn/9783404164448.json)",
-      "Bash(git commit -q -m 'Login als Buch, das sich beim Anmelden aufschlägt + ISBN-Suche robuster *)"
+      "Bash(git commit -q -m 'Login als Buch, das sich beim Anmelden aufschlägt + ISBN-Suche robuster *)",
+      "Bash(curl -s \"https://www.googleapis.com/books/v1/volumes?q=isbn:9783404164448&country=DE\")",
+      "Bash(curl -s 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&query=NUM%3D9783404164448&recordSchema=MARC21-xml&maximumRecords=1')",
+      "Bash(curl -s 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&query=NUM%3D9783404164448&recordSchema=oai_dc&maximumRecords=1')",
+      "Bash(node -e ' *)",
+      "Bash(node --input-type=module -e ' *)",
+      "Bash(git commit -q -m 'Deutsche ISBN-Datenbank \\(DNB\\) via Netlify-Function-Proxy *)"
     ]
   }
 }

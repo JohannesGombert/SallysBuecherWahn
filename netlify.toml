@@ -2,7 +2,17 @@
   command = "npm run build"
   publish = "dist"
 
-# SPA-Fallback: alle Routen auf index.html
+[functions]
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# API-Routen zuerst (dürfen NICHT vom SPA-Fallback geschluckt werden)
+[[redirects]]
+  from = "/api/isbn"
+  to = "/.netlify/functions/isbn"
+  status = 200
+
+# SPA-Fallback: alle übrigen Routen auf index.html
 [[redirects]]
   from = "/*"
   to = "/index.html"
