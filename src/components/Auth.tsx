@@ -2,6 +2,10 @@ import { useState } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { Icon } from './Icon'
 import { Logo } from './Logo'
+import KineticGrid from './KineticGrid'
+
+const darkInput =
+  'w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-ember-400 focus:ring-4 focus:ring-ember-400/20'
 
 export function Auth() {
   const [email, setEmail] = useState('')
@@ -35,56 +39,34 @@ export function Auth() {
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      {/* Linke Seite: Marken-Bühne */}
-      <div className="relative hidden overflow-hidden bg-gradient-to-br from-brand-800 via-brand-900 to-night-950 lg:block">
-        <div className="absolute -right-16 top-20 h-72 w-72 rounded-full bg-ember-500/30 blur-3xl" />
-        <div className="absolute -left-10 bottom-10 h-72 w-72 rounded-full bg-brand-400/30 blur-3xl" />
-        <div className="relative flex h-full flex-col justify-between p-12 text-white">
-          <div className="flex items-center gap-3">
-            <Logo className="h-9 w-9" />
-            <span className="font-display text-xl font-semibold">Sallys BücherWahn</span>
-          </div>
-          <div className="animate-fade-up">
-            <h2 className="font-display text-5xl font-black leading-[1.05]">
-              Jedes Buch.
-              <br />
-              <span className="italic text-ember-300">Deine Geschichte.</span>
+    <KineticGrid globalColor="brand">
+      <div className="flex min-h-screen flex-col items-center justify-center px-6 py-10">
+        {/* Kopf */}
+        <div className="mb-8 flex flex-col items-center text-center">
+          <Logo className="h-14 w-14 animate-float drop-shadow-[0_8px_24px_rgba(240,130,60,0.35)]" />
+          <h1 className="mt-4 font-display text-4xl font-black tracking-tight text-white sm:text-5xl">
+            Sallys BücherWahn
+          </h1>
+          <p className="mt-2 max-w-sm text-white/55">
+            Jedes Buch. Deine Geschichte. Scanne, sammle und verfolge deine Bibliothek.
+          </p>
+        </div>
+
+        {/* Glas-Karte */}
+        <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-xl">
+          <div className="mb-5">
+            <h2 className="font-display text-xl font-bold text-white">
+              {mode === 'signin' ? 'Willkommen zurück' : 'Leg dein Regal an'}
             </h2>
-            <p className="mt-5 max-w-md text-lg text-paper-200/80">
-              Scanne, sammle und verfolge deine Bibliothek – vom ersten Wunsch bis
-              zur letzten Seite. Gemacht für Leseratten. 📚
+            <p className="mt-0.5 text-sm text-white/45">
+              {mode === 'signin'
+                ? 'Melde dich an, um deine Bibliothek zu öffnen.'
+                : 'Erstelle ein Konto und starte deine Sammlung.'}
             </p>
           </div>
-          <div className="flex gap-8 text-sm text-paper-200/70">
-            <Feature icon="camera" text="Barcode scannen" />
-            <Feature icon="stack" text="Regale & Status" />
-            <Feature icon="sparkle" text="Bewerten & Notizen" />
-          </div>
-        </div>
-      </div>
-
-      {/* Rechte Seite: Formular */}
-      <div className="flex items-center justify-center p-6">
-        <div className="w-full max-w-sm animate-fade-up">
-          <div className="mb-8 text-center lg:hidden">
-            <Logo className="mx-auto h-12 w-12" />
-            <h1 className="mt-3 font-display text-3xl font-bold text-brand-800 dark:text-paper-100">
-              Sallys BücherWahn
-            </h1>
-          </div>
-
-          <h1 className="hidden font-display text-3xl font-bold lg:block">
-            {mode === 'signin' ? 'Willkommen zurück' : 'Leg dein Regal an'}
-          </h1>
-          <p className="mb-6 mt-1 text-sm text-brand-900/50 dark:text-paper-200/50">
-            {mode === 'signin'
-              ? 'Melde dich an, um deine Bibliothek zu öffnen.'
-              : 'Erstelle ein Konto und starte deine Sammlung.'}
-          </p>
 
           {!isSupabaseConfigured && (
-            <div className="mb-4 rounded-2xl bg-ember-100 p-3 text-xs text-ember-900">
+            <div className="mb-4 rounded-2xl border border-ember-400/30 bg-ember-500/10 p-3 text-xs text-ember-200">
               Supabase ist noch nicht konfiguriert. Trage <code>VITE_SUPABASE_URL</code>{' '}
               und <code>VITE_SUPABASE_ANON_KEY</code> ein.
             </div>
@@ -92,7 +74,7 @@ export function Auth() {
 
           <form onSubmit={handleSubmit} className="space-y-3">
             <input
-              className="input"
+              className={darkInput}
               type="email"
               placeholder="E-Mail"
               value={email}
@@ -101,7 +83,7 @@ export function Auth() {
               autoComplete="email"
             />
             <input
-              className="input"
+              className={darkInput}
               type="password"
               placeholder="Passwort"
               value={password}
@@ -110,15 +92,13 @@ export function Auth() {
               minLength={6}
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
             />
-            <button type="submit" className="btn-primary w-full !py-3" disabled={loading}>
+            <button type="submit" className="btn-accent w-full !py-3" disabled={loading}>
               {loading ? 'Moment …' : mode === 'signin' ? 'Anmelden' : 'Konto erstellen'}
             </button>
           </form>
 
-          {error && <p className="mt-3 text-sm text-ember-600">{error}</p>}
-          {message && (
-            <p className="mt-3 text-sm text-emerald-600 dark:text-emerald-400">{message}</p>
-          )}
+          {error && <p className="mt-3 text-sm text-ember-300">{error}</p>}
+          {message && <p className="mt-3 text-sm text-emerald-300">{message}</p>}
 
           <button
             onClick={() => {
@@ -126,15 +106,26 @@ export function Auth() {
               setError(null)
               setMessage(null)
             }}
-            className="mt-5 w-full text-center text-sm font-medium text-brand-600 hover:text-ember-500 hover:underline dark:text-brand-300"
+            className="mt-5 w-full text-center text-sm font-medium text-brand-200 transition hover:text-ember-300 hover:underline"
           >
             {mode === 'signin'
               ? 'Noch kein Konto? Jetzt registrieren'
               : 'Schon ein Konto? Anmelden'}
           </button>
         </div>
+
+        {/* Feature-Zeile */}
+        <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-white/45">
+          <Feature icon="camera" text="Barcode scannen" />
+          <Feature icon="stack" text="Regale & Status" />
+          <Feature icon="sparkle" text="Bewerten & Notizen" />
+        </div>
+
+        <p className="mt-6 text-xs text-white/25">
+          Tipp: Bewege den Cursor · klick irgendwohin ✨
+        </p>
       </div>
-    </div>
+    </KineticGrid>
   )
 }
 
