@@ -119,11 +119,29 @@
   background: linear-gradient(to left, #16111c, #2a2230 45%, #34293c);
   border-left-color: rgba(255, 255, 255, 0.07);
 }
-/* Deutlich sichtbares Schwingen: seitlich versetzen + neigen + kippen */
+/* Böiges Flattern & Wölben: Seiten heben sich, biegen sich und kommen zurück.
+   rotateY = aufklappen, rotateX = anheben/wölben, skewY = wellen. */
 @keyframes leaf-flutter {
-  0%, 100% { transform: perspective(800px) translateX(0) rotateY(0deg) rotate(0deg); }
-  30% { transform: perspective(800px) translateX(-18px) rotateY(-46deg) rotate(-3deg); }
-  65% { transform: perspective(800px) translateX(-7px) rotateY(-18deg) rotate(1.4deg); }
+  0%, 100% {
+    transform: perspective(900px) rotateY(0deg) rotateX(0deg) skewY(0deg);
+    border-top-right-radius: 0.5rem;
+    border-bottom-right-radius: 0.5rem;
+  }
+  20% {
+    transform: perspective(900px) rotateY(-34deg) rotateX(7deg) skewY(-2.4deg);
+    border-top-right-radius: 2rem;
+    border-bottom-right-radius: 0.4rem;
+  }
+  45% {
+    transform: perspective(900px) rotateY(-56deg) rotateX(-5deg) skewY(2.6deg);
+    border-top-right-radius: 0.4rem;
+    border-bottom-right-radius: 2rem;
+  }
+  70% {
+    transform: perspective(900px) rotateY(-28deg) rotateX(5deg) skewY(-1.4deg);
+    border-top-right-radius: 1.4rem;
+    border-bottom-right-radius: 0.5rem;
+  }
 }
 
 /* ─── Driftendes warmes Licht (lebendiger Hintergrund) ─────────────────── */

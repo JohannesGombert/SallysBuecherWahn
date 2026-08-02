@@ -37,7 +37,9 @@
       "Bash(git commit -q -m 'Buchcover über Google Dynamic-Links \\(auch für deutsche/DNB-Treffer\\) *)",
       "Bash(git commit -q -m 'Ganze Seite als Buch: geschlossenes Login-Buch + offenes Buch als App-Rahmen *)",
       "Bash(git commit -q -m 'Wehende Seiten sichtbar + trotz Reduced-Motion; Layout responsive *)",
-      "Bash(git commit -q -m 'Deutlich sichtbare Hintergrund-Bewegung *)"
+      "Bash(git commit -q -m 'Deutlich sichtbare Hintergrund-Bewegung *)",
+      "WebFetch(domain:www.youtube.com)",
+      "Bash(git commit -q -m 'Seiten flattern & woelben sich \\(boeige Wind-Bewegung\\) *)"
     ]
   }
 }

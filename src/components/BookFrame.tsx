@@ -16,18 +16,28 @@ export function BookFrame({ children }: { children: ReactNode }) {
         {/* Buchfalz Mitte (nur breite Screens) */}
         <div className="gutter hidden lg:block" aria-hidden="true" />
 
-        {/* Wehende Seiten am rechten Rand – im reservierten Streifen (kein Overlap) */}
+        {/* Böig flatternde Seiten am rechten Rand – Böe läuft gestaffelt durch */}
         <div
-          className="pointer-events-none absolute inset-y-12 right-1 z-[15] hidden w-8 [perspective:1200px] sm:block lg:w-12"
+          className="pointer-events-none absolute inset-y-10 right-1 z-[15] hidden w-10 [perspective:1300px] sm:block lg:w-14"
           aria-hidden="true"
         >
-          <span className="page-leaf" />
-          <span className="page-leaf" style={{ animationDelay: '-1.5s', opacity: 0.75 }} />
-          <span className="page-leaf" style={{ animationDelay: '-3s', opacity: 0.5 }} />
+          {[
+            { d: '0s', t: '4.2s', o: 1 },
+            { d: '-0.5s', t: '4.6s', o: 0.85 },
+            { d: '-1.1s', t: '4.3s', o: 0.7 },
+            { d: '-1.7s', t: '4.8s', o: 0.55 },
+            { d: '-2.4s', t: '4.4s', o: 0.4 },
+          ].map((p, i) => (
+            <span
+              key={i}
+              className="page-leaf"
+              style={{ animationDelay: p.d, animationDuration: p.t, opacity: p.o }}
+            />
+          ))}
         </div>
 
         {/* Inhalt „auf den Seiten" – rechts Platz für die Seitenkante */}
-        <div className="relative z-10 sm:pr-12 lg:pr-16">{children}</div>
+        <div className="relative z-10 sm:pr-16 lg:pr-24">{children}</div>
       </div>
     </div>
   )
