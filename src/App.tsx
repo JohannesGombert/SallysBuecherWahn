@@ -41,6 +41,7 @@ export default function App() {
   const [adding, setAdding] = useState(false)
   const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
   const [entering, setEntering] = useState(false)
+  const [nameForm, setNameForm] = useState({ open: false, fn: '', ln: '', saving: false })
   const prevSession = useRef<'unset' | 'none' | 'active'>('unset')
 
   useEffect(() => {
@@ -124,7 +125,28 @@ export default function App() {
 
   if (!session) return <Auth />
 
-  const name = user?.email?.split('@')[0] ?? 'Leseratte'
+  const meta = (user?.user_metadata ?? {}) as {
+    first_name?: string
+    last_name?: string
+    full_name?: string
+  }
+  const displayName =
+    meta.full_name?.trim() ||
+    [meta.first_name, meta.last_name].filter(Boolean).join(' ').trim() ||
+    user?.email?.split('@')[0] ||
+    'Leseratte'
+  const hasName = Boolean(meta.first_name?.trim() || meta.full_name?.trim())
+
+  async function saveName() {
+    const fn = nameForm.fn.trim()
+    const ln = nameForm.ln.trim()
+    if (!fn) return
+    setNameForm((f) => ({ ...f, saving: true }))
+    await supabase.auth.updateUser({
+      data: { first_name: fn, last_name: ln, full_name: `${fn} ${ln}`.trim() },
+    })
+    setNameForm({ open: false, fn: '', ln: '', saving: false })
+  }
 
   return (
     <>
@@ -162,14 +184,49 @@ export default function App() {
         {/* Begrüßung */}
         <div className="mb-6 animate-fade-up">
           <p className="text-sm font-medium text-ember-500">Willkommen zurück</p>
-          <h2 className="font-display text-3xl font-black capitalize sm:text-4xl">
-            Hallo, {name} 👋
+          <h2 className="font-display text-3xl font-black sm:text-4xl">
+            Hallo, {displayName} 👋
           </h2>
           <p className="mt-1 text-brand-900/50 dark:text-paper-200/50">
             {books.length === 0
               ? 'Deine Bibliothek wartet auf ihr erstes Buch.'
               : `${books.length} ${books.length === 1 ? 'Buch' : 'Bücher'} in deiner Sammlung.`}
           </p>
+
+          {/* Name festlegen (für Konten ohne hinterlegten Namen) */}
+          {!hasName &&
+            (nameForm.open ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <input
+                  className="input sm:max-w-[10rem]"
+                  placeholder="Vorname"
+                  value={nameForm.fn}
+                  onChange={(e) => setNameForm((f) => ({ ...f, fn: e.target.value }))}
+                />
+                <input
+                  className="input sm:max-w-[10rem]"
+                  placeholder="Nachname"
+                  value={nameForm.ln}
+                  onChange={(e) => setNameForm((f) => ({ ...f, ln: e.target.value }))}
+                />
+                <button onClick={saveName} className="btn-primary" disabled={nameForm.saving}>
+                  {nameForm.saving ? 'Speichert …' : 'Speichern'}
+                </button>
+                <button
+                  onClick={() => setNameForm({ open: false, fn: '', ln: '', saving: false })}
+                  className="btn-ghost"
+                >
+                  Abbrechen
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setNameForm((f) => ({ ...f, open: true }))}
+                className="mt-2 text-sm font-medium text-brand-600 hover:text-ember-500 hover:underline dark:text-brand-300"
+              >
+                ✎ Namen festlegen
+              </button>
+            ))}
         </div>
 
         {/* Bento-Statistik */}

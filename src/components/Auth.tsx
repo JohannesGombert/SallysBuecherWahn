@@ -9,6 +9,8 @@ const darkInput =
 export function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [mode, setMode] = useState<'signin' | 'signup'>('signin')
   const [loading, setLoading] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
@@ -21,7 +23,19 @@ export function Auth() {
     setMessage(null)
     try {
       if (mode === 'signup') {
-        const { data, error } = await supabase.auth.signUp({ email, password })
+        const fn = firstName.trim()
+        const ln = lastName.trim()
+        const { data, error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              first_name: fn,
+              last_name: ln,
+              full_name: `${fn} ${ln}`.trim(),
+            },
+          },
+        })
         if (error) throw error
         // Ist E-Mail-Bestätigung aus, gibt es sofort eine Session → direkt drin.
         // Sonst Hinweis anzeigen (Bestätigungs-Mail nötig).
@@ -71,6 +85,28 @@ export function Auth() {
           )}
 
           <form onSubmit={handleSubmit} className="w-full space-y-3 text-left">
+            {mode === 'signup' && (
+              <div className="flex gap-3">
+                <input
+                  className={darkInput}
+                  type="text"
+                  placeholder="Vorname"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  autoComplete="given-name"
+                />
+                <input
+                  className={darkInput}
+                  type="text"
+                  placeholder="Nachname"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  autoComplete="family-name"
+                />
+              </div>
+            )}
             <input
               className={darkInput}
               type="email"

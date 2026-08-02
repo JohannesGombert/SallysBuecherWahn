@@ -44,7 +44,8 @@
       "Bash(git commit -q -m 'Statische Buchseite im Kerzenschein statt Animation *)",
       "Bash(git commit -q -m 'Hintergrund als alte vergilbte Buchseite \\(Antik-Pergament\\) *)",
       "Bash(git commit -q -m 'Statistik-Sektion: Lesefortschritt, Durchschnittsbewertung, gelesene Seiten *)",
-      "Bash(git commit -q -m 'Registrierung: bei ausgeschalteter E-Mail-Bestaetigung direkt einloggen *)"
+      "Bash(git commit -q -m 'Registrierung: bei ausgeschalteter E-Mail-Bestaetigung direkt einloggen *)",
+      "Bash(git commit -q -m 'Vor-/Nachname bei Registrierung + Anzeige des echten Namens *)"
     ]
   }
 }
