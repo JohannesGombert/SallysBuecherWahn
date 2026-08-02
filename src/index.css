@@ -76,38 +76,78 @@
 .book-spread {
   box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
 }
-.candle-page {
+/* Alte, vergilbte Buchseite: gealtertes Pergament mit Altersflecken (Foxing),
+   dunkel abgenutzten Rändern/Ecken und warmem Grundton. */
+.antique-page {
   background:
-    radial-gradient(46rem 34rem at 26% 10%, rgba(255, 241, 208, 0.95), transparent 58%),
-    radial-gradient(30rem 30rem at 24% 8%, rgba(255, 214, 140, 0.55), transparent 55%),
-    radial-gradient(60rem 60rem at 108% 112%, rgba(120, 84, 40, 0.22), transparent 60%),
-    linear-gradient(155deg, #efe3c9, #e5d4b1);
+    /* dunkle, abgenutzte Ecken */
+    radial-gradient(26rem 26rem at 0% 0%, rgba(74, 47, 16, 0.32), transparent 55%),
+    radial-gradient(26rem 26rem at 100% 0%, rgba(74, 47, 16, 0.28), transparent 55%),
+    radial-gradient(30rem 30rem at 0% 100%, rgba(60, 38, 12, 0.34), transparent 55%),
+    radial-gradient(30rem 30rem at 100% 100%, rgba(60, 38, 12, 0.34), transparent 55%),
+    /* Altersflecken (Foxing) */
+    radial-gradient(14rem 10rem at 18% 24%, rgba(140, 100, 55, 0.16), transparent 60%),
+    radial-gradient(18rem 14rem at 78% 66%, rgba(120, 82, 42, 0.18), transparent 60%),
+    radial-gradient(9rem 8rem at 62% 30%, rgba(96, 64, 30, 0.14), transparent 60%),
+    radial-gradient(11rem 9rem at 40% 82%, rgba(110, 74, 36, 0.15), transparent 60%),
+    /* Grundton Pergament */
+    linear-gradient(150deg, #ece0c2, #dcc79f 70%, #cdb587);
   box-shadow:
-    inset 0 0 120px rgba(78, 52, 20, 0.28),
+    inset 0 0 70px rgba(92, 60, 24, 0.3),
+    inset 0 0 180px rgba(66, 42, 14, 0.4),
     0 40px 80px -30px rgba(0, 0, 0, 0.6);
 }
-.dark .candle-page {
+.dark .antique-page {
   background:
-    radial-gradient(44rem 32rem at 26% 10%, rgba(255, 196, 120, 0.20), transparent 58%),
-    radial-gradient(26rem 26rem at 24% 8%, rgba(255, 170, 90, 0.16), transparent 55%),
-    radial-gradient(60rem 60rem at 108% 112%, rgba(0, 0, 0, 0.55), transparent 60%),
-    linear-gradient(155deg, #211a15, #14100c);
+    radial-gradient(26rem 26rem at 0% 0%, rgba(0, 0, 0, 0.5), transparent 55%),
+    radial-gradient(26rem 26rem at 100% 0%, rgba(0, 0, 0, 0.45), transparent 55%),
+    radial-gradient(30rem 30rem at 0% 100%, rgba(0, 0, 0, 0.55), transparent 55%),
+    radial-gradient(30rem 30rem at 100% 100%, rgba(0, 0, 0, 0.55), transparent 55%),
+    radial-gradient(16rem 12rem at 22% 26%, rgba(120, 80, 40, 0.14), transparent 60%),
+    radial-gradient(18rem 14rem at 78% 66%, rgba(110, 70, 34, 0.13), transparent 60%),
+    linear-gradient(150deg, #2a2118, #1c150f 70%, #14100b);
   box-shadow:
-    inset 0 0 140px rgba(0, 0, 0, 0.55),
+    inset 0 0 90px rgba(0, 0, 0, 0.5),
+    inset 0 0 200px rgba(0, 0, 0, 0.6),
     0 40px 80px -30px rgba(0, 0, 0, 0.7);
 }
-/* Feine Papierkörnung */
+/* Feine Papierkörnung / Struktur */
 .paper-grain {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.06;
+  opacity: 0.12;
   mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }
 .dark .paper-grain {
-  opacity: 0.09;
+  opacity: 0.08;
   mix-blend-mode: screen;
+}
+/* Feiner Mittelstrich wie zwischen zwei Spalten (dezent, breite Screens) */
+.column-rule {
+  position: absolute;
+  inset-block: 3rem;
+  left: 50%;
+  width: 1px;
+  transform: translateX(-0.5px);
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(80, 52, 20, 0.22) 12%,
+    rgba(80, 52, 20, 0.22) 88%,
+    transparent
+  );
+}
+.dark .column-rule {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255, 255, 255, 0.08) 12%,
+    rgba(255, 255, 255, 0.08) 88%,
+    transparent
+  );
 }
 /* Buchfalz in der Mitte (nur auf breiten Screens) */
 .book-spread .gutter {
