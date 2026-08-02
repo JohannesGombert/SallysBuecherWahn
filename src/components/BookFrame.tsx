@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { PageRiffle } from './PageRiffle'
 
 // Rahmt die angemeldete Ansicht als offenes Buch: Papier-Seite auf dem
 // „Schreibtisch", Buchfalz in der Mitte, am rechten Rand sanft wehende Seiten.
@@ -16,28 +17,16 @@ export function BookFrame({ children }: { children: ReactNode }) {
         {/* Buchfalz Mitte (nur breite Screens) */}
         <div className="gutter hidden lg:block" aria-hidden="true" />
 
-        {/* Böig flatternde Seiten am rechten Rand – Böe läuft gestaffelt durch */}
+        {/* Böig flatternde, sich wölbende Seiten (Canvas) am rechten Rand */}
         <div
-          className="pointer-events-none absolute inset-y-10 right-1 z-[15] hidden w-10 [perspective:1300px] sm:block lg:w-14"
+          className="pointer-events-none absolute inset-y-6 right-2 z-[15] hidden w-24 sm:block lg:w-40"
           aria-hidden="true"
         >
-          {[
-            { d: '0s', t: '4.2s', o: 1 },
-            { d: '-0.5s', t: '4.6s', o: 0.85 },
-            { d: '-1.1s', t: '4.3s', o: 0.7 },
-            { d: '-1.7s', t: '4.8s', o: 0.55 },
-            { d: '-2.4s', t: '4.4s', o: 0.4 },
-          ].map((p, i) => (
-            <span
-              key={i}
-              className="page-leaf"
-              style={{ animationDelay: p.d, animationDuration: p.t, opacity: p.o }}
-            />
-          ))}
+          <PageRiffle />
         </div>
 
-        {/* Inhalt „auf den Seiten" – rechts Platz für die Seitenkante */}
-        <div className="relative z-10 sm:pr-16 lg:pr-24">{children}</div>
+        {/* Inhalt „auf den Seiten" – rechts Platz für den Seitenfächer */}
+        <div className="relative z-10 sm:pr-28 lg:pr-44">{children}</div>
       </div>
     </div>
   )
