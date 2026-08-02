@@ -28,7 +28,13 @@
       "Bash(curl -s 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&query=NUM%3D9783404164448&recordSchema=oai_dc&maximumRecords=1')",
       "Bash(node -e ' *)",
       "Bash(node --input-type=module -e ' *)",
-      "Bash(git commit -q -m 'Deutsche ISBN-Datenbank \\(DNB\\) via Netlify-Function-Proxy *)"
+      "Bash(git commit -q -m 'Deutsche ISBN-Datenbank \\(DNB\\) via Netlify-Function-Proxy *)",
+      "Bash(curl -s \"https://sallysbooks.netlify.app/api/isbn?isbn=9783404164448\")",
+      "Bash(curl -s \"https://sallysbooks.netlify.app/api/isbn?isbn=9783551557674\")",
+      "Bash(curl -s \"https://books.google.com/books?jscmd=viewapi&bibkeys=ISBN:9783404164448&callback=x\")",
+      "Bash(curl -s \"https://books.google.com/books?jscmd=viewapi&bibkeys=ISBN:9783551557674&callback=x\")",
+      "Bash(curl -s -o /dev/null -w \"OL: HTTP %{http_code} bytes %{size_download}\\\\n\" \"https://covers.openlibrary.org/b/isbn/9783551557674-L.jpg?default=false\")",
+      "Bash(git commit -q -m 'Buchcover über Google Dynamic-Links \\(auch für deutsche/DNB-Treffer\\) *)"
     ]
   }
 }

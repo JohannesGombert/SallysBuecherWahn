@@ -23,6 +23,31 @@ function upgradeCover(url) {
   return url.replace('http://', 'https://').replace('zoom=1', 'zoom=2')
 }
 
+// ── Cover via Google "Dynamic Links" (umgeht das normale API-Limit) ─────────────
+async function coverFromGoogleLinks(isbn) {
+  const res = await fetch(
+    `https://books.google.com/books?jscmd=viewapi&bibkeys=ISBN:${isbn}&callback=r`,
+  )
+  if (!res.ok) return null
+  const text = await res.text()
+  const m = text.match(/\{[\s\S]*\}/) // JSON aus dem JSONP-Wrapper schneiden
+  if (!m) return null
+  let data
+  try {
+    data = JSON.parse(m[0])
+  } catch {
+    return null
+  }
+  const entry = data[`ISBN:${isbn}`]
+  let url = entry && entry.thumbnail_url
+  if (!url) return null
+  // größer + sicher: zoom hoch, http→https, curl-Ecke weg
+  return url
+    .replace('http://', 'https://')
+    .replace('zoom=5', 'zoom=1')
+    .replace('&edge=curl', '')
+}
+
 // ── Google Books ──────────────────────────────────────────────────────────────
 async function fromGoogle(isbn) {
   const key = process.env.GOOGLE_BOOKS_KEY
@@ -105,14 +130,11 @@ async function fromDNB(isbn) {
     .filter((s) => !/^[A-Z]$/.test(s)) // grobe Ein-Buchstaben-Codes rauswerfen
     .slice(0, 5)
 
-  // Cover ggf. von Open Library (fällt im Frontend auf Platzhalter zurück, wenn leer)
-  const cover_url = `https://covers.openlibrary.org/b/isbn/${isbn}-L.jpg?default=false`
-
   return {
     isbn,
     title,
     authors,
-    cover_url,
+    cover_url: null, // wird im Handler über Google-Cover ergänzt
     description: null,
     publisher,
     published_date,
@@ -135,6 +157,10 @@ export const handler = async (event) => {
     if (!book) book = await fromDNB(isbn).catch(() => null)
     if (!book) {
       return { statusCode: 404, headers: CORS, body: JSON.stringify({ error: 'nicht gefunden' }) }
+    }
+    // Cover sicherstellen (DNB liefert keins; Google-API-Cover kann fehlen)
+    if (!book.cover_url) {
+      book.cover_url = await coverFromGoogleLinks(isbn).catch(() => null)
     }
     return { statusCode: 200, headers: CORS, body: JSON.stringify(book) }
   } catch (e) {
