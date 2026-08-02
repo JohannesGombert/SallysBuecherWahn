@@ -34,7 +34,8 @@
       "Bash(curl -s \"https://books.google.com/books?jscmd=viewapi&bibkeys=ISBN:9783404164448&callback=x\")",
       "Bash(curl -s \"https://books.google.com/books?jscmd=viewapi&bibkeys=ISBN:9783551557674&callback=x\")",
       "Bash(curl -s -o /dev/null -w \"OL: HTTP %{http_code} bytes %{size_download}\\\\n\" \"https://covers.openlibrary.org/b/isbn/9783551557674-L.jpg?default=false\")",
-      "Bash(git commit -q -m 'Buchcover über Google Dynamic-Links \\(auch für deutsche/DNB-Treffer\\) *)"
+      "Bash(git commit -q -m 'Buchcover über Google Dynamic-Links \\(auch für deutsche/DNB-Treffer\\) *)",
+      "Bash(git commit -q -m 'Ganze Seite als Buch: geschlossenes Login-Buch + offenes Buch als App-Rahmen *)"
     ]
   }
 }

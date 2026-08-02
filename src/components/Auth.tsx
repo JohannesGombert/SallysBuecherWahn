@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { Icon } from './Icon'
 import { Logo } from './Logo'
-import KineticGrid from './KineticGrid'
 
 const darkInput =
   'w-full rounded-2xl border border-white/15 bg-white/5 px-4 py-3 text-sm text-white outline-none transition placeholder:text-white/40 focus:border-ember-400 focus:ring-4 focus:ring-ember-400/20'
@@ -39,44 +38,35 @@ export function Auth() {
   }
 
   return (
-    <KineticGrid globalColor="brand">
-      <div className="flex min-h-screen flex-col items-center justify-center px-6 py-10">
-        {/* Kopf */}
-        <div className="mb-8 flex flex-col items-center text-center">
-          <Logo className="h-14 w-14 animate-float drop-shadow-[0_8px_24px_rgba(240,130,60,0.35)]" />
-          <h1 className="mt-4 font-display text-4xl font-black tracking-tight text-white sm:text-5xl">
+    <div className="desk flex min-h-screen items-center justify-center p-4 sm:p-8">
+      {/* Die ganze Seite ist ein geschlossenes Buch */}
+      <div className="closed-book relative flex min-h-[86vh] w-full max-w-3xl flex-col items-center justify-center overflow-hidden rounded-l-md rounded-r-3xl bg-gradient-to-br from-brand-700 via-brand-800 to-night-900 px-6 py-12 pl-10 text-center sm:px-12">
+        {/* Buchrücken links */}
+        <div className="absolute inset-y-0 left-0 w-6 bg-gradient-to-r from-black/30 via-white/10 to-transparent" />
+        <div className="absolute inset-y-0 left-6 w-px bg-white/10" />
+        {/* Seitenkanten rechts & unten */}
+        <div className="edge-right" aria-hidden="true" />
+        <div className="edge-bottom" aria-hidden="true" />
+        {/* Prägungs-Schimmer */}
+        <div className="pointer-events-none absolute -right-16 top-10 h-64 w-64 rounded-full bg-ember-500/20 blur-3xl" />
+
+        <div className="relative flex w-full max-w-sm flex-col items-center">
+          <Logo className="h-16 w-16 drop-shadow-[0_10px_28px_rgba(240,130,60,0.4)]" />
+          <h1 className="mt-5 font-display text-4xl font-black tracking-tight text-white sm:text-5xl">
             Sallys BücherWahn
           </h1>
-          <p className="mt-2 max-w-sm text-white/55">
-            Jedes Buch. Deine Geschichte. Scanne, sammle und verfolge deine Bibliothek.
+          <p className="mt-2 max-w-xs text-sm italic text-ember-200/80">
+            „Jedes Buch. Deine Geschichte."
           </p>
-        </div>
-
-        {/* Buchdeckel als Login-Karte */}
-        <div className="relative w-full max-w-sm overflow-hidden rounded-l-md rounded-r-2xl bg-gradient-to-br from-brand-700 via-brand-800 to-night-900 p-7 pl-9 shadow-book-lg ring-1 ring-white/10">
-          {/* Buchrücken links */}
-          <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-white/15 via-white/5 to-transparent" />
-          {/* Seitenkante rechts */}
-          <div className="absolute inset-y-2 right-0 w-1.5 rounded-r-2xl bg-gradient-to-l from-paper-200/70 to-transparent" />
-          <div className="mb-5">
-            <h2 className="font-display text-xl font-bold text-white">
-              {mode === 'signin' ? 'Willkommen zurück' : 'Leg dein Regal an'}
-            </h2>
-            <p className="mt-0.5 text-sm text-white/45">
-              {mode === 'signin'
-                ? 'Melde dich an, um deine Bibliothek zu öffnen.'
-                : 'Erstelle ein Konto und starte deine Sammlung.'}
-            </p>
-          </div>
+          <div className="my-6 h-px w-24 bg-white/20" />
 
           {!isSupabaseConfigured && (
-            <div className="mb-4 rounded-2xl border border-ember-400/30 bg-ember-500/10 p-3 text-xs text-ember-200">
-              Supabase ist noch nicht konfiguriert. Trage <code>VITE_SUPABASE_URL</code>{' '}
-              und <code>VITE_SUPABASE_ANON_KEY</code> ein.
+            <div className="mb-4 w-full rounded-2xl border border-ember-400/30 bg-ember-500/10 p-3 text-xs text-ember-200">
+              Supabase ist noch nicht konfiguriert.
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-3">
+          <form onSubmit={handleSubmit} className="w-full space-y-3 text-left">
             <input
               className={darkInput}
               type="email"
@@ -96,8 +86,8 @@ export function Auth() {
               minLength={6}
               autoComplete={mode === 'signup' ? 'new-password' : 'current-password'}
             />
-            <button type="submit" className="btn-accent w-full !py-3" disabled={loading}>
-              {loading ? 'Moment …' : mode === 'signin' ? 'Anmelden' : 'Konto erstellen'}
+            <button type="submit" className="btn-accent w-full !py-3.5" disabled={loading}>
+              {loading ? 'Moment …' : mode === 'signin' ? 'Buch aufschlagen' : 'Konto erstellen'}
             </button>
           </form>
 
@@ -110,32 +100,27 @@ export function Auth() {
               setError(null)
               setMessage(null)
             }}
-            className="mt-5 w-full text-center text-sm font-medium text-brand-200 transition hover:text-ember-300 hover:underline"
+            className="mt-5 text-sm font-medium text-brand-200 transition hover:text-ember-300 hover:underline"
           >
             {mode === 'signin'
               ? 'Noch kein Konto? Jetzt registrieren'
               : 'Schon ein Konto? Anmelden'}
           </button>
-        </div>
 
-        {/* Feature-Zeile */}
-        <div className="mt-8 flex flex-wrap justify-center gap-6 text-sm text-white/45">
-          <Feature icon="camera" text="Barcode scannen" />
-          <Feature icon="stack" text="Regale & Status" />
-          <Feature icon="sparkle" text="Bewerten & Notizen" />
+          <div className="mt-8 flex flex-wrap justify-center gap-5 text-xs text-white/40">
+            <Feature icon="camera" text="Scannen" />
+            <Feature icon="stack" text="Regale" />
+            <Feature icon="sparkle" text="Bewerten" />
+          </div>
         </div>
-
-        <p className="mt-6 text-xs text-white/25">
-          Tipp: Bewege den Cursor · klick irgendwohin ✨
-        </p>
       </div>
-    </KineticGrid>
+    </div>
   )
 }
 
 function Feature({ icon, text }: { icon: 'camera' | 'stack' | 'sparkle'; text: string }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <Icon name={icon} className="h-4 w-4 text-ember-300" />
       <span>{text}</span>
     </div>

@@ -11,6 +11,7 @@ import { AddBook } from './components/AddBook'
 import { Icon, type IconName } from './components/Icon'
 import { Logo } from './components/Logo'
 import { BookOpenTransition } from './components/BookOpenTransition'
+import { BookFrame } from './components/BookFrame'
 import { useRef } from 'react'
 
 type Filter = 'all' | ReadingStatus
@@ -107,10 +108,10 @@ export default function App() {
   return (
     <>
       {entering && <BookOpenTransition />}
-    <div className="min-h-screen">
-      {/* Kopfzeile */}
-      <header className="sticky top-0 z-30 border-b border-white/50 bg-paper-50/70 backdrop-blur-xl dark:border-white/10 dark:bg-night-950/70">
-        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-3">
+    <BookFrame>
+      {/* Kopfzeile (Teil der Buchseite) */}
+      <header className="relative z-20 border-b border-brand-900/10 bg-paper-100/60 backdrop-blur-sm dark:border-white/10 dark:bg-white/5 md:rounded-t-[2rem]">
+        <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-5 py-3">
           <div className="flex items-center gap-2.5">
             <Logo className="h-8 w-8" />
             <h1 className="font-display text-lg font-bold text-brand-800 dark:text-paper-100">
@@ -241,6 +242,7 @@ export default function App() {
           </div>
         )}
       </main>
+    </BookFrame>
 
       {/* Schwebender Aktionsknopf */}
       <button
@@ -271,7 +273,6 @@ export default function App() {
           onClose={() => setSelected(null)}
         />
       )}
-    </div>
     </>
   )
 }
