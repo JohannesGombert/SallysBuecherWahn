@@ -10,6 +10,8 @@ import { BookDetail } from './components/BookDetail'
 import { AddBook } from './components/AddBook'
 import { Icon, type IconName } from './components/Icon'
 import { Logo } from './components/Logo'
+import { BookOpenTransition } from './components/BookOpenTransition'
+import { useRef } from 'react'
 
 type Filter = 'all' | ReadingStatus
 
@@ -36,11 +38,26 @@ export default function App() {
   const [selected, setSelected] = useState<Book | null>(null)
   const [adding, setAdding] = useState(false)
   const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
+  const [entering, setEntering] = useState(false)
+  const prevSession = useRef<'unset' | 'none' | 'active'>('unset')
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', dark)
     localStorage.setItem('theme', dark ? 'dark' : 'light')
   }, [dark])
+
+  // Buch-Aufschlag nur beim frischen Login (nicht beim Reload mit Session)
+  useEffect(() => {
+    if (authLoading) return
+    const now = session ? 'active' : 'none'
+    const prev = prevSession.current
+    prevSession.current = now
+    if (prev === 'none' && now === 'active') {
+      setEntering(true)
+      const t = setTimeout(() => setEntering(false), 1650)
+      return () => clearTimeout(t)
+    }
+  }, [session, authLoading])
 
   async function load() {
     setLoading(true)
@@ -88,6 +105,8 @@ export default function App() {
   const name = user?.email?.split('@')[0] ?? 'Leseratte'
 
   return (
+    <>
+      {entering && <BookOpenTransition />}
     <div className="min-h-screen">
       {/* Kopfzeile */}
       <header className="sticky top-0 z-30 border-b border-white/50 bg-paper-50/70 backdrop-blur-xl dark:border-white/10 dark:bg-night-950/70">
@@ -253,5 +272,6 @@ export default function App() {
         />
       )}
     </div>
+    </>
   )
 }

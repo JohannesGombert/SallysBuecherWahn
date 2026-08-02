@@ -52,8 +52,12 @@ export function Auth() {
           </p>
         </div>
 
-        {/* Glas-Karte */}
-        <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.06] p-7 shadow-2xl backdrop-blur-xl">
+        {/* Buchdeckel als Login-Karte */}
+        <div className="relative w-full max-w-sm overflow-hidden rounded-l-md rounded-r-2xl bg-gradient-to-br from-brand-700 via-brand-800 to-night-900 p-7 pl-9 shadow-book-lg ring-1 ring-white/10">
+          {/* Buchrücken links */}
+          <div className="absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-white/15 via-white/5 to-transparent" />
+          {/* Seitenkante rechts */}
+          <div className="absolute inset-y-2 right-0 w-1.5 rounded-r-2xl bg-gradient-to-l from-paper-200/70 to-transparent" />
           <div className="mb-5">
             <h2 className="font-display text-xl font-bold text-white">
               {mode === 'signin' ? 'Willkommen zurück' : 'Leg dein Regal an'}

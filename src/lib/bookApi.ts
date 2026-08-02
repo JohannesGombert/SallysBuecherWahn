@@ -17,6 +17,11 @@ function upgradeCover(url: string | undefined): string | null {
   return url.replace('http://', 'https://').replace('zoom=1', 'zoom=2')
 }
 
+// Optionaler Google-Books-API-Key (empfohlen für stabile Trefferquote auf
+// Mobilfunk). In .env als VITE_GOOGLE_BOOKS_KEY hinterlegen.
+const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY as string | undefined
+const keyParam = GOOGLE_KEY ? `&key=${GOOGLE_KEY}` : ''
+
 /** Versucht Google Books zuerst, dann Open Library als Fallback. */
 export async function lookupIsbn(rawIsbn: string): Promise<BookLookupResult | null> {
   const isbn = cleanIsbn(rawIsbn)
@@ -25,12 +30,17 @@ export async function lookupIsbn(rawIsbn: string): Promise<BookLookupResult | nu
   const google = await lookupGoogle(isbn).catch(() => null)
   if (google) return google
 
-  return lookupOpenLibrary(isbn).catch(() => null)
+  const ol = await lookupOpenLibrary(isbn).catch(() => null)
+  if (ol) return ol
+
+  // Letzter Versuch: Google-Freitextsuche nach der ISBN (findet manchmal mehr)
+  const fallback = await searchBooks(isbn).catch(() => [])
+  return fallback[0] ?? null
 }
 
 async function lookupGoogle(isbn: string): Promise<BookLookupResult | null> {
   const res = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&country=DE`,
+    `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&country=DE${keyParam}`,
   )
   if (!res.ok) return null
   const data = await res.json()
@@ -81,7 +91,7 @@ export async function searchBooks(query: string): Promise<BookLookupResult[]> {
   const res = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
       query,
-    )}&maxResults=20&country=DE`,
+    )}&maxResults=20&country=DE${keyParam}`,
   )
   if (!res.ok) return []
   const data = await res.json()

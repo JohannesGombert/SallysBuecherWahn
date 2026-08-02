@@ -19,7 +19,10 @@
       "Bash(curl -s 'https://eoblehxwhdblwadnitws.supabase.co/rest/v1/books?select=id&limit=1' -H 'apikey: sb_publishable_ppQKDapxLLA5Vdh9f_6UFA_I1Co1QyD' -H 'Authorization: Bearer sb_publishable_ppQKDapxLLA5Vdh9f_6UFA_I1Co1QyD')",
       "Bash(taskkill //F //IM node.exe //T)",
       "Bash(git commit -q -m 'Design-Überarbeitung: cozy-modernes Leseratten-Design *)",
-      "Bash(git commit -q -m 'Interaktiver KineticGrid-Hintergrund auf dem Login *)"
+      "Bash(git commit -q -m 'Interaktiver KineticGrid-Hintergrund auf dem Login *)",
+      "Bash(curl -s 'https://www.googleapis.com/books/v1/volumes?q=isbn:9783404164448&country=DE')",
+      "Bash(curl -s https://openlibrary.org/isbn/9783404164448.json)",
+      "Bash(git commit -q -m 'Login als Buch, das sich beim Anmelden aufschlägt + ISBN-Suche robuster *)"
     ]
   }
 }

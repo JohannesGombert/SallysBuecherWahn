@@ -325,15 +325,37 @@ export default function KineticGrid({
         born: performance.now(),
       })
     }
+    // Touch: Warp folgt dem Finger, Tippen erzeugt eine Ripple
+    const onTouchMove = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (t) targetMouseRef.current = { x: t.clientX, y: t.clientY }
+    }
+    const onTouchStart = (e: TouchEvent) => {
+      const t = e.touches[0]
+      if (!t) return
+      targetMouseRef.current = { x: t.clientX, y: t.clientY }
+      mouseRef.current = { x: t.clientX, y: t.clientY }
+      ripplesRef.current.push({
+        x: t.clientX,
+        y: t.clientY,
+        radius: 0,
+        opacity: 1,
+        born: performance.now(),
+      })
+    }
 
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('click', onClick)
+    window.addEventListener('touchmove', onTouchMove, { passive: true })
+    window.addEventListener('touchstart', onTouchStart, { passive: true })
     rafRef.current = requestAnimationFrame(animate)
 
     return () => {
       window.removeEventListener('resize', setSize)
       window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('click', onClick)
+      window.removeEventListener('touchmove', onTouchMove)
+      window.removeEventListener('touchstart', onTouchStart)
       if (rafRef.current) cancelAnimationFrame(rafRef.current)
     }
   }, [animate, draw])

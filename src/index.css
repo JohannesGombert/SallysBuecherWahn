@@ -60,6 +60,36 @@
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { @apply rounded-full bg-brand-300 dark:bg-brand-800; }
 
+/* ─── Buch-Aufschlag-Übergang (Login → Bibliothek) ────────────────────── */
+.book-scene {
+  perspective: 2200px;
+}
+.book-3d {
+  transform-style: preserve-3d;
+  animation: book-zoom 1.7s cubic-bezier(0.7, 0, 0.3, 1) forwards;
+}
+.book-cover-3d {
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  animation: cover-open 1.4s cubic-bezier(0.6, 0.01, 0.2, 1) 0.15s forwards;
+}
+.book-overlay {
+  animation: overlay-out 0.5s ease 1.25s forwards;
+}
+@keyframes cover-open {
+  0% { transform: rotateY(0deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6); }
+  100% { transform: rotateY(-162deg); box-shadow: 0 10px 30px -20px rgba(0,0,0,0.3); }
+}
+@keyframes book-zoom {
+  0% { transform: scale(0.92) translateX(-6%); }
+  55% { transform: scale(1) translateX(-6%); }
+  100% { transform: scale(2.6) translateX(-6%); opacity: 0; }
+}
+@keyframes overlay-out {
+  to { opacity: 0; visibility: hidden; }
+}
+
 /* Bewegung reduzieren, wenn vom System gewünscht */
 @media (prefers-reduced-motion: reduce) {
   *,
