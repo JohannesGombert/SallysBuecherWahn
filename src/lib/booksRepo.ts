@@ -31,8 +31,18 @@ export async function updateBook(
   id: string,
   patch: Partial<Book>,
 ): Promise<void> {
-  const { error } = await supabase.from('books').update(patch).eq('id', id)
+  const { data, error } = await supabase
+    .from('books')
+    .update(patch)
+    .eq('id', id)
+    .select()
   if (error) throw error
+  // Kein Fehler, aber 0 Zeilen geändert = fehlende Schreibrechte (RLS-Policy).
+  if (!data || data.length === 0) {
+    throw new Error(
+      'Änderung wurde nicht gespeichert – vermutlich fehlt die UPDATE-Berechtigung (RLS) in Supabase.',
+    )
+  }
 }
 
 export async function deleteBook(id: string): Promise<void> {
