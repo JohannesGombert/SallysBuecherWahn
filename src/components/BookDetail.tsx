@@ -16,10 +16,20 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
   const [notes, setNotes] = useState(book.notes ?? '')
   const [saved, setSaved] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   async function patch(p: Partial<Book>) {
-    onChange({ ...book, ...p })
-    await updateBook(book.id, p)
+    const prev = book
+    onChange({ ...book, ...p }) // optimistisch
+    setError(null)
+    try {
+      await updateBook(book.id, p)
+    } catch (e: any) {
+      console.error('updateBook fehlgeschlagen:', e)
+      onChange(prev) // bei Fehler zurücksetzen
+      setError(e?.message ?? 'Konnte nicht gespeichert werden.')
+      setTimeout(() => setError(null), 5000)
+    }
   }
 
   async function saveNotes() {
@@ -96,6 +106,11 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
               </button>
             ))}
           </div>
+          {error && (
+            <p className="mt-2 rounded-lg bg-ember-500/15 px-2 py-1 text-xs text-ember-700 dark:text-ember-300">
+              ⚠️ {error}
+            </p>
+          )}
         </div>
 
         {book.description && (
