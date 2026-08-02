@@ -21,11 +21,15 @@ export function Auth() {
     setMessage(null)
     try {
       if (mode === 'signup') {
-        const { error } = await supabase.auth.signUp({ email, password })
+        const { data, error } = await supabase.auth.signUp({ email, password })
         if (error) throw error
-        setMessage(
-          'Fast geschafft! Bitte bestätige deine E-Mail über den Link, den wir dir geschickt haben.',
-        )
+        // Ist E-Mail-Bestätigung aus, gibt es sofort eine Session → direkt drin.
+        // Sonst Hinweis anzeigen (Bestätigungs-Mail nötig).
+        if (!data.session) {
+          setMessage(
+            'Fast geschafft! Bitte bestätige deine E-Mail über den Link, den wir dir geschickt haben. (Schau ggf. im Spam-Ordner.)',
+          )
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password })
         if (error) throw error
