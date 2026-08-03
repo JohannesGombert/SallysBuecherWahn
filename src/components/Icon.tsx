@@ -20,6 +20,7 @@ export type IconName =
   | 'stack'
   | 'cart'
   | 'external'
+  | 'chart'
 
 const paths: Record<IconName, React.ReactNode> = {
   search: (
@@ -83,6 +84,12 @@ const paths: Record<IconName, React.ReactNode> = {
       <path d="M14 4h6v6" />
       <path d="M20 4l-9 9" />
       <path d="M18 14v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4" />
+    </>
+  ),
+  chart: (
+    <>
+      <path d="M4 20h16" />
+      <path d="M7 20v-6M12 20V6M17 20v-9" />
     </>
   ),
 }

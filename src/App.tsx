@@ -14,6 +14,7 @@ import { Logo } from './components/Logo'
 import { BookOpenTransition } from './components/BookOpenTransition'
 import { BookFrame } from './components/BookFrame'
 import { ProgressRing } from './components/ProgressRing'
+import { StatsPanel } from './components/StatsPanel'
 import { useRef } from 'react'
 
 type Filter = 'all' | 'shelf' | ReadingStatus
@@ -40,6 +41,7 @@ export default function App() {
   const [search, setSearch] = useState('')
   const [selected, setSelected] = useState<Book | null>(null)
   const [adding, setAdding] = useState(false)
+  const [showStats, setShowStats] = useState(false)
   const [dark, setDark] = useState(() => localStorage.getItem('theme') === 'dark')
   const [entering, setEntering] = useState(false)
   const [nameForm, setNameForm] = useState({ open: false, fn: '', ln: '', saving: false })
@@ -167,6 +169,14 @@ export default function App() {
             </h1>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowStats(true)}
+              className="btn-ghost !rounded-full"
+              aria-label="Statistiken anzeigen"
+            >
+              <Icon name="chart" />
+              <span className="hidden sm:inline">Stats</span>
+            </button>
             <button
               onClick={() => setDark(!dark)}
               className="btn-ghost !rounded-full !px-3"
@@ -399,6 +409,8 @@ export default function App() {
         <Icon name="plus" className="h-5 w-5" />
         <span className="hidden sm:inline">Buch hinzufügen</span>
       </button>
+
+      {showStats && <StatsPanel books={books} onClose={() => setShowStats(false)} />}
 
       {adding && (
         <AddBook
