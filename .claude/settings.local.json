@@ -55,7 +55,8 @@
       "Bash(npx --yes skills@latest add emilkowalski/skills)",
       "Bash(git commit -q -m 'Animations-Politur nach Emil-Kowalski-Prinzipien *)",
       "Bash(git commit -q -m 'Stats-Panel: umfassende Bibliotheks-Statistiken neben Dark-Mode-Button *)",
-      "Bash(git commit -q -m 'Hintergrund: leicht verschwommener, zweispaltiger Buchtext \\(eigener Fuelltext\\) *)"
+      "Bash(git commit -q -m 'Hintergrund: leicht verschwommener, zweispaltiger Buchtext \\(eigener Fuelltext\\) *)",
+      "Bash(git commit -q -m 'Login als Prunk-Ledereinband \\(nach Vorlage\\) *)"
     ]
   }
 }

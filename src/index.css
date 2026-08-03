@@ -291,6 +291,77 @@
   50% { transform: translate(60px, -50px) scale(1.22); }
 }
 
+/* ─── Prunk-Ledereinband (Login) ──────────────────────────────────────── */
+.leather-cover {
+  background:
+    radial-gradient(140% 120% at 32% 16%, #6f4d68 0%, #543653 45%, #3f2848 75%, #33203c 100%);
+  box-shadow:
+    inset 0 0 140px rgba(0, 0, 0, 0.55),
+    inset 0 2px 2px rgba(255, 255, 255, 0.08),
+    0 50px 100px -30px rgba(0, 0, 0, 0.8);
+}
+/* Geprägte (versenkte) Rahmenlinie */
+.engrave {
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
+    inset 0 1px 1px rgba(0, 0, 0, 0.5),
+    0 1px 0 rgba(255, 255, 255, 0.06);
+}
+/* Erhabene Rahmenlinie */
+.emboss {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
+}
+/* Perlschnur-Rand (gepunktet) */
+.beaded {
+  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.5) 1.1px, transparent 1.7px);
+  background-size: 9px 9px;
+  background-position: center;
+}
+/* Gold-Prägung für Text */
+.gold-text {
+  background: linear-gradient(180deg, #fdeeb8 0%, #e8c96e 42%, #b3831f 78%, #8a621a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
+}
+.gold-fill {
+  fill: url(#goldGrad);
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
+}
+/* Rücken-Bünde links */
+.spine-band {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  height: 30px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.45));
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+/* Metallschließe rechts */
+.clasp {
+  position: absolute;
+  right: -10px;
+  width: 42px;
+  height: 30px;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #f4e2a4 0%, #c9a24a 48%, #8a6a2a 100%);
+  box-shadow:
+    0 3px 7px rgba(0, 0, 0, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    inset 0 -1px 2px rgba(0, 0, 0, 0.4);
+}
+.clasp::before {
+  content: '';
+  position: absolute;
+  inset: 6px 8px;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
+}
+
 /* Geschlossenes Buch (Login): Seitenkanten */
 .closed-book {
   box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.7);
