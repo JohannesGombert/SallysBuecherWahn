@@ -51,7 +51,9 @@
       "Bash(git commit -q -m 'updateBook: 0 geaenderte Zeilen als Fehler erkennen \\(stille RLS-Fehler sichtbar machen\\) *)",
       "Bash(git commit -q -m 'Ungelesene Titel auf amazon.de verlinken *)",
       "Bash(git commit -q -m 'Statistik nach Detail-Schliessen aus DB neu laden \\(garantiert korrekte Zaehler\\) *)",
-      "Bash(git commit -q -m 'Premium-Redesign: Hero-Buehne mit Lese-Ring, ruhigere Elfenbein/Espresso-Flaeche *)"
+      "Bash(git commit -q -m 'Premium-Redesign: Hero-Buehne mit Lese-Ring, ruhigere Elfenbein/Espresso-Flaeche *)",
+      "Bash(npx --yes skills@latest add emilkowalski/skills)",
+      "Bash(git commit -q -m 'Animations-Politur nach Emil-Kowalski-Prinzipien *)"
     ]
   }
 }

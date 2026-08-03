@@ -1,4 +1,7 @@
+import { useEffect, useState } from 'react'
+
 // Kreisförmiger Fortschritts-Ring (SVG). Zeigt einen Prozentwert 0–100.
+// Füllt sich beim Erscheinen von 0 auf den Zielwert (respektiert reduced-motion).
 export function ProgressRing({
   value,
   size = 128,
@@ -15,7 +18,19 @@ export function ProgressRing({
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const clamped = Math.max(0, Math.min(100, value))
-  const offset = c - (clamped / 100) * c
+
+  const [shown, setShown] = useState(0)
+  useEffect(() => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (reduce) {
+      setShown(clamped)
+      return
+    }
+    const id = requestAnimationFrame(() => setShown(clamped))
+    return () => cancelAnimationFrame(id)
+  }, [clamped])
+
+  const offset = c - (shown / 100) * c
 
   return (
     <div className="relative inline-flex items-center justify-center" style={{ width: size, height: size }}>

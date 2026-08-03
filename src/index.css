@@ -5,6 +5,11 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    /* Starke Kurven (Emil Kowalski) – stärker als die CSS-Standards */
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  }
   html {
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
@@ -38,7 +43,8 @@
       linear-gradient(140deg, #533385, #3a2758 55%, #241636);
   }
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
+    transition-timing-function: var(--ease-out);
   }
   .btn-primary {
     @apply btn bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-book hover:from-brand-500 hover:to-brand-700 hover:shadow-book-lg;
@@ -50,13 +56,15 @@
     @apply btn bg-white/60 text-brand-800 ring-1 ring-brand-900/5 backdrop-blur hover:bg-white dark:bg-white/5 dark:text-paper-100 dark:ring-white/10 dark:hover:bg-white/10;
   }
   .card {
-    @apply rounded-2xl border border-brand-900/[0.06] bg-white/75 shadow-[0_4px_20px_-8px_rgba(58,39,88,0.18)] backdrop-blur-md transition-all duration-200 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)];
+    @apply rounded-2xl border border-brand-900/[0.06] bg-white/75 shadow-[0_4px_20px_-8px_rgba(58,39,88,0.18)] backdrop-blur-md transition duration-200 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)];
+    transition-timing-function: var(--ease-out);
   }
   .input {
     @apply w-full rounded-2xl border border-brand-900/10 bg-white/80 px-4 py-3 text-sm text-night-900 outline-none transition placeholder:text-brand-900/35 focus:border-ember-400 dark:border-white/10 dark:bg-white/5 dark:text-paper-100 dark:placeholder:text-white/30;
   }
   .chip {
-    @apply cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-semibold transition-all duration-200;
+    @apply cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-semibold transition duration-150 active:scale-[0.97];
+    transition-timing-function: var(--ease-out);
   }
   .chip-on {
     @apply bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-book;
@@ -68,6 +76,10 @@
 
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-thumb { @apply rounded-full bg-brand-300 dark:bg-brand-800; }
+
+/* Sanftes Einblenden für Dialog-Hintergründe */
+.overlay-in { animation: overlay-fade 0.2s var(--ease-out) both; }
+@keyframes overlay-fade { from { opacity: 0; } to { opacity: 1; } }
 
 /* ─── „Schreibtisch" hinter dem Buch ──────────────────────────────────── */
 .desk {

@@ -383,8 +383,8 @@ export default function App() {
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
-            {visible.map((book) => (
-              <BookCard key={book.id} book={book} onClick={() => setSelected(book)} />
+            {visible.map((book, i) => (
+              <BookCard key={book.id} book={book} index={i} onClick={() => setSelected(book)} />
             ))}
           </div>
         )}

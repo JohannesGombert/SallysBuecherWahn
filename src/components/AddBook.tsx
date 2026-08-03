@@ -59,7 +59,7 @@ export function AddBook({ onAdded, onClose }: Props) {
 
   return (
     <div
-      className="fixed inset-0 z-40 flex items-end justify-center bg-night-950/60 backdrop-blur-sm sm:items-center sm:p-4"
+      className="overlay-in fixed inset-0 z-40 flex items-end justify-center bg-night-950/60 backdrop-blur-sm sm:items-center sm:p-4"
       onClick={onClose}
     >
       <div

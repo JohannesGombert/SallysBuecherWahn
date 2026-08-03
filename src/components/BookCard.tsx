@@ -12,17 +12,28 @@ const statusColor: Record<string, string> = {
   read: 'bg-emerald-600/90 text-white',
 }
 
-export function BookCard({ book, onClick }: { book: Book; onClick: () => void }) {
+export function BookCard({
+  book,
+  onClick,
+  index = 0,
+}: {
+  book: Book
+  onClick: () => void
+  index?: number
+}) {
   const [imgError, setImgError] = useState(false)
   const showCover = book.cover_url && !imgError
   const isUnread = book.status === 'owned'
 
   return (
-    <div className="group flex flex-col text-left">
+    <div
+      className="group flex animate-fade-up flex-col text-left"
+      style={{ animationDelay: `${Math.min(index, 12) * 45}ms` }}
+    >
       <button
         onClick={onClick}
         aria-label={`${book.title} öffnen`}
-        className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 shadow-book ring-1 ring-brand-900/10 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-book-lg focus-visible:outline-none dark:from-brand-800 dark:to-night-900 dark:ring-white/10"
+        className="relative aspect-[2/3] w-full overflow-hidden rounded-2xl bg-gradient-to-br from-brand-200 to-brand-400 shadow-book ring-1 ring-brand-900/10 transition duration-300 [transition-timing-function:var(--ease-out)] hover:-translate-y-1.5 hover:shadow-book-lg focus-visible:outline-none active:scale-[0.98] dark:from-brand-800 dark:to-night-900 dark:ring-white/10"
       >
         {/* Buchrücken-Kante */}
         <div className="absolute inset-y-0 left-0 z-10 w-2 bg-gradient-to-r from-black/25 to-transparent" />
