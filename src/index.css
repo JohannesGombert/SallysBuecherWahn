@@ -128,15 +128,15 @@
   column-count: 2;
   column-gap: 3.5rem;
   font-family: 'Fraunces', Georgia, serif;
-  font-size: 0.95rem;
+  font-size: 1rem;
   line-height: 1.95;
   text-align: justify;
   hyphens: auto;
-  color: rgba(58, 39, 88, 0.11);
-  filter: blur(1.4px);
+  color: rgba(58, 39, 88, 0.2);
+  filter: blur(1px);
 }
 .dark .page-text {
-  color: rgba(255, 255, 255, 0.055);
+  color: rgba(255, 255, 255, 0.1);
 }
 .page-text p {
   margin: 0 0 1.1rem;

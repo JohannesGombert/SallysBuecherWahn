@@ -57,38 +57,36 @@ export function Auth() {
   }
 
   return (
-    <div className="leather-cover relative flex min-h-screen items-center justify-center overflow-hidden p-4 sm:p-8">
-      {/* Ledernarbung */}
-      <div className="paper-grain" aria-hidden="true" />
+    <div className="desk relative flex min-h-screen items-center justify-center overflow-x-hidden overflow-y-auto p-4 sm:p-6">
+      {/* Buch-Wrapper (begrenzt – füllt NICHT das Fenster) */}
+      <div className="relative w-full max-w-[420px]">
+        {/* Der Ledereinband */}
+        <div className="leather-cover relative rounded-l-md rounded-r-[1.6rem] px-7 py-9 text-center shadow-[0_45px_90px_-30px_rgba(0,0,0,0.85)] sm:px-9">
+          {/* Ledernarbung */}
+          <div className="paper-grain rounded-l-md rounded-r-[1.6rem]" aria-hidden="true" />
+          {/* Rücken-Bünde am linken Buchrand */}
+          <div className="pointer-events-none absolute inset-y-6 left-1 w-3" aria-hidden="true">
+            {[6, 28, 50, 72, 94].map((t) => (
+              <div key={t} className="spine-band" style={{ top: `${t}%`, height: '24px' }} />
+            ))}
+          </div>
+          {/* Metallschließen am rechten Buchrand */}
+          <div className="clasp" style={{ top: '30%' }} aria-hidden="true" />
+          <div className="clasp" style={{ top: '64%' }} aria-hidden="true" />
+          {/* Geprägter Zierrahmen + Perlschnur */}
+          <div className="engrave pointer-events-none absolute inset-3 rounded-[1.2rem]" aria-hidden="true" />
+          <div className="beaded pointer-events-none absolute inset-4 rounded-[1rem] opacity-50" aria-hidden="true" />
 
-      {/* Rücken-Bünde links (Desktop) */}
-      <div className="pointer-events-none absolute inset-y-12 left-2 hidden w-5 sm:block" aria-hidden="true">
-        {[6, 27, 48, 69, 90].map((t) => (
-          <div key={t} className="spine-band" style={{ top: `${t}%` }} />
-        ))}
-      </div>
-      {/* Metallschließen rechts (Desktop) */}
-      <div className="clasp hidden sm:block" style={{ top: '32%' }} aria-hidden="true" />
-      <div className="clasp hidden sm:block" style={{ top: '62%' }} aria-hidden="true" />
-
-      {/* Geprägte Doppel-Zierrahmen */}
-      <div className="engrave pointer-events-none absolute inset-4 rounded-2xl sm:inset-7" aria-hidden="true" />
-      <div className="engrave pointer-events-none absolute inset-[22px] rounded-xl sm:inset-11" aria-hidden="true" />
-
-      {/* Zentrales, versenktes Prunkfeld mit Perlschnur-Rand */}
-      <div className="relative z-10 w-full max-w-md">
-        <div className="beaded rounded-[1.7rem] p-2.5 shadow-[0_20px_50px_-20px_rgba(0,0,0,0.7)]">
-          <div className="engrave rounded-[1.4rem] bg-black/25 px-6 py-9 text-center sm:px-10">
-            <GoldOrnament className="mx-auto h-9 w-44" />
-            <Logo className="mx-auto mt-4 h-14 w-14 drop-shadow-[0_10px_28px_rgba(240,130,60,0.4)]" />
-            <h1 className="gold-text mt-4 font-display text-4xl font-black tracking-tight sm:text-[2.75rem]">
-              Sallys
-              <br className="sm:hidden" /> BücherWahn
+          <div className="relative z-10">
+            <GoldOrnament className="mx-auto h-8 w-40" />
+            <Logo className="mx-auto mt-3 h-12 w-12 drop-shadow-[0_10px_28px_rgba(240,130,60,0.4)]" />
+            <h1 className="gold-text mt-3 font-display text-3xl font-black tracking-tight sm:text-4xl">
+              Sallys BücherWahn
             </h1>
             <p className="mt-2 text-sm italic text-ember-200/70">
               „Jedes Buch. Deine Geschichte."
             </p>
-            <GoldOrnament className="mx-auto my-6 h-6 w-36 opacity-90" />
+            <GoldOrnament className="mx-auto my-5 h-5 w-32 opacity-90" />
 
             {!isSupabaseConfigured && (
               <div className="mb-4 w-full rounded-2xl border border-ember-400/30 bg-ember-500/10 p-3 text-xs text-ember-200">
