@@ -8,9 +8,12 @@ const PARAGRAPHS = [
 ]
 
 export function PageText() {
+  // Mehrfach wiederholt + overflow:hidden -> der Text füllt die Seite immer
+  // bis ganz nach unten, egal wie hoch die Buchseite ist.
+  const filled = Array.from({ length: 6 }, () => PARAGRAPHS).flat()
   return (
     <div className="page-text" aria-hidden="true">
-      {[...PARAGRAPHS, ...PARAGRAPHS].map((p, i) => (
+      {filled.map((p, i) => (
         <p key={i}>{p}</p>
       ))}
     </div>

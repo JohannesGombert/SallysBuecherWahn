@@ -57,27 +57,25 @@ export function Auth() {
   }
 
   return (
-    <div className="desk relative flex min-h-screen items-center justify-center overflow-x-hidden overflow-y-auto p-4 sm:p-6">
-      {/* Buch-Wrapper (begrenzt – füllt NICHT das Fenster) */}
-      <div className="relative w-full max-w-[420px]">
-        {/* Der Ledereinband */}
-        <div className="leather-cover relative rounded-l-md rounded-r-[1.6rem] px-7 py-9 text-center shadow-[0_45px_90px_-30px_rgba(0,0,0,0.85)] sm:px-9">
-          {/* Ledernarbung */}
-          <div className="paper-grain rounded-l-md rounded-r-[1.6rem]" aria-hidden="true" />
-          {/* Rücken-Bünde am linken Buchrand */}
-          <div className="pointer-events-none absolute inset-y-6 left-1 w-3" aria-hidden="true">
-            {[6, 28, 50, 72, 94].map((t) => (
-              <div key={t} className="spine-band" style={{ top: `${t}%`, height: '24px' }} />
-            ))}
-          </div>
-          {/* Metallschließen am rechten Buchrand */}
-          <div className="clasp" style={{ top: '30%' }} aria-hidden="true" />
-          <div className="clasp" style={{ top: '64%' }} aria-hidden="true" />
-          {/* Geprägter Zierrahmen + Perlschnur */}
-          <div className="engrave pointer-events-none absolute inset-3 rounded-[1.2rem]" aria-hidden="true" />
-          <div className="beaded pointer-events-none absolute inset-4 rounded-[1rem] opacity-50" aria-hidden="true" />
+    <div className="desk relative flex min-h-screen items-center justify-center overflow-x-hidden overflow-y-auto p-3 sm:p-5">
+      {/* Buch ~80% des Fensters – gleiche Größe wie die eingeloggte Ansicht */}
+      <div className="leather-cover relative flex min-h-[86vh] w-[92%] max-w-6xl items-center justify-center overflow-hidden rounded-l-md rounded-r-[1.6rem] px-6 py-10 text-center shadow-[0_45px_90px_-30px_rgba(0,0,0,0.85)] lg:w-4/5">
+        {/* Ledernarbung */}
+        <div className="paper-grain" aria-hidden="true" />
+        {/* Rücken-Bünde am linken Buchrand */}
+        <div className="pointer-events-none absolute inset-y-8 left-2 w-3.5" aria-hidden="true">
+          {[5, 24, 43, 62, 81, 95].map((t) => (
+            <div key={t} className="spine-band" style={{ top: `${t}%`, height: '26px' }} />
+          ))}
+        </div>
+        {/* Metallschließen am rechten Buchrand */}
+        <div className="clasp" style={{ top: '34%', right: 0 }} aria-hidden="true" />
+        <div className="clasp" style={{ top: '60%', right: 0 }} aria-hidden="true" />
+        {/* Geprägter Zierrahmen + Perlschnur */}
+        <div className="engrave pointer-events-none absolute inset-4 rounded-2xl sm:inset-6" aria-hidden="true" />
+        <div className="beaded pointer-events-none absolute inset-5 rounded-xl opacity-45 sm:inset-7" aria-hidden="true" />
 
-          <div className="relative z-10">
+        <div className="relative z-10 w-full max-w-sm">
             <GoldOrnament className="mx-auto h-8 w-40" />
             <Logo className="mx-auto mt-3 h-12 w-12 drop-shadow-[0_10px_28px_rgba(240,130,60,0.4)]" />
             <h1 className="gold-text mt-3 font-display text-3xl font-black tracking-tight sm:text-4xl">
@@ -162,7 +160,6 @@ export function Auth() {
               <Feature icon="stack" text="Regale" />
               <Feature icon="sparkle" text="Bewerten" />
             </div>
-          </div>
         </div>
       </div>
     </div>
