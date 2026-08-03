@@ -28,6 +28,15 @@
 }
 
 @layer components {
+  .gradient-text {
+    @apply bg-gradient-to-br from-brand-600 via-brand-500 to-ember-500 bg-clip-text text-transparent dark:from-brand-300 dark:via-brand-200 dark:to-ember-300;
+  }
+  .hero-band {
+    @apply relative overflow-hidden rounded-[1.75rem] p-6 text-white shadow-book sm:p-8;
+    background:
+      radial-gradient(40rem 30rem at 100% -20%, rgba(240, 100, 24, 0.55), transparent 60%),
+      linear-gradient(140deg, #533385, #3a2758 55%, #241636);
+  }
   .btn {
     @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition-all duration-200 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
   }
@@ -41,7 +50,7 @@
     @apply btn bg-white/60 text-brand-800 ring-1 ring-brand-900/5 backdrop-blur hover:bg-white dark:bg-white/5 dark:text-paper-100 dark:ring-white/10 dark:hover:bg-white/10;
   }
   .card {
-    @apply rounded-3xl border border-white/70 bg-white/70 shadow-book backdrop-blur-md dark:border-white/10 dark:bg-white/[0.04];
+    @apply rounded-2xl border border-brand-900/[0.06] bg-white/75 shadow-[0_4px_20px_-8px_rgba(58,39,88,0.18)] backdrop-blur-md transition-all duration-200 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)];
   }
   .input {
     @apply w-full rounded-2xl border border-brand-900/10 bg-white/80 px-4 py-3 text-sm text-night-900 outline-none transition placeholder:text-brand-900/35 focus:border-ember-400 dark:border-white/10 dark:bg-white/5 dark:text-paper-100 dark:placeholder:text-white/30;
@@ -80,35 +89,20 @@
    dunkel abgenutzten Rändern/Ecken und warmem Grundton. */
 .antique-page {
   background:
-    /* dunkle, abgenutzte Ecken */
-    radial-gradient(26rem 26rem at 0% 0%, rgba(74, 47, 16, 0.32), transparent 55%),
-    radial-gradient(26rem 26rem at 100% 0%, rgba(74, 47, 16, 0.28), transparent 55%),
-    radial-gradient(30rem 30rem at 0% 100%, rgba(60, 38, 12, 0.34), transparent 55%),
-    radial-gradient(30rem 30rem at 100% 100%, rgba(60, 38, 12, 0.34), transparent 55%),
-    /* Altersflecken (Foxing) */
-    radial-gradient(14rem 10rem at 18% 24%, rgba(140, 100, 55, 0.16), transparent 60%),
-    radial-gradient(18rem 14rem at 78% 66%, rgba(120, 82, 42, 0.18), transparent 60%),
-    radial-gradient(9rem 8rem at 62% 30%, rgba(96, 64, 30, 0.14), transparent 60%),
-    radial-gradient(11rem 9rem at 40% 82%, rgba(110, 74, 36, 0.15), transparent 60%),
-    /* Grundton Pergament */
-    linear-gradient(150deg, #ece0c2, #dcc79f 70%, #cdb587);
+    radial-gradient(48rem 36rem at 22% -6%, rgba(255, 244, 224, 0.9), transparent 60%),
+    radial-gradient(30rem 24rem at 96% 6%, rgba(240, 100, 24, 0.08), transparent 60%),
+    linear-gradient(160deg, #f7efe1, #efe4d1 70%, #e7d9c0);
   box-shadow:
-    inset 0 0 70px rgba(92, 60, 24, 0.3),
-    inset 0 0 180px rgba(66, 42, 14, 0.4),
+    inset 0 0 120px rgba(92, 60, 24, 0.08),
     0 40px 80px -30px rgba(0, 0, 0, 0.6);
 }
 .dark .antique-page {
   background:
-    radial-gradient(26rem 26rem at 0% 0%, rgba(0, 0, 0, 0.5), transparent 55%),
-    radial-gradient(26rem 26rem at 100% 0%, rgba(0, 0, 0, 0.45), transparent 55%),
-    radial-gradient(30rem 30rem at 0% 100%, rgba(0, 0, 0, 0.55), transparent 55%),
-    radial-gradient(30rem 30rem at 100% 100%, rgba(0, 0, 0, 0.55), transparent 55%),
-    radial-gradient(16rem 12rem at 22% 26%, rgba(120, 80, 40, 0.14), transparent 60%),
-    radial-gradient(18rem 14rem at 78% 66%, rgba(110, 70, 34, 0.13), transparent 60%),
-    linear-gradient(150deg, #2a2118, #1c150f 70%, #14100b);
+    radial-gradient(48rem 36rem at 22% -6%, rgba(255, 200, 130, 0.10), transparent 60%),
+    radial-gradient(30rem 24rem at 96% 6%, rgba(240, 100, 24, 0.10), transparent 60%),
+    linear-gradient(160deg, #1e1722, #17111b 70%, #120d16);
   box-shadow:
-    inset 0 0 90px rgba(0, 0, 0, 0.5),
-    inset 0 0 200px rgba(0, 0, 0, 0.6),
+    inset 0 0 140px rgba(0, 0, 0, 0.35),
     0 40px 80px -30px rgba(0, 0, 0, 0.7);
 }
 /* Feine Papierkörnung / Struktur */
@@ -116,7 +110,7 @@
   position: absolute;
   inset: 0;
   pointer-events: none;
-  opacity: 0.12;
+  opacity: 0.05;
   mix-blend-mode: multiply;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
 }

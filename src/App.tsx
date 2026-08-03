@@ -13,6 +13,7 @@ import { Icon, type IconName } from './components/Icon'
 import { Logo } from './components/Logo'
 import { BookOpenTransition } from './components/BookOpenTransition'
 import { BookFrame } from './components/BookFrame'
+import { ProgressRing } from './components/ProgressRing'
 import { useRef } from 'react'
 
 type Filter = 'all' | 'shelf' | ReadingStatus
@@ -185,52 +186,68 @@ export default function App() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 pb-28 pt-8">
-        {/* Begrüßung */}
-        <div className="mb-6 animate-fade-up">
-          <p className="text-sm font-medium text-ember-500">Willkommen zurück</p>
-          <h2 className="font-display text-3xl font-black sm:text-4xl">
-            Hallo, {displayName} 👋
-          </h2>
-          <p className="mt-1 text-brand-900/50 dark:text-paper-200/50">
-            {books.length === 0
-              ? 'Deine Bibliothek wartet auf ihr erstes Buch.'
-              : `${books.length} ${books.length === 1 ? 'Buch' : 'Bücher'} in deiner Sammlung.`}
-          </p>
+        {/* Hero-Bühne */}
+        <div className="hero-band mb-8 animate-fade-up">
+          <div className="flex flex-col items-start justify-between gap-6 sm:flex-row sm:items-center">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-ember-300/90">
+                Willkommen zurück
+              </p>
+              <h2 className="mt-1 font-display text-4xl font-black leading-tight sm:text-5xl">
+                Hallo, {displayName}
+              </h2>
+              <p className="mt-2 max-w-md text-white/60">
+                {books.length === 0
+                  ? 'Deine Bibliothek wartet auf ihr erstes Buch.'
+                  : `${books.length} ${books.length === 1 ? 'Buch' : 'Bücher'} · ${stats.shelf} im Regal · ${counts.wishlist ?? 0} auf der Wunschliste`}
+              </p>
 
-          {/* Name festlegen (für Konten ohne hinterlegten Namen) */}
-          {!hasName &&
-            (nameForm.open ? (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <input
-                  className="input sm:max-w-[10rem]"
-                  placeholder="Vorname"
-                  value={nameForm.fn}
-                  onChange={(e) => setNameForm((f) => ({ ...f, fn: e.target.value }))}
-                />
-                <input
-                  className="input sm:max-w-[10rem]"
-                  placeholder="Nachname"
-                  value={nameForm.ln}
-                  onChange={(e) => setNameForm((f) => ({ ...f, ln: e.target.value }))}
-                />
-                <button onClick={saveName} className="btn-primary" disabled={nameForm.saving}>
-                  {nameForm.saving ? 'Speichert …' : 'Speichern'}
-                </button>
-                <button
-                  onClick={() => setNameForm({ open: false, fn: '', ln: '', saving: false })}
-                  className="btn-ghost"
-                >
-                  Abbrechen
-                </button>
+              {/* Name festlegen (für Konten ohne hinterlegten Namen) */}
+              {!hasName &&
+                (nameForm.open ? (
+                  <div className="mt-4 flex flex-wrap items-center gap-2">
+                    <input
+                      className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-ember-400 sm:max-w-[9rem]"
+                      placeholder="Vorname"
+                      value={nameForm.fn}
+                      onChange={(e) => setNameForm((f) => ({ ...f, fn: e.target.value }))}
+                    />
+                    <input
+                      className="rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/40 outline-none focus:border-ember-400 sm:max-w-[9rem]"
+                      placeholder="Nachname"
+                      value={nameForm.ln}
+                      onChange={(e) => setNameForm((f) => ({ ...f, ln: e.target.value }))}
+                    />
+                    <button onClick={saveName} className="btn-accent !py-2" disabled={nameForm.saving}>
+                      {nameForm.saving ? 'Speichert …' : 'Speichern'}
+                    </button>
+                    <button
+                      onClick={() => setNameForm({ open: false, fn: '', ln: '', saving: false })}
+                      className="btn !bg-white/10 !text-white hover:!bg-white/20"
+                    >
+                      Abbrechen
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => setNameForm((f) => ({ ...f, open: true }))}
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-ember-300 hover:text-ember-200 hover:underline"
+                  >
+                    ✎ Namen festlegen
+                  </button>
+                ))}
+            </div>
+
+            {books.length > 0 && (
+              <div className="flex shrink-0 items-center gap-4">
+                <ProgressRing value={stats.pct} sublabel="Regal gelesen" />
+                <div className="hidden flex-col gap-3 sm:flex">
+                  <HeroMetric value={stats.read} label="gelesen" />
+                  <HeroMetric value={stats.ratedCount ? stats.avg.toFixed(1) : '–'} label="⌀ Sterne" />
+                </div>
               </div>
-            ) : (
-              <button
-                onClick={() => setNameForm((f) => ({ ...f, open: true }))}
-                className="mt-2 text-sm font-medium text-brand-600 hover:text-ember-500 hover:underline dark:text-brand-300"
-              >
-                ✎ Namen festlegen
-              </button>
-            ))}
+            )}
+          </div>
         </div>
 
         {/* Bento-Statistik: Im Regal (Gruppe) + Lese-Status + Wunschliste */}
@@ -266,29 +283,7 @@ export default function App() {
 
         {/* Statistik */}
         {books.length > 0 && (
-          <div className="mb-8 grid gap-3 sm:grid-cols-3">
-            {/* Regal-Lesefortschritt */}
-            <div className="card p-4">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-semibold uppercase tracking-wide text-brand-900/45 dark:text-paper-200/45">
-                  Regal gelesen
-                </span>
-                <span className="text-xs text-brand-900/45 dark:text-paper-200/45">
-                  {stats.read}/{stats.shelf}
-                </span>
-              </div>
-              <div className="mt-2 font-display text-2xl font-black">{stats.pct}%</div>
-              <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-900/10 dark:bg-white/10">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-emerald-400 to-emerald-600 transition-all duration-500"
-                  style={{ width: `${stats.pct}%` }}
-                />
-              </div>
-              <p className="mt-2 text-xs text-brand-900/45 dark:text-paper-200/45">
-                {stats.read} von {stats.shelf} Büchern im Regal gelesen
-              </p>
-            </div>
-
+          <div className="mb-8 grid gap-3 sm:grid-cols-2">
             {/* Durchschnittsbewertung */}
             <div className="card p-4">
               <span className="text-xs font-semibold uppercase tracking-wide text-brand-900/45 dark:text-paper-200/45">
@@ -429,5 +424,16 @@ export default function App() {
         />
       )}
     </>
+  )
+}
+
+function HeroMetric({ value, label }: { value: number | string; label: string }) {
+  return (
+    <div className="rounded-xl bg-white/10 px-3 py-2 text-center backdrop-blur">
+      <div className="font-display text-xl font-black leading-none text-white">{value}</div>
+      <div className="mt-0.5 text-[10px] font-medium uppercase tracking-wide text-white/55">
+        {label}
+      </div>
+    </div>
   )
 }
