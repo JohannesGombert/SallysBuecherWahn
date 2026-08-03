@@ -422,7 +422,10 @@ export default function App() {
             setBooks((prev) => prev.map((x) => (x.id === b.id ? b : x)))
           }}
           onDelete={(id) => setBooks((prev) => prev.filter((x) => x.id !== id))}
-          onClose={() => setSelected(null)}
+          onClose={() => {
+            setSelected(null)
+            load() // frische Zahlen aus der DB, damit Statistik/Filter garantiert stimmen
+          }}
         />
       )}
     </>
