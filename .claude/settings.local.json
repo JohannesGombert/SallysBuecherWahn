@@ -54,7 +54,8 @@
       "Bash(git commit -q -m 'Premium-Redesign: Hero-Buehne mit Lese-Ring, ruhigere Elfenbein/Espresso-Flaeche *)",
       "Bash(npx --yes skills@latest add emilkowalski/skills)",
       "Bash(git commit -q -m 'Animations-Politur nach Emil-Kowalski-Prinzipien *)",
-      "Bash(git commit -q -m 'Stats-Panel: umfassende Bibliotheks-Statistiken neben Dark-Mode-Button *)"
+      "Bash(git commit -q -m 'Stats-Panel: umfassende Bibliotheks-Statistiken neben Dark-Mode-Button *)",
+      "Bash(git commit -q -m 'Hintergrund: leicht verschwommener, zweispaltiger Buchtext \\(eigener Fuelltext\\) *)"
     ]
   }
 }
