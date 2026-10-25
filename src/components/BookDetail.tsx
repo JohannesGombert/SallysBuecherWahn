@@ -4,6 +4,7 @@ import { STATUS_LABELS, STATUS_ORDER } from '../types'
 import { updateBook, deleteBook } from '../lib/booksRepo'
 import { amazonDeUrl } from '../lib/utils'
 import { BookCover } from './BookCover'
+import { CoverPicker } from './CoverPicker'
 import { Sheet } from './Sheet'
 import { Sigil } from './Sigil'
 import { StarRating } from './StarRating'
@@ -21,6 +22,7 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
   const [saved, setSaved] = useState(false)
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [picking, setPicking] = useState(false)
 
   async function patch(p: Partial<Book>) {
     const prev = book
@@ -56,8 +58,17 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
   return (
     <Sheet title="Aus deinem Grimoire" onClose={onClose}>
       <div className="flex gap-5 pt-2">
-        <div className="h-48 w-32 shrink-0 overflow-hidden rounded-md rounded-r-lg shadow-[0_20px_40px_-16px_rgba(0,0,0,0.9),0_0_30px_-10px_rgba(240,217,154,0.35)] ring-1 ring-gold-400/40">
-          <BookCover book={book} />
+        <div className="w-32 shrink-0">
+          <div className="h-48 overflow-hidden rounded-md rounded-r-lg shadow-[0_20px_40px_-16px_rgba(0,0,0,0.9),0_0_30px_-10px_rgba(240,217,154,0.35)] ring-1 ring-gold-400/40">
+            <BookCover key={book.cover_url ?? ''} book={book} />
+          </div>
+          <button
+            onClick={() => setPicking((p) => !p)}
+            className="mt-1 min-h-[44px] w-full text-[15px] italic text-gold-200 underline-offset-4 hover:underline"
+            aria-expanded={picking}
+          >
+            {picking ? 'Auswahl schließen' : 'Cover ändern'}
+          </button>
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-[1.6rem] font-semibold leading-tight text-ivory-50">{book.title}</h3>
@@ -72,6 +83,16 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
           </div>
         </div>
       </div>
+
+      {picking && (
+        <CoverPicker
+          book={book}
+          onPick={(url) => {
+            patch({ cover_url: url })
+            setPicking(false)
+          }}
+        />
+      )}
 
       <a href={amazonDeUrl(book)} target="_blank" rel="noopener noreferrer" className="btn-quiet mt-4 w-full">
         <Sigil name="cart" className="h-4 w-4" />
