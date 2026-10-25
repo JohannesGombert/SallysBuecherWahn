@@ -10,7 +10,8 @@ export function BookTile({ book, index, onClick }: { book: Book; index: number; 
   return (
     <button
       onClick={onClick}
-      className="group animate-rise text-left"
+      // self-start: Buttons zentrieren ihren Inhalt sonst senkrecht → Cover springen
+      className="group animate-rise self-start text-left"
       style={{ animationDelay: `${Math.min(index, 14) * 40}ms` }}
     >
       <div className="relative aspect-[2/3] overflow-hidden rounded-md rounded-r-lg bg-night-700 shadow-[0_18px_30px_-14px_rgba(0,0,0,0.9)] ring-1 ring-gold-400/25 transition duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_24px_40px_-14px_rgba(0,0,0,0.9),0_0_28px_-6px_rgba(240,217,154,0.45)] group-hover:ring-gold-300/70">

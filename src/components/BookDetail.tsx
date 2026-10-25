@@ -73,13 +73,11 @@ export function BookDetail({ book, onChange, onDelete, onClose }: Props) {
         </div>
       </div>
 
-      {book.status === 'owned' && (
-        <a href={amazonDeUrl(book)} target="_blank" rel="noopener noreferrer" className="btn-quiet mt-4 w-full">
-          <Sigil name="cart" className="h-4 w-4" />
-          Bei Amazon.de ansehen
-          <Sigil name="external" className="h-4 w-4" />
-        </a>
-      )}
+      <a href={amazonDeUrl(book)} target="_blank" rel="noopener noreferrer" className="btn-quiet mt-4 w-full">
+        <Sigil name="cart" className="h-4 w-4" />
+        Bei Amazon.de ansehen
+        <Sigil name="external" className="h-4 w-4" />
+      </a>
 
       <p className="rubric mb-2 mt-6">Status</p>
       <div className="scrollbar-none -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
