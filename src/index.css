@@ -1,458 +1,266 @@
-@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* ── Grundlagen ─────────────────────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Starke Kurven (Emil Kowalski) – stärker als die CSS-Standards */
-    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-    --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+    color-scheme: dark;
   }
   html {
+    background: #060916;
     -webkit-tap-highlight-color: transparent;
-    scroll-behavior: smooth;
   }
   body {
-    @apply bg-paper-50 text-night-900 antialiased dark:bg-night-950 dark:text-paper-100;
-    background-image:
-      radial-gradient(60rem 60rem at 110% -10%, rgba(240, 100, 24, 0.10), transparent 55%),
-      radial-gradient(50rem 50rem at -10% 0%, rgba(102, 63, 163, 0.14), transparent 55%);
-    background-attachment: fixed;
+    /* kein eigener Hintergrund, sonst verdeckt body den Sternenhimmel (z-index -1) */
+    @apply font-serif text-ivory-100 antialiased;
+    font-size: 18px;
+    line-height: 1.55;
+    min-height: 100dvh;
   }
-  .dark body {
-    background-image:
-      radial-gradient(60rem 60rem at 110% -10%, rgba(240, 100, 24, 0.16), transparent 55%),
-      radial-gradient(55rem 55rem at -10% 0%, rgba(102, 63, 163, 0.28), transparent 55%);
+  ::selection {
+    background: rgba(217, 178, 95, 0.35);
   }
-  /* Sichtbarer Fokus für Tastatur-Navigation */
   :focus-visible {
-    @apply outline-none ring-4 ring-ember-400/40;
+    outline: 2px solid theme('colors.gold.300');
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
   }
 }
 
+/* ── Bausteine ──────────────────────────────────────────────────────────── */
 @layer components {
-  .gradient-text {
-    @apply bg-gradient-to-br from-brand-600 via-brand-500 to-ember-500 bg-clip-text text-transparent dark:from-brand-300 dark:via-brand-200 dark:to-ember-300;
-  }
-  .hero-band {
-    @apply relative overflow-hidden rounded-[1.75rem] p-6 text-white shadow-book sm:p-8;
+  /* Sternenhimmel hinter allem */
+  .night-sky {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
     background:
-      radial-gradient(40rem 30rem at 100% -20%, rgba(240, 100, 24, 0.55), transparent 60%),
-      linear-gradient(140deg, #533385, #3a2758 55%, #241636);
+      radial-gradient(ellipse 90% 55% at 50% -10%, rgba(88, 118, 210, 0.28), transparent 65%),
+      radial-gradient(ellipse 50% 40% at 95% 105%, rgba(217, 178, 95, 0.1), transparent 70%),
+      linear-gradient(#0b1024, #060916 85%);
   }
+  .night-sky::before,
+  .night-sky::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+  .night-sky::before {
+    background-image:
+      radial-gradient(circle at 23px 41px, rgba(255, 255, 255, 0.75) 0 0.8px, transparent 1.4px),
+      radial-gradient(circle at 151px 89px, rgba(255, 255, 255, 0.55) 0 0.7px, transparent 1.3px),
+      radial-gradient(circle at 97px 177px, rgba(255, 244, 214, 0.85) 0 1px, transparent 1.7px),
+      radial-gradient(circle at 211px 213px, rgba(255, 255, 255, 0.5) 0 0.7px, transparent 1.3px),
+      radial-gradient(circle at 61px 251px, rgba(207, 224, 255, 0.65) 0 0.8px, transparent 1.4px),
+      radial-gradient(circle at 239px 23px, rgba(255, 255, 255, 0.45) 0 0.6px, transparent 1.2px);
+    background-size: 260px 270px;
+  }
+  .night-sky::after {
+    background-image:
+      radial-gradient(circle at 71px 113px, rgba(255, 255, 255, 0.95) 0 1px, transparent 2px),
+      radial-gradient(circle at 287px 61px, rgba(240, 217, 154, 0.9) 0 1.2px, transparent 2.6px),
+      radial-gradient(circle at 193px 301px, rgba(207, 224, 255, 0.95) 0 0.9px, transparent 1.8px),
+      radial-gradient(circle at 331px 233px, rgba(255, 255, 255, 0.8) 0 1px, transparent 2px);
+    background-size: 380px 360px;
+    animation: twinkle 5s ease-in-out infinite alternate;
+  }
+
+  /* Ledereinband des Grimoires */
+  .leather {
+    background:
+      radial-gradient(ellipse at 28% 18%, rgba(160, 190, 255, 0.1), transparent 55%),
+      radial-gradient(ellipse at 75% 95%, rgba(0, 0, 0, 0.5), transparent 60%),
+      url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>"),
+      linear-gradient(140deg, #22336b, #142048 50%, #0c1431);
+    box-shadow:
+      inset 0 0 0 1px rgba(255, 255, 255, 0.05),
+      inset 0 0 80px rgba(0, 0, 0, 0.65),
+      inset 10px 0 18px -8px rgba(0, 0, 0, 0.7),
+      0 50px 90px -35px rgba(0, 0, 0, 0.95);
+  }
+  /* zweifache Goldprägung als Rahmen */
+  .tooled::before,
+  .tooled::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+    border-radius: 6px;
+  }
+  .tooled::before {
+    inset: 14px;
+    border: 1.5px solid rgba(217, 178, 95, 0.55);
+    box-shadow: 0 0 12px rgba(217, 178, 95, 0.12);
+  }
+  .tooled::after {
+    inset: 21px;
+    border: 1px solid rgba(217, 178, 95, 0.25);
+  }
+
+  /* Vorsatzpapier (Innenseite des Deckels) */
+  .endpaper {
+    background:
+      radial-gradient(circle at 30% 30%, rgba(217, 178, 95, 0.12) 0 2px, transparent 3px) 0 0 / 26px 26px,
+      linear-gradient(140deg, #1a2350, #0e1534);
+  }
+
+  /* Seiten / Tafeln im Buch */
+  .page {
+    background: linear-gradient(180deg, #151e44, #0f1633);
+    border: 1px solid rgba(217, 178, 95, 0.2);
+    box-shadow:
+      0 30px 70px -25px rgba(0, 0, 0, 0.85),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  }
+
+  .gold-foil {
+    background: linear-gradient(180deg, #fbf1d4 0%, #e6c67a 42%, #b98f3e 62%, #f0d99a 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Kleine Kapitälchen-Überschrift */
+  .rubric {
+    @apply font-display text-[11px] font-semibold uppercase tracking-[0.28em] text-gold-300/85;
+  }
+
   .btn {
-    @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-semibold transition duration-150 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50;
-    transition-timing-function: var(--ease-out);
+    @apply inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 font-display text-[13px] font-semibold uppercase tracking-[0.14em] transition duration-200 disabled:cursor-not-allowed disabled:opacity-50;
   }
-  .btn-primary {
-    @apply btn bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-book hover:from-brand-500 hover:to-brand-700 hover:shadow-book-lg;
+  .btn-gold {
+    @apply btn text-night-900;
+    background: linear-gradient(180deg, #f3dfa6, #d9b25f 55%, #b98f3e);
+    box-shadow:
+      0 0 0 1px rgba(255, 236, 190, 0.35) inset,
+      0 10px 28px -10px rgba(217, 178, 95, 0.65);
   }
-  .btn-accent {
-    @apply btn bg-gradient-to-br from-ember-400 to-ember-600 text-white shadow-glow hover:from-ember-300 hover:to-ember-500;
+  .btn-gold:not(:disabled):hover {
+    filter: brightness(1.08);
+    box-shadow:
+      0 0 0 1px rgba(255, 236, 190, 0.45) inset,
+      0 12px 34px -8px rgba(217, 178, 95, 0.8);
   }
-  .btn-ghost {
-    @apply btn bg-white/60 text-brand-800 ring-1 ring-brand-900/5 backdrop-blur hover:bg-white dark:bg-white/5 dark:text-paper-100 dark:ring-white/10 dark:hover:bg-white/10;
+  .btn-quiet {
+    @apply btn border border-gold-400/35 text-gold-200 hover:border-gold-300/70 hover:bg-gold-400/10;
   }
-  .card {
-    @apply rounded-2xl border border-brand-900/[0.06] bg-white/75 shadow-[0_4px_20px_-8px_rgba(58,39,88,0.18)] backdrop-blur-md transition duration-200 dark:border-white/10 dark:bg-white/[0.05] dark:shadow-[0_8px_28px_-12px_rgba(0,0,0,0.6)];
-    transition-timing-function: var(--ease-out);
+  .btn-icon {
+    @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ivory-200 transition hover:bg-white/5 hover:text-gold-200;
   }
-  .input {
-    @apply w-full rounded-2xl border border-brand-900/10 bg-white/80 px-4 py-3 text-sm text-night-900 outline-none transition placeholder:text-brand-900/35 focus:border-ember-400 dark:border-white/10 dark:bg-white/5 dark:text-paper-100 dark:placeholder:text-white/30;
+
+  .field {
+    @apply w-full rounded-xl border border-gold-500/25 bg-night-950/55 px-4 py-3 text-[17px] text-ivory-50 outline-none transition placeholder:text-ivory-300/55 focus:border-gold-300/80 focus:ring-4 focus:ring-gold-400/15;
   }
-  .chip {
-    @apply cursor-pointer rounded-full px-3.5 py-1.5 text-sm font-semibold transition duration-150 active:scale-[0.97];
-    transition-timing-function: var(--ease-out);
+
+  .tab {
+    @apply inline-flex min-h-[40px] shrink-0 items-center gap-2 rounded-full border px-4 font-display text-[12px] font-semibold uppercase tracking-[0.12em] transition;
   }
-  .chip-on {
-    @apply bg-gradient-to-br from-brand-600 to-brand-800 text-white shadow-book;
+  .tab-on {
+    @apply border-gold-300/80 bg-gold-400/15 text-gold-100;
   }
-  .chip-off {
-    @apply bg-white/60 text-brand-800 ring-1 ring-brand-900/5 hover:bg-white dark:bg-white/5 dark:text-paper-200 dark:ring-white/10 dark:hover:bg-white/10;
+  .tab-off {
+    @apply border-white/10 text-ivory-300 hover:border-gold-400/40 hover:text-ivory-100;
+  }
+
+  /* Initiale im Klappentext */
+  .drop-cap::first-letter {
+    @apply float-left mr-2 mt-1 font-display text-[3.1em] leading-[0.8] text-gold-300;
   }
 }
 
-::-webkit-scrollbar { width: 10px; height: 10px; }
-::-webkit-scrollbar-thumb { @apply rounded-full bg-brand-300 dark:bg-brand-800; }
-
-/* Sanftes Einblenden für Dialog-Hintergründe */
-.overlay-in { animation: overlay-fade 0.2s var(--ease-out) both; }
-@keyframes overlay-fade { from { opacity: 0; } to { opacity: 1; } }
-
-/* ─── „Schreibtisch" hinter dem Buch ──────────────────────────────────── */
-.desk {
-  background:
-    radial-gradient(80rem 50rem at 50% -10%, #6b5744, transparent 60%),
-    linear-gradient(160deg, #4a3b2e, #2e2419);
-}
-.dark .desk {
-  background:
-    radial-gradient(80rem 50rem at 50% -10%, #241a2e, transparent 60%),
-    linear-gradient(160deg, #14101a, #0c0810);
-}
-
-/* ─── Buchseite im Kerzenschein (angemeldete Ansicht) ─────────────────── */
-.book-spread {
-  box-shadow: 0 40px 80px -30px rgba(0, 0, 0, 0.6);
-}
-/* Alte, vergilbte Buchseite: gealtertes Pergament mit Altersflecken (Foxing),
-   dunkel abgenutzten Rändern/Ecken und warmem Grundton. */
-.antique-page {
-  background:
-    radial-gradient(48rem 36rem at 22% -6%, rgba(255, 244, 224, 0.9), transparent 60%),
-    radial-gradient(30rem 24rem at 96% 6%, rgba(240, 100, 24, 0.08), transparent 60%),
-    linear-gradient(160deg, #f7efe1, #efe4d1 70%, #e7d9c0);
-  box-shadow:
-    inset 0 0 120px rgba(92, 60, 24, 0.08),
-    0 40px 80px -30px rgba(0, 0, 0, 0.6);
-}
-.dark .antique-page {
-  background:
-    radial-gradient(48rem 36rem at 22% -6%, rgba(255, 200, 130, 0.10), transparent 60%),
-    radial-gradient(30rem 24rem at 96% 6%, rgba(240, 100, 24, 0.10), transparent 60%),
-    linear-gradient(160deg, #1e1722, #17111b 70%, #120d16);
-  box-shadow:
-    inset 0 0 140px rgba(0, 0, 0, 0.35),
-    0 40px 80px -30px rgba(0, 0, 0, 0.7);
-}
-/* Leicht verschwommener Buchtext als Hintergrund (dekorativ) */
-.page-text {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
-  user-select: none;
-  padding: 5.5rem 2rem;
-  column-count: 2;
-  column-gap: 3.5rem;
-  font-family: 'Fraunces', Georgia, serif;
-  font-size: 1rem;
-  line-height: 1.95;
-  text-align: justify;
-  hyphens: auto;
-  color: rgba(58, 39, 88, 0.2);
-  filter: blur(1px);
-}
-.dark .page-text {
-  color: rgba(255, 255, 255, 0.1);
-}
-.page-text p {
-  margin: 0 0 1.1rem;
-}
-.page-text p:first-child::first-letter {
-  font-size: 2.6em;
-  font-weight: 700;
-  float: left;
-  line-height: 0.8;
-  padding: 0.05em 0.08em 0 0;
-}
-
-/* Feine Papierkörnung / Struktur */
-.paper-grain {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  opacity: 0.05;
-  mix-blend-mode: multiply;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
-.dark .paper-grain {
-  opacity: 0.08;
-  mix-blend-mode: screen;
-}
-/* Feiner Mittelstrich wie zwischen zwei Spalten (dezent, breite Screens) */
-.column-rule {
-  position: absolute;
-  inset-block: 3rem;
-  left: 50%;
-  width: 1px;
-  transform: translateX(-0.5px);
-  pointer-events: none;
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(80, 52, 20, 0.22) 12%,
-    rgba(80, 52, 20, 0.22) 88%,
-    transparent
-  );
-}
-.dark .column-rule {
-  background: linear-gradient(
-    to bottom,
-    transparent,
-    rgba(255, 255, 255, 0.08) 12%,
-    rgba(255, 255, 255, 0.08) 88%,
-    transparent
-  );
-}
-/* Buchfalz in der Mitte (nur auf breiten Screens) */
-.book-spread .gutter {
-  position: absolute;
-  inset-block: 0;
-  left: 50%;
-  width: 80px;
-  transform: translateX(-40px);
-  pointer-events: none;
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(58, 39, 88, 0.06) 45%,
-    rgba(58, 39, 88, 0.1) 50%,
-    rgba(58, 39, 88, 0.06) 55%,
-    transparent
-  );
-}
-.dark .book-spread .gutter {
-  background: linear-gradient(
-    to right,
-    transparent,
-    rgba(0, 0, 0, 0.35) 50%,
-    transparent
-  );
-}
-
-/* Seiten, die am rechten Rand im Wind wehen */
-.page-leaf {
-  position: absolute;
-  inset: 0;
-  border-radius: 0 0.6rem 0.6rem 0;
-  transform-origin: left center;
-  backface-visibility: hidden;
-  will-change: transform;
-  background: linear-gradient(to left, #d8c6a5, #efe4d0 45%, #f6efe1);
-  box-shadow: -12px 0 22px -8px rgba(0, 0, 0, 0.35);
-  border-left: 1px solid rgba(0, 0, 0, 0.1);
-  animation: leaf-flutter 4.5s ease-in-out infinite;
-}
-.dark .page-leaf {
-  background: linear-gradient(to left, #16111c, #2a2230 45%, #34293c);
-  border-left-color: rgba(255, 255, 255, 0.07);
-}
-/* Böiges Flattern & Wölben: Seiten heben sich, biegen sich und kommen zurück.
-   rotateY = aufklappen, rotateX = anheben/wölben, skewY = wellen. */
-@keyframes leaf-flutter {
-  0%, 100% {
-    transform: perspective(900px) rotateY(0deg) rotateX(0deg) skewY(0deg);
-    border-top-right-radius: 0.5rem;
-    border-bottom-right-radius: 0.5rem;
+/* ── Bewegung ───────────────────────────────────────────────────────────── */
+@layer utilities {
+  .animate-rise {
+    animation: rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   }
-  20% {
-    transform: perspective(900px) rotateY(-34deg) rotateX(7deg) skewY(-2.4deg);
-    border-top-right-radius: 2rem;
-    border-bottom-right-radius: 0.4rem;
+  .animate-fade {
+    animation: fade 0.25s ease-out both;
   }
-  45% {
-    transform: perspective(900px) rotateY(-56deg) rotateX(-5deg) skewY(2.6deg);
-    border-top-right-radius: 0.4rem;
-    border-bottom-right-radius: 2rem;
+  .animate-sheet {
+    animation: sheet 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) both;
   }
-  70% {
-    transform: perspective(900px) rotateY(-28deg) rotateX(5deg) skewY(-1.4deg);
-    border-top-right-radius: 1.4rem;
-    border-bottom-right-radius: 0.5rem;
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+  .animate-glow {
+    animation: glow 3.2s ease-in-out infinite;
+  }
+  .scrollbar-none {
+    scrollbar-width: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
   }
 }
 
-/* ─── Driftendes warmes Licht (lebendiger Hintergrund) ─────────────────── */
-.page-ambient {
-  position: absolute;
-  inset: 0;
-  overflow: hidden;
-  pointer-events: none;
+@keyframes twinkle {
+  from { opacity: 0.35; }
+  to { opacity: 1; }
 }
-.ambient-blob {
-  position: absolute;
-  border-radius: 9999px;
-  filter: blur(70px);
-  opacity: 0.35;
-  will-change: transform;
+@keyframes rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
 }
-.ambient-blob.a {
-  width: 30rem; height: 30rem;
-  top: -6rem; right: -4rem;
-  background: #f4823a;
-  animation: drift-a 19s ease-in-out infinite;
+@keyframes fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
-.ambient-blob.b {
-  width: 26rem; height: 26rem;
-  bottom: -6rem; left: -3rem;
-  background: #9b7cd0;
-  animation: drift-b 23s ease-in-out infinite;
+@keyframes sheet {
+  from { opacity: 0; transform: translateY(28px) scale(0.98); }
+  to { opacity: 1; transform: none; }
 }
-.dark .ambient-blob { opacity: 0.22; }
-@keyframes drift-a {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(-70px, 60px) scale(1.18); }
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
 }
-@keyframes drift-b {
-  0%, 100% { transform: translate(0, 0) scale(1); }
-  50% { transform: translate(60px, -50px) scale(1.22); }
+@keyframes glow {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(217, 178, 95, 0.35)); }
+  50% { filter: drop-shadow(0 0 16px rgba(240, 217, 154, 0.75)); }
 }
 
-/* ─── Prunk-Ledereinband (Login) ──────────────────────────────────────── */
-.leather-cover {
-  background:
-    radial-gradient(140% 120% at 32% 16%, #6f4d68 0%, #543653 45%, #3f2848 75%, #33203c 100%);
-  box-shadow:
-    inset 0 0 140px rgba(0, 0, 0, 0.55),
-    inset 0 2px 2px rgba(255, 255, 255, 0.08),
-    0 50px 100px -30px rgba(0, 0, 0, 0.8);
+/* ── Das Grimoire öffnet sich (nach dem Login) ──────────────────────────── */
+.opening {
+  animation: opening-zoom 0.85s cubic-bezier(0.6, 0, 0.4, 1) 1.55s forwards;
 }
-/* Geprägte (versenkte) Rahmenlinie */
-.engrave {
-  box-shadow:
-    inset 0 0 0 1px rgba(0, 0, 0, 0.45),
-    inset 0 1px 1px rgba(0, 0, 0, 0.5),
-    0 1px 0 rgba(255, 255, 255, 0.06);
-}
-/* Erhabene Rahmenlinie */
-.emboss {
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    inset 0 -1px 1px rgba(0, 0, 0, 0.5);
-}
-/* Perlschnur-Rand (gepunktet) */
-.beaded {
-  background-image: radial-gradient(circle, rgba(0, 0, 0, 0.5) 1.1px, transparent 1.7px);
-  background-size: 9px 9px;
-  background-position: center;
-}
-/* Gold-Prägung für Text */
-.gold-text {
-  background: linear-gradient(180deg, #fdeeb8 0%, #e8c96e 42%, #b3831f 78%, #8a621a 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.45));
-}
-.gold-fill {
-  fill: url(#goldGrad);
-  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5));
-}
-/* Rücken-Bünde links */
-.spine-band {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: 30px;
-  border-radius: 3px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.14), rgba(0, 0, 0, 0.45));
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-/* Metallschließe rechts */
-.clasp {
-  position: absolute;
-  right: -10px;
-  width: 42px;
-  height: 30px;
-  border-radius: 5px;
-  background: linear-gradient(180deg, #f4e2a4 0%, #c9a24a 48%, #8a6a2a 100%);
-  box-shadow:
-    0 3px 7px rgba(0, 0, 0, 0.55),
-    inset 0 1px 0 rgba(255, 255, 255, 0.55),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.4);
-}
-.clasp::before {
-  content: '';
-  position: absolute;
-  inset: 6px 8px;
-  border-radius: 3px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.35);
-}
-
-/* Geschlossenes Buch (Login): Seitenkanten */
-.closed-book {
-  box-shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.7);
-}
-.closed-book .edge-right {
-  position: absolute;
-  inset-block: 10px;
-  right: -6px;
-  width: 10px;
-  border-radius: 0 6px 6px 0;
-  background: repeating-linear-gradient(
-    to bottom,
-    #f3e9d6,
-    #f3e9d6 2px,
-    #d8c6a5 2px,
-    #d8c6a5 4px
-  );
-}
-.closed-book .edge-bottom {
-  position: absolute;
-  inset-inline: 10px;
-  bottom: -6px;
-  height: 10px;
-  border-radius: 0 0 6px 6px;
-  background: repeating-linear-gradient(
-    to right,
-    #f3e9d6,
-    #f3e9d6 2px,
-    #d8c6a5 2px,
-    #d8c6a5 4px
-  );
-}
-
-/* ─── Buch-Aufschlag-Übergang (Login → Bibliothek) ────────────────────── */
-.book-scene {
-  perspective: 2200px;
-}
-.book-3d {
-  transform-style: preserve-3d;
-  animation: book-zoom 1.7s cubic-bezier(0.7, 0, 0.3, 1) forwards;
-}
-.book-cover-3d {
+.opening .cover-door {
   transform-origin: left center;
   transform-style: preserve-3d;
+  animation: door 1.45s cubic-bezier(0.55, 0.05, 0.3, 1) 0.3s forwards;
+}
+.opening .cover-face {
   backface-visibility: hidden;
-  animation: cover-open 1.4s cubic-bezier(0.6, 0.01, 0.2, 1) 0.15s forwards;
 }
-.book-overlay {
-  animation: overlay-out 0.5s ease 1.25s forwards;
+.opening .cover-back {
+  backface-visibility: hidden;
+  transform: rotateY(180deg);
 }
-@keyframes cover-open {
-  0% { transform: rotateY(0deg); box-shadow: 0 30px 60px -20px rgba(0,0,0,0.6); }
-  100% { transform: rotateY(-162deg); box-shadow: 0 10px 30px -20px rgba(0,0,0,0.3); }
+.opening .first-page-glow {
+  animation: page-glow 1.6s ease-out 0.45s both;
 }
-@keyframes book-zoom {
-  0% { transform: scale(0.92) translateX(-6%); }
-  55% { transform: scale(1) translateX(-6%); }
-  100% { transform: scale(2.6) translateX(-6%); opacity: 0; }
+.opening .spark {
+  animation: spark 1.5s ease-out var(--d, 0.6s) both;
 }
-@keyframes overlay-out {
-  to { opacity: 0; visibility: hidden; }
+@keyframes door {
+  to { transform: perspective(2200px) rotateY(-168deg); }
 }
-
-/* Bewegung reduzieren, wenn vom System gewünscht */
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-  /* Der einmalige Buch-Aufschlag ist ein bewusster Übergang und bleibt aktiv */
-  .book-3d {
-    animation: book-zoom 1.7s cubic-bezier(0.7, 0, 0.3, 1) forwards !important;
-  }
-  .book-cover-3d {
-    animation: cover-open 1.4s cubic-bezier(0.6, 0.01, 0.2, 1) 0.15s forwards !important;
-  }
-  .book-overlay {
-    animation: overlay-out 0.5s ease 1.25s forwards !important;
-  }
-  /* Sanftes Wehen + Lichtdrift sind ausdrücklich gewünscht und bleiben aktiv */
-  .page-leaf {
-    animation: leaf-flutter 4.5s ease-in-out infinite !important;
-  }
-  .ambient-blob.a {
-    animation: drift-a 19s ease-in-out infinite !important;
-  }
-  .ambient-blob.b {
-    animation: drift-b 23s ease-in-out infinite !important;
-  }
+@keyframes page-glow {
+  from { opacity: 0; transform: scale(0.6); }
+  to { opacity: 1; transform: scale(1.25); }
+}
+@keyframes spark {
+  0% { opacity: 0; transform: translate(0, 0) scale(0.4); }
+  20% { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1); }
+}
+@keyframes opening-zoom {
+  to { opacity: 0; transform: scale(2.2); }
 }

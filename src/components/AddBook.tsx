@@ -4,7 +4,10 @@ import { STATUS_LABELS, STATUS_ORDER } from '../types'
 import { lookupIsbn, searchBooks, isValidIsbn } from '../lib/bookApi'
 import { addBook } from '../lib/booksRepo'
 import { BarcodeScanner } from './BarcodeScanner'
-import { Icon } from './Icon'
+import { BookCover } from './BookCover'
+import { Sheet } from './Sheet'
+import { Sigil } from './Sigil'
+import { STATUS_SIGIL } from './status'
 
 interface Props {
   onAdded: () => void
@@ -23,14 +26,14 @@ export function AddBook({ onAdded, onClose }: Props) {
   async function handleScan(raw: string) {
     setScanning(false)
     setLoading(true)
-    setInfo(`ISBN erkannt: ${raw} – suche Buch …`)
+    setInfo(`ISBN ${raw} erkannt – die Archive werden befragt …`)
     const book = await lookupIsbn(raw)
     setLoading(false)
     if (book) {
       setResults([book])
       setInfo(null)
     } else {
-      setInfo(`Kein Treffer für ISBN ${raw}. Versuch die manuelle Suche.`)
+      setInfo(`Kein Buch zur ISBN ${raw} gefunden. Versuch die Suche.`)
     }
   }
 
@@ -40,17 +43,21 @@ export function AddBook({ onAdded, onClose }: Props) {
     setLoading(true)
     setInfo(null)
     const res = isValidIsbn(query)
-      ? [await lookupIsbn(query)].filter(Boolean as any)
+      ? [await lookupIsbn(query)].filter((b): b is BookLookupResult => Boolean(b))
       : await searchBooks(query)
-    setResults(res as BookLookupResult[])
+    setResults(res)
     if (res.length === 0) setInfo('Keine Bücher gefunden.')
     setLoading(false)
   }
 
   async function handleAdd(book: BookLookupResult, key: string) {
-    await addBook(book, status)
-    setAddedKeys((prev) => new Set(prev).add(key))
-    onAdded()
+    try {
+      await addBook(book, status)
+      setAddedKeys((prev) => new Set(prev).add(key))
+      onAdded()
+    } catch (e: any) {
+      setInfo(`Konnte nicht eingeschrieben werden: ${e?.message ?? e}`)
+    }
   }
 
   if (scanning) {
@@ -58,102 +65,72 @@ export function AddBook({ onAdded, onClose }: Props) {
   }
 
   return (
-    <div
-      className="overlay-in fixed inset-0 z-40 flex items-end justify-center bg-night-950/60 backdrop-blur-sm sm:items-center sm:p-4"
-      onClick={onClose}
-    >
-      <div
-        className="card flex max-h-[92vh] w-full max-w-lg animate-fade-up flex-col rounded-b-none rounded-t-3xl p-6 sm:rounded-3xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-display text-2xl font-bold">Buch hinzufügen</h2>
-          <button onClick={onClose} className="btn-ghost !rounded-full !px-3" aria-label="Schließen">
-            <Icon name="close" />
-          </button>
-        </div>
+    <Sheet title="Ein Buch einschreiben" onClose={onClose}>
+      <button onClick={() => setScanning(true)} className="btn-gold mt-2 w-full">
+        <Sigil name="camera" />
+        Barcode scannen
+      </button>
 
-        <button onClick={() => setScanning(true)} className="btn-accent mb-3 w-full !py-3.5">
-          <Icon name="camera" />
-          Barcode scannen
-        </button>
-
-        <form onSubmit={handleSearch} className="mb-4 flex gap-2">
-          <div className="relative flex-1">
-            <Icon
-              name="search"
-              className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-brand-900/35 dark:text-white/30"
-            />
-            <input
-              className="input !pl-10"
-              placeholder="Titel, Autor oder ISBN …"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <button type="submit" className="btn-ghost" disabled={loading}>
-            Suchen
-          </button>
-        </form>
-
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-xs">
-          <span className="text-brand-900/45 dark:text-paper-200/45">Hinzufügen als:</span>
-          {STATUS_ORDER.map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatus(s)}
-              className={`chip !px-3 !py-1 !text-xs ${status === s ? 'chip-on' : 'chip-off'}`}
-            >
-              {STATUS_LABELS[s]}
-            </button>
-          ))}
-        </div>
-
-        {info && <p className="mb-2 text-sm text-brand-900/55 dark:text-paper-200/55">{info}</p>}
-        {loading && <p className="mb-2 text-sm font-medium text-ember-500">Lädt …</p>}
-
-        <div className="-mx-2 flex-1 space-y-2 overflow-y-auto px-2">
-          {results.map((book, i) => {
-            const key = `${book.isbn ?? book.title}-${i}`
-            const added = addedKeys.has(key)
-            return (
-              <div
-                key={key}
-                className="flex gap-3 rounded-2xl bg-white/60 p-2.5 ring-1 ring-brand-900/5 dark:bg-white/5 dark:ring-white/10"
-              >
-                <div className="h-20 w-14 flex-shrink-0 overflow-hidden rounded-lg bg-gradient-to-br from-brand-200 to-brand-400 dark:from-brand-800 dark:to-night-900">
-                  {book.cover_url ? (
-                    <img src={book.cover_url} alt="" className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full items-center justify-center text-white/80">
-                      <Icon name="book" className="h-6 w-6" strokeWidth={1.5} />
-                    </div>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 text-sm font-semibold">{book.title}</p>
-                  <p className="line-clamp-1 text-xs text-brand-900/45 dark:text-paper-200/45">
-                    {book.authors.join(', ') || 'Unbekannt'}
-                  </p>
-                  {book.published_date && (
-                    <p className="text-xs text-brand-900/35 dark:text-paper-200/35">
-                      {book.published_date}
-                    </p>
-                  )}
-                </div>
-                <button
-                  onClick={() => handleAdd(book, key)}
-                  disabled={added}
-                  className={`${added ? 'btn-ghost' : 'btn-primary'} !rounded-full !px-3`}
-                  aria-label={added ? 'Hinzugefügt' : 'Hinzufügen'}
-                >
-                  <Icon name={added ? 'check' : 'plus'} />
-                </button>
-              </div>
-            )
-          })}
-        </div>
+      <div className="my-5 flex items-center gap-3 text-sm italic text-ivory-300">
+        <span className="h-px flex-1 bg-gold-400/20" />
+        oder im Archiv suchen
+        <span className="h-px flex-1 bg-gold-400/20" />
       </div>
-    </div>
+
+      <form onSubmit={handleSearch} className="flex gap-2">
+        <label className="relative flex-1">
+          <span className="sr-only">Titel, Autor oder ISBN</span>
+          <Sigil name="search" className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gold-300/70" />
+          <input className="field !pl-11" placeholder="Titel, Autor oder ISBN …" value={query} onChange={(e) => setQuery(e.target.value)} />
+        </label>
+        <button type="submit" className="btn-quiet" disabled={loading}>
+          Suchen
+        </button>
+      </form>
+
+      <p className="rubric mb-2 mt-5">Einschreiben als</p>
+      <div className="scrollbar-none -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+        {STATUS_ORDER.map((s) => (
+          <button key={s} onClick={() => setStatus(s)} className={`tab ${status === s ? 'tab-on' : 'tab-off'}`} aria-pressed={status === s}>
+            <Sigil name={STATUS_SIGIL[s].sigil} className={`h-4 w-4 ${STATUS_SIGIL[s].color}`} />
+            {STATUS_LABELS[s]}
+          </button>
+        ))}
+      </div>
+
+      <div aria-live="polite">
+        {info && <p className="mt-4 italic text-ivory-200">{info}</p>}
+        {loading && <p className="mt-4 animate-pulse italic text-gold-200">Die Seiten werden befragt …</p>}
+      </div>
+
+      <ul className="mt-4 space-y-2.5">
+        {results.map((book, i) => {
+          const key = `${book.isbn ?? book.title}-${i}`
+          const added = addedKeys.has(key)
+          return (
+            <li key={key} className="animate-rise flex items-center gap-3 rounded-xl border border-gold-400/15 bg-night-950/40 p-2.5">
+              <div className="h-20 w-14 shrink-0 overflow-hidden rounded-sm ring-1 ring-gold-400/25">
+                <BookCover book={book} compact />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="line-clamp-2 font-medium leading-snug">{book.title}</p>
+                <p className="line-clamp-1 text-[15px] italic text-ivory-300">{book.authors.join(', ') || 'Unbekannt'}</p>
+                {book.published_date && <p className="text-sm text-ivory-300/80">{book.published_date}</p>}
+              </div>
+              <button
+                onClick={() => handleAdd(book, key)}
+                disabled={added}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition ${
+                  added ? 'bg-moss/15 text-moss' : 'btn-gold !min-h-0 !px-0'
+                }`}
+                aria-label={added ? 'Eingeschrieben' : `${book.title} einschreiben`}
+              >
+                <Sigil name={added ? 'check' : 'plus'} />
+              </button>
+            </li>
+          )
+        })}
+      </ul>
+    </Sheet>
   )
 }
