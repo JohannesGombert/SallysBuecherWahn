@@ -65,7 +65,11 @@ async function google(q, key) {
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}` +
     `&orderBy=newest&langRestrict=de&printType=books&maxResults=20&key=${key}`
   const res = await fetch(url)
-  if (!res.ok) throw new Error(`Google ${res.status}`)
+  if (!res.ok) {
+    // Grund aus Googles Fehlerantwort (ohne Schlüssel) für die Diagnose mitgeben
+    const err = await res.json().catch(() => ({}))
+    throw new Error(`Google ${res.status} ${err?.error?.status ?? ''} ${err?.error?.errors?.[0]?.reason ?? ''}`.trim())
+  }
   const data = await res.json()
   return (data.items || []).map(fromGoogle)
 }
@@ -81,11 +85,14 @@ async function openLibrary(params) {
 }
 
 // Neuerscheinungen eines Suchbegriffs, beste Quelle zuerst
-async function newest(kind, seed, key) {
+async function newest(kind, seed, key, errors) {
   let books = []
   if (key) {
     const q = kind === 'author' ? `inauthor:"${seed}"` : `subject:"${seed}"`
-    books = await google(q, key).catch(() => [])
+    books = await google(q, key).catch((e) => {
+      errors.add(e.message)
+      return []
+    })
   }
   if (!books.length) {
     const p = kind === 'author' ? `author=${encodeURIComponent(seed)}` : `subject=${encodeURIComponent(seed.toLowerCase())}`
@@ -112,11 +119,12 @@ export const onRequest = async ({ request, env, waitUntil }) => {
   const hit = await cache.match(cacheKey)
   if (hit) return hit
 
+  const errors = new Set()
   const groups = await Promise.all([
-    ...authors.map((a) => newest('author', a, key)),
-    ...genres.map((g) => newest('genre', g, key)),
+    ...authors.map((a) => newest('author', a, key, errors)),
+    ...genres.map((g) => newest('genre', g, key, errors)),
   ])
-  const res = json({ items: groups.flat(), source: key ? 'google' : 'openlibrary' })
+  const res = json({ items: groups.flat(), source: key && !errors.size ? 'google' : 'openlibrary', errors: [...errors] })
   waitUntil(cache.put(cacheKey, res.clone()))
   return res
 }
