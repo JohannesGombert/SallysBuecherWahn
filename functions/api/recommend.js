@@ -103,12 +103,15 @@ export const onRequest = async ({ request, env, waitUntil }) => {
   const genres = list(url.searchParams.get('genres'), MAX_GENRES)
   if (!authors.length && !genres.length) return json({ items: [], source: 'none' })
 
+  const key = env.GOOGLE_BOOKS_KEY
+  // Cache getrennt nach Quelle, damit nach dem Eintragen des Schlüssels keine alten Open-Library-Antworten bleiben
+  const cacheUrl = new URL(url)
+  cacheUrl.searchParams.set('_src', key ? 'google' : 'openlibrary')
   const cache = caches.default
-  const cacheKey = new Request(url.toString(), { method: 'GET' })
+  const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' })
   const hit = await cache.match(cacheKey)
   if (hit) return hit
 
-  const key = env.GOOGLE_BOOKS_KEY
   const groups = await Promise.all([
     ...authors.map((a) => newest('author', a, key)),
     ...genres.map((g) => newest('genre', g, key)),
