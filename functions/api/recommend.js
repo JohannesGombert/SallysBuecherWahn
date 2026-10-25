@@ -117,6 +117,8 @@ export const onRequest = async ({ request, env, waitUntil }) => {
     }
     const out = await Promise.all([
       probe('einfach+key', `${base}isbn:9783453321342&key=${k}`),
+      probe('einfach+key+DE', `${base}isbn:9783453321342&country=DE&key=${k}`),
+      probe('alles+key+DE', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&langRestrict=de&printType=books&maxResults=20&country=DE&key=${k}`),
       probe('einfach-ohne', `${base}isbn:9783453321342`),
       probe('inauthor+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&key=${k}`),
       probe('newest+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&key=${k}`),
