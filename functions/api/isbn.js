@@ -49,10 +49,8 @@ async function coverFromGoogleLinks(isbn) {
 }
 
 // ── Google Books ──────────────────────────────────────────────────────────────
-async function fromGoogle(isbn) {
-  const key = process.env.GOOGLE_BOOKS_KEY
-    ? `&key=${process.env.GOOGLE_BOOKS_KEY}`
-    : ''
+async function fromGoogle(isbn, apiKey) {
+  const key = apiKey ? `&key=${apiKey}` : ''
   const res = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}&country=DE${key}`,
   )
@@ -143,27 +141,27 @@ async function fromDNB(isbn) {
   }
 }
 
-export const handler = async (event) => {
-  if (event.httpMethod === 'OPTIONS') return { statusCode: 204, headers: CORS }
+const json = (status, data) =>
+  new Response(data === undefined ? null : JSON.stringify(data), { status, headers: CORS })
 
-  const raw = (event.queryStringParameters && event.queryStringParameters.isbn) || ''
+// Cloudflare Pages Function: /api/isbn?isbn=...
+export const onRequest = async ({ request, env }) => {
+  if (request.method === 'OPTIONS') return json(204)
+
+  const raw = new URL(request.url).searchParams.get('isbn') || ''
   const isbn = raw.replace(/[^0-9Xx]/g, '').toUpperCase()
-  if (!isbn) {
-    return { statusCode: 400, headers: CORS, body: JSON.stringify({ error: 'isbn fehlt' }) }
-  }
+  if (!isbn) return json(400, { error: 'isbn fehlt' })
 
   try {
-    let book = await fromGoogle(isbn).catch(() => null)
+    let book = await fromGoogle(isbn, env.GOOGLE_BOOKS_KEY).catch(() => null)
     if (!book) book = await fromDNB(isbn).catch(() => null)
-    if (!book) {
-      return { statusCode: 404, headers: CORS, body: JSON.stringify({ error: 'nicht gefunden' }) }
-    }
+    if (!book) return json(404, { error: 'nicht gefunden' })
     // Cover sicherstellen (DNB liefert keins; Google-API-Cover kann fehlen)
     if (!book.cover_url) {
       book.cover_url = await coverFromGoogleLinks(isbn).catch(() => null)
     }
-    return { statusCode: 200, headers: CORS, body: JSON.stringify(book) }
+    return json(200, book)
   } catch (e) {
-    return { statusCode: 500, headers: CORS, body: JSON.stringify({ error: String(e) }) }
+    return json(500, { error: String(e) })
   }
 }

@@ -23,7 +23,7 @@ const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY as string | undefined
 const keyParam = GOOGLE_KEY ? `&key=${GOOGLE_KEY}` : ''
 
 /**
- * Fragt zuerst unseren Server-Proxy (Netlify-Function: Google Books → DNB),
+ * Fragt zuerst unseren Server-Proxy (Cloudflare-Pages-Function: Google Books → DNB),
  * dann direkte Browser-Fallbacks (für lokale Entwicklung ohne Functions).
  */
 export async function lookupIsbn(rawIsbn: string): Promise<BookLookupResult | null> {
