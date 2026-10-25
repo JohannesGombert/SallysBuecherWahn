@@ -106,6 +106,25 @@ async function newest(kind, seed, key, errors) {
 
 export const onRequest = async ({ request, env, waitUntil }) => {
   const url = new URL(request.url)
+  // TEMP-DIAG: vorübergehende Diagnose, wird wieder entfernt
+  if (url.searchParams.has('diag')) {
+    const k = env.GOOGLE_BOOKS_KEY
+    const base = 'https://www.googleapis.com/books/v1/volumes?q='
+    const probe = async (label, u) => {
+      const r = await fetch(u)
+      const t = await r.text()
+      return `${label}: ${r.status} ${t.slice(0, 160).replace(/\s+/g, ' ')}`
+    }
+    const out = await Promise.all([
+      probe('einfach+key', `${base}isbn:9783453321342&key=${k}`),
+      probe('einfach-ohne', `${base}isbn:9783453321342`),
+      probe('inauthor+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&key=${k}`),
+      probe('newest+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&key=${k}`),
+      probe('lang+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&langRestrict=de&key=${k}`),
+      probe('alles+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&langRestrict=de&printType=books&maxResults=20&key=${k}`),
+    ])
+    return new Response([`keyLaenge=${k ? k.length : 0}`, ...out].join(String.fromCharCode(10)))
+  }
   const authors = list(url.searchParams.get('authors'), MAX_AUTHORS)
   const genres = list(url.searchParams.get('genres'), MAX_GENRES)
   if (!authors.length && !genres.length) return json({ items: [], source: 'none' })
