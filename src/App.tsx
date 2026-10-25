@@ -6,7 +6,7 @@ import { computeStats } from './lib/stats'
 import { goalProgress, planText } from './lib/goals'
 import { readSettings } from './lib/settings'
 import type { Book, ReadingStatus } from './types'
-import { STATUS_LABELS, STATUS_ORDER, SHELF_STATUSES } from './types'
+import { STATUS_LABELS, STATUS_ORDER } from './types'
 import { Auth } from './components/Auth'
 import { AddBook } from './components/AddBook'
 import { BookDetail } from './components/BookDetail'
@@ -20,7 +20,7 @@ import { Settings } from './components/Settings'
 import { Sigil } from './components/Sigil'
 import { STATUS_SIGIL } from './components/status'
 
-type Filter = 'all' | 'shelf' | ReadingStatus
+type Filter = 'all' | ReadingStatus
 
 export default function App() {
   const { session, user, loading: authLoading } = useAuth()
@@ -66,7 +66,6 @@ export default function App() {
   const stats = useMemo(() => computeStats(books), [books])
   const counts: Record<Filter, number> = {
     all: stats.total,
-    shelf: stats.shelf,
     reading: stats.reading,
     owned: stats.owned,
     wishlist: stats.wishlist,
@@ -76,11 +75,7 @@ export default function App() {
   const visible = useMemo(() => {
     const q = search.toLowerCase().trim()
     return books.filter((b) => {
-      if (filter === 'shelf') {
-        if (!SHELF_STATUSES.includes(b.status)) return false
-      } else if (filter !== 'all' && b.status !== filter) {
-        return false
-      }
+      if (filter !== 'all' && b.status !== filter) return false
       if (!q) return true
       return b.title.toLowerCase().includes(q) || b.authors.some((a) => a.toLowerCase().includes(q))
     })
@@ -118,7 +113,6 @@ export default function App() {
 
   const tabs: { key: Filter; label: string }[] = [
     { key: 'all', label: 'Alle' },
-    { key: 'shelf', label: 'Im Regal' },
     ...STATUS_ORDER.map((s) => ({ key: s as Filter, label: STATUS_LABELS[s] })),
   ]
 
@@ -156,7 +150,7 @@ export default function App() {
             <p className="mt-3 max-w-lg text-lg italic text-ivory-200">
               {books.length === 0
                 ? 'Dein Grimoire wartet auf seinen ersten Band.'
-                : `${books.length} ${books.length === 1 ? 'Band' : 'Bände'} · ${stats.shelf} im Regal · ${stats.wishlist} auf der Wunschliste`}
+                : `${books.length} ${books.length === 1 ? 'Band' : 'Bände'} · ${stats.wishlist} auf der Wunschliste`}
             </p>
 
             {!hasName &&
