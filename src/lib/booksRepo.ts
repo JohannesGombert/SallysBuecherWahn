@@ -46,6 +46,16 @@ export async function updateBook(
   }
 }
 
+/** Löscht alle Bücher des angemeldeten Kontos und gibt die Anzahl zurück. */
+export async function deleteAllBooks(): Promise<number> {
+  const { data: userData } = await supabase.auth.getUser()
+  const user_id = userData.user?.id
+  if (!user_id) throw new Error('Nicht angemeldet')
+  const { data, error } = await supabase.from('books').delete().eq('user_id', user_id).select('id')
+  if (error) throw error
+  return data?.length ?? 0
+}
+
 export async function deleteBook(id: string): Promise<void> {
   const { error } = await supabase.from('books').delete().eq('id', id)
   if (error) throw error

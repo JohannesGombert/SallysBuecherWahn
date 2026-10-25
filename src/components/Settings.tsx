@@ -1,10 +1,19 @@
 import { useState } from 'react'
 import { supabase } from '../lib/supabase'
-import type { TrackingSettings } from '../lib/settings'
+import { DEFAULT_SETTINGS, type TrackingSettings } from '../lib/settings'
+import { deleteAllBooks } from '../lib/booksRepo'
 import { Sheet } from './Sheet'
 
 /** Jede Leseratte entscheidet selbst, was das Grimoire mitschreibt. */
-export function Settings({ settings, onClose }: { settings: TrackingSettings; onClose: () => void }) {
+export function Settings({
+  settings,
+  onReset,
+  onClose,
+}: {
+  settings: TrackingSettings
+  onReset: () => void
+  onClose: () => void
+}) {
   const [s, setS] = useState(settings)
   const [target, setTarget] = useState(String(settings.goalTarget))
   const [saving, setSaving] = useState(false)
@@ -98,6 +107,13 @@ export function Settings({ settings, onClose }: { settings: TrackingSettings; on
           {saving ? 'Speichert …' : 'Speichern'}
         </button>
       </div>
+
+      <ResetZone
+        onDone={() => {
+          onReset()
+          onClose()
+        }}
+      />
     </Sheet>
   )
 }
@@ -144,5 +160,83 @@ function Toggle({
         />
       </span>
     </button>
+  )
+}
+
+const CONFIRM_WORD = 'ZURÜCKSETZEN'
+
+/** Löscht alle Bücher und setzt die Einstellungen auf Anfang – nur nach Eintippen des Bestätigungsworts. */
+function ResetZone({ onDone }: { onDone: () => void }) {
+  const [open, setOpen] = useState(false)
+  const [word, setWord] = useState('')
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const confirmed = word.trim().toUpperCase() === CONFIRM_WORD
+
+  async function reset() {
+    if (!confirmed) return
+    setBusy(true)
+    setError(null)
+    try {
+      await deleteAllBooks()
+      const { error } = await supabase.auth.updateUser({ data: { tracking: DEFAULT_SETTINGS } })
+      if (error) throw error
+      onDone()
+    } catch (e: any) {
+      setError(`Zurücksetzen fehlgeschlagen: ${e?.message ?? e}`)
+      setBusy(false)
+    }
+  }
+
+  return (
+    <section className="mt-8 rounded-xl border border-danger/30 bg-danger/[0.04] p-4">
+      <h3 className="font-display text-[13px] font-semibold uppercase tracking-[0.14em] text-danger">Grimoire zurücksetzen</h3>
+      <p className="mt-1 text-[15px] leading-snug text-ivory-300">
+        Löscht alle Bücher in deinem Grimoire samt Bewertungen, Notizen und Lesedaten und setzt diese Einstellungen auf
+        Anfang. Dein Konto und dein Name bleiben. Das lässt sich nicht rückgängig machen.
+      </p>
+
+      {!open ? (
+        <button onClick={() => setOpen(true)} className="btn mt-3 border border-danger/50 text-danger hover:bg-danger/10">
+          Grimoire zurücksetzen …
+        </button>
+      ) : (
+        <div className="animate-rise mt-3">
+          <label className="block">
+            <span className="text-[15px] text-ivory-200">
+              Tippe <strong className="font-display tracking-wider text-danger">{CONFIRM_WORD}</strong> ein, um zu bestätigen:
+            </span>
+            <input
+              className="field mt-2 !py-2 uppercase tracking-wider"
+              value={word}
+              onChange={(e) => setWord(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              aria-invalid={word.length > 0 && !confirmed}
+            />
+          </label>
+          {error && <p className="mt-2 text-danger">{error}</p>}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              onClick={reset}
+              disabled={!confirmed || busy}
+              className="btn border border-danger/70 bg-danger/15 text-danger hover:bg-danger/25"
+            >
+              {busy ? 'Wird zurückgesetzt …' : 'Endgültig zurücksetzen'}
+            </button>
+            <button
+              onClick={() => {
+                setOpen(false)
+                setWord('')
+                setError(null)
+              }}
+              className="btn text-ivory-200 hover:text-ivory-50"
+            >
+              Abbrechen
+            </button>
+          </div>
+        </div>
+      )}
+    </section>
   )
 }

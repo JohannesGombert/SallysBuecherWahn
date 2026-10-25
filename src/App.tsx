@@ -273,7 +273,7 @@ export default function App() {
 
       {showStats && <Chronicle s={stats} onClose={() => setShowStats(false)} />}
       {showRecs && <Recommendations books={books} onAdded={load} onClose={() => setShowRecs(false)} />}
-      {showSettings && <Settings settings={settings} onClose={() => setShowSettings(false)} />}
+      {showSettings && <Settings settings={settings} onReset={load} onClose={() => setShowSettings(false)} />}
 
       {adding && (
         <AddBook
