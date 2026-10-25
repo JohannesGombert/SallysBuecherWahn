@@ -129,7 +129,7 @@ export default function App() {
       <header className="sticky top-0 z-30 border-b border-gold-400/15 bg-night-900/75 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-2.5">
-            <Emblem className="h-9 w-9 shrink-0" />
+            <Emblem className="h-9 w-9 shrink-0" small />
             <span className="gold-foil truncate font-display text-lg font-bold tracking-wide">Sallys BücherWahn</span>
           </div>
           <nav className="flex items-center gap-1">

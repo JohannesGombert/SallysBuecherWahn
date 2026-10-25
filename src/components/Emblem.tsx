@@ -1,7 +1,9 @@
 import { useId } from 'react'
 
-// Wappen des Grimoires: Mondsichel, die ein aufgeschlagenes Buch umfängt.
-export function Emblem({ className = 'h-10 w-10' }: { className?: string }) {
+// Siegel des Grimoires (Logo, siehe docs/logo.md): doppelter Goldring mit vier Rauten,
+// darin eine frei schwebende Mondsichel mit Stern über einem aufgeschlagenen Buch.
+// small: kräftigere Linien ohne Feinheiten, für Größen unter ~48 px.
+export function Emblem({ className = 'h-10 w-10', small = false }: { className?: string; small?: boolean }) {
   const id = useId()
   const g = `gold-${id}`
   return (
@@ -13,13 +15,31 @@ export function Emblem({ className = 'h-10 w-10' }: { className?: string }) {
           <stop offset="1" stopColor="#94702c" />
         </linearGradient>
       </defs>
-      <path d="M40 7a25 25 0 1 0 16 44.5A20.5 20.5 0 1 1 40 7z" fill={`url(#${g})`} />
-      <g fill="none" stroke={`url(#${g})`} strokeWidth="2" strokeLinejoin="round">
-        <path d="M18 42c4.5-2.4 9-2.4 13.5 0 4.5-2.4 9-2.4 13.5 0V29c-4.5-2.4-9-2.4-13.5 0-4.5-2.4-9-2.4-13.5 0z" />
-        <path d="M31.5 29v13" />
+      <circle cx="32" cy="32" r="29" fill="none" stroke={`url(#${g})`} strokeWidth={small ? 2.6 : 1.4} />
+      {!small && (
+        <>
+          <circle cx="32" cy="32" r="25.6" fill="none" stroke="#d9b25f" strokeWidth=".6" opacity=".6" />
+          <path
+            d="M32 1.6l1.4 1.4-1.4 1.4-1.4-1.4zM32 59.6l1.4 1.4-1.4 1.4-1.4-1.4zM1.6 32l1.4-1.4 1.4 1.4-1.4 1.4zM59.6 32l1.4-1.4 1.4 1.4-1.4 1.4z"
+            fill="#f0d99a"
+          />
+        </>
+      )}
+      <g transform="translate(32 33) scale(.66) translate(-32 -31)">
+        <path d="M33.5 9.5a10 10 0 1 0 8.2 15.9 8 8 0 1 1-8.2-15.9z" fill={`url(#${g})`} />
+        <path d="M46 7.5l1.1 3.1 3.1 1.1-3.1 1.1L46 15.9l-1.1-3.1-3.1-1.1 3.1-1.1z" fill="#fbf1d4" />
+        <g fill="none" stroke={`url(#${g})`} strokeWidth={small ? 3.6 : 2.4} strokeLinejoin="round" strokeLinecap="round">
+          <path d="M32 52c-6-3.2-13.5-3.8-22-2V34c8.5-1.8 16-1.2 22 2 6-3.2 13.5-3.8 22-2v16c-8.5-1.8-16-1.2-22 2z" />
+          <path d="M32 36v16" />
+          {!small && (
+            <path
+              d="M15 39.5c4.5-.8 8.5-.4 12 1M15 44c4.5-.8 8.5-.4 12 1M37 40.5c3.5-1.4 7.5-1.8 12-1M37 45c3.5-1.4 7.5-1.8 12-1"
+              strokeWidth="1.3"
+              opacity=".55"
+            />
+          )}
+        </g>
       </g>
-      <path d="M47 12l1.3 3 3 1.3-3 1.3-1.3 3-1.3-3-3-1.3 3-1.3z" fill="#fbf1d4" />
-      <circle cx="54" cy="25" r="1.2" fill="#f0d99a" />
     </svg>
   )
 }
