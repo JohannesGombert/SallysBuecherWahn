@@ -28,6 +28,8 @@ export interface Book {
   rating: number | null // 0–5
   notes: string | null
   created_at: string
+  finished_at: string | null // YYYY-MM-DD, nur mit Tracking „Datum des Auslesens“
+  current_page: number | null // nur mit Tracking „Lesefortschritt“
 }
 
 /** Ergebnis eines ISBN-Lookups, noch ohne DB-Felder. */

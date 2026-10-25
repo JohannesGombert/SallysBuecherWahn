@@ -44,3 +44,9 @@ drop policy if exists "Eigene Bücher löschen" on public.books;
 create policy "Eigene Bücher löschen"
   on public.books for delete
   using (auth.uid() = user_id);
+
+-- Lese-Tracking (optional, pro Benutzer einschaltbar)
+-- finished_at: Datum des Auslesens · current_page: aktueller Lesestand
+alter table public.books add column if not exists finished_at date;
+alter table public.books add column if not exists current_page integer
+  check (current_page is null or current_page >= 0);

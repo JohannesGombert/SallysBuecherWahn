@@ -3,6 +3,8 @@ import { useAuth } from './hooks/useAuth'
 import { supabase } from './lib/supabase'
 import { fetchBooks } from './lib/booksRepo'
 import { computeStats } from './lib/stats'
+import { goalProgress, planText } from './lib/goals'
+import { readSettings } from './lib/settings'
 import type { Book, ReadingStatus } from './types'
 import { STATUS_LABELS, STATUS_ORDER, SHELF_STATUSES } from './types'
 import { Auth } from './components/Auth'
@@ -14,6 +16,7 @@ import { Emblem, Flourish } from './components/Emblem'
 import { NightSky } from './components/NightSky'
 import { GrimoireOpening } from './components/Grimoire'
 import { MoonPhase } from './components/MoonPhase'
+import { Settings } from './components/Settings'
 import { Sigil } from './components/Sigil'
 import { STATUS_SIGIL } from './components/status'
 
@@ -28,6 +31,7 @@ export default function App() {
   const [selected, setSelected] = useState<Book | null>(null)
   const [adding, setAdding] = useState(false)
   const [showStats, setShowStats] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
   const [opening, setOpening] = useState(false)
   const [nameForm, setNameForm] = useState({ open: false, fn: '', ln: '', saving: false })
   const prevSession = useRef<'unset' | 'none' | 'active'>('unset')
@@ -100,6 +104,8 @@ export default function App() {
     user?.email?.split('@')[0] ||
     'Leseratte'
   const hasName = Boolean(meta.first_name?.trim() || meta.full_name?.trim())
+  const settings = readSettings(user?.user_metadata)
+  const goal = settings.goal ? goalProgress(books, settings.goalType, settings.goalTarget) : null
 
   async function saveName() {
     const fn = nameForm.fn.trim()
@@ -130,6 +136,9 @@ export default function App() {
             <button onClick={() => setShowStats(true)} className="btn-icon w-auto gap-2 px-3" aria-label="Chronik öffnen">
               <Sigil name="scroll" />
               <span className="hidden font-display text-[12px] font-semibold uppercase tracking-[0.14em] sm:inline">Chronik</span>
+            </button>
+            <button onClick={() => setShowSettings(true)} className="btn-icon" aria-label="Einstellungen: was das Grimoire mitschreibt">
+              <Sigil name="gear" />
             </button>
             <button onClick={() => supabase.auth.signOut()} className="btn-icon" aria-label="Grimoire schließen (abmelden)">
               <Sigil name="logout" />
@@ -169,12 +178,28 @@ export default function App() {
               ))}
           </div>
 
-          {books.length > 0 && (
+          {(books.length > 0 || settings.goal) && (
             <div className="flex items-center gap-5">
-              <MoonPhase pct={stats.pctRead} size={120} />
+              <MoonPhase pct={goal ? goal.pct : stats.pctRead} size={120} />
               <div>
-                <p className="font-display text-3xl font-bold text-gold-200">{stats.pctRead} %</p>
-                <p className="italic text-ivory-300">deines Regals gelesen</p>
+                {goal ? (
+                  <>
+                    <p className="font-display text-3xl font-bold text-gold-200">
+                      {goal.done.toLocaleString('de-DE')} <span className="text-xl text-ivory-300">/ {goal.target.toLocaleString('de-DE')}</span>
+                    </p>
+                    <p className="italic text-ivory-300">
+                      {settings.goalType === 'books' ? 'Bücher' : 'Seiten'} im Jahresziel {goal.year}
+                    </p>
+                    <p className={`mt-1 text-[15px] ${goal.ahead >= 0 || goal.done >= goal.target ? 'text-moss' : 'text-flame'}`}>
+                      {planText(goal, settings.goalType)}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="font-display text-3xl font-bold text-gold-200">{stats.pctRead} %</p>
+                    <p className="italic text-ivory-300">deines Regals gelesen</p>
+                  </>
+                )}
                 <dl className="mt-3 flex gap-5">
                   <Figure value={stats.read} label="gelesen" />
                   <Figure value={stats.ratedCount ? stats.avgRating.toFixed(1) : '–'} label="⌀ Sterne" />
@@ -230,7 +255,7 @@ export default function App() {
         ) : (
           <div className="grid grid-cols-2 gap-x-5 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {visible.map((book, i) => (
-              <BookTile key={book.id} book={book} index={i} onClick={() => setSelected(book)} />
+              <BookTile key={book.id} book={book} index={i} showProgress={settings.progress} onClick={() => setSelected(book)} />
             ))}
           </div>
         )}
@@ -246,9 +271,11 @@ export default function App() {
       </button>
 
       {showStats && <Chronicle s={stats} onClose={() => setShowStats(false)} />}
+      {showSettings && <Settings settings={settings} onClose={() => setShowSettings(false)} />}
 
       {adding && (
         <AddBook
+          settings={settings}
           onAdded={load}
           onClose={() => {
             setAdding(false)
@@ -259,6 +286,7 @@ export default function App() {
       {selected && (
         <BookDetail
           book={selected}
+          settings={settings}
           onChange={(b) => {
             setSelected(b)
             setBooks((prev) => prev.map((x) => (x.id === b.id ? b : x)))

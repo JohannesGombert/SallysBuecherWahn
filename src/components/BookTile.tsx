@@ -1,12 +1,24 @@
 import type { Book } from '../types'
 import { STATUS_LABELS } from '../types'
+import { readingPct } from '../lib/goals'
 import { BookCover } from './BookCover'
 import { Sigil } from './Sigil'
 import { StarRating } from './StarRating'
 import { STATUS_SIGIL } from './status'
 
-export function BookTile({ book, index, onClick }: { book: Book; index: number; onClick: () => void }) {
+export function BookTile({
+  book,
+  index,
+  showProgress,
+  onClick,
+}: {
+  book: Book
+  index: number
+  showProgress: boolean
+  onClick: () => void
+}) {
   const st = STATUS_SIGIL[book.status]
+  const progress = showProgress && book.status === 'reading' ? readingPct(book.current_page, book.page_count) : 0
   return (
     <button
       onClick={onClick}
@@ -25,6 +37,12 @@ export function BookTile({ book, index, onClick }: { book: Book; index: number; 
           <Sigil name={st.sigil} className="h-4 w-4" />
           <span className="sr-only">{STATUS_LABELS[book.status]}</span>
         </span>
+        {progress > 0 && (
+          <div className="absolute inset-x-0 bottom-0 h-1.5 bg-night-950/70" title={`${progress} % gelesen`}>
+            <div className="h-full bg-gradient-to-r from-gold-500 to-gold-200" style={{ width: `${progress}%` }} />
+            <span className="sr-only">{progress} % gelesen</span>
+          </div>
+        )}
       </div>
       <p className="mt-3 line-clamp-2 font-medium leading-snug text-ivory-50 transition group-hover:text-gold-200">
         {book.title}

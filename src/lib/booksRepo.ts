@@ -13,6 +13,7 @@ export async function fetchBooks(): Promise<Book[]> {
 export async function addBook(
   lookup: BookLookupResult,
   status: ReadingStatus,
+  extra: Partial<Book> = {},
 ): Promise<Book> {
   const { data: userData } = await supabase.auth.getUser()
   const user_id = userData.user?.id
@@ -20,7 +21,7 @@ export async function addBook(
 
   const { data, error } = await supabase
     .from('books')
-    .insert({ ...lookup, status, user_id })
+    .insert({ ...lookup, ...extra, status, user_id })
     .select()
     .single()
   if (error) throw error

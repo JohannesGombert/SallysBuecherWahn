@@ -3,6 +3,7 @@ import type { BookLookupResult, ReadingStatus } from '../types'
 import { STATUS_LABELS, STATUS_ORDER } from '../types'
 import { lookupIsbn, searchBooks, isValidIsbn } from '../lib/bookApi'
 import { addBook } from '../lib/booksRepo'
+import { today, type TrackingSettings } from '../lib/settings'
 import { BarcodeScanner } from './BarcodeScanner'
 import { BookCover } from './BookCover'
 import { Sheet } from './Sheet'
@@ -10,11 +11,12 @@ import { Sigil } from './Sigil'
 import { STATUS_SIGIL } from './status'
 
 interface Props {
+  settings: TrackingSettings
   onAdded: () => void
   onClose: () => void
 }
 
-export function AddBook({ onAdded, onClose }: Props) {
+export function AddBook({ settings, onAdded, onClose }: Props) {
   const [scanning, setScanning] = useState(false)
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<BookLookupResult[]>([])
@@ -52,7 +54,11 @@ export function AddBook({ onAdded, onClose }: Props) {
 
   async function handleAdd(book: BookLookupResult, key: string) {
     try {
-      await addBook(book, status)
+      const read = status === 'read'
+      await addBook(book, status, {
+        ...(read && settings.finishedDate ? { finished_at: today() } : {}),
+        ...(read && settings.progress && book.page_count ? { current_page: book.page_count } : {}),
+      })
       setAddedKeys((prev) => new Set(prev).add(key))
       onAdded()
     } catch (e: any) {
