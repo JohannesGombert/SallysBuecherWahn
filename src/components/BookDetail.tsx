@@ -8,6 +8,7 @@ import { readingPct as pct } from '../lib/goals'
 import { BookCover } from './BookCover'
 import { CoverPicker } from './CoverPicker'
 import { Sheet } from './Sheet'
+import { ScrollRow } from './ScrollRow'
 import { Sigil } from './Sigil'
 import { StarRating } from './StarRating'
 import { STATUS_SIGIL } from './status'
@@ -128,14 +129,14 @@ export function BookDetail({ book, settings, onChange, onDelete, onClose }: Prop
       </a>
 
       <p className="rubric mb-2 mt-6">Status</p>
-      <div className="scrollbar-none -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <ScrollRow className="scrollbar-none -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {STATUS_ORDER.map((s) => (
           <button key={s} onClick={() => setStatus(s)} className={`tab ${book.status === s ? 'tab-on' : 'tab-off'}`} aria-pressed={book.status === s}>
             <Sigil name={STATUS_SIGIL[s].sigil} className={`h-4 w-4 ${STATUS_SIGIL[s].color}`} />
             {STATUS_LABELS[s]}
           </button>
         ))}
-      </div>
+      </ScrollRow>
       {error && <p className="mt-3 rounded-lg border border-danger/40 bg-danger/10 px-3 py-2 text-danger">{error}</p>}
 
       {settings.finishedDate && book.status === 'read' && (

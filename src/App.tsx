@@ -17,6 +17,7 @@ import { NightSky } from './components/NightSky'
 import { GrimoireOpening } from './components/Grimoire'
 import { MoonPhase } from './components/MoonPhase'
 import { Settings } from './components/Settings'
+import { ScrollRow } from './components/ScrollRow'
 import { Sigil } from './components/Sigil'
 import { STATUS_SIGIL } from './components/status'
 
@@ -213,7 +214,7 @@ export default function App() {
             <Sigil name="search" className="pointer-events-none absolute left-3.5 top-1/2 h-5 w-5 -translate-y-1/2 text-gold-300/70" />
             <input className="field !pl-11" placeholder="Im Grimoire suchen …" value={search} onChange={(e) => setSearch(e.target.value)} />
           </label>
-          <div className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Filter">
+          <ScrollRow className="scrollbar-none -mx-4 flex gap-2 overflow-x-auto px-4 sm:mx-0 sm:flex-wrap sm:px-0" role="group" aria-label="Filter">
             {tabs.map((t) => {
               const st = t.key in STATUS_SIGIL ? STATUS_SIGIL[t.key as ReadingStatus] : null
               return (
@@ -224,7 +225,7 @@ export default function App() {
                 </button>
               )
             })}
-          </div>
+          </ScrollRow>
         </div>
 
         {/* Regal */}

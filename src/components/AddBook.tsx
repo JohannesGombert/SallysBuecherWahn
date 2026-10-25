@@ -7,6 +7,7 @@ import { today, type TrackingSettings } from '../lib/settings'
 import { BarcodeScanner } from './BarcodeScanner'
 import { BookCover } from './BookCover'
 import { Sheet } from './Sheet'
+import { ScrollRow } from './ScrollRow'
 import { Sigil } from './Sigil'
 import { STATUS_SIGIL } from './status'
 
@@ -95,14 +96,14 @@ export function AddBook({ settings, onAdded, onClose }: Props) {
       </form>
 
       <p className="rubric mb-2 mt-5">Einschreiben als</p>
-      <div className="scrollbar-none -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
+      <ScrollRow className="scrollbar-none -mx-6 flex gap-2 overflow-x-auto px-6 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
         {STATUS_ORDER.map((s) => (
           <button key={s} onClick={() => setStatus(s)} className={`tab ${status === s ? 'tab-on' : 'tab-off'}`} aria-pressed={status === s}>
             <Sigil name={STATUS_SIGIL[s].sigil} className={`h-4 w-4 ${STATUS_SIGIL[s].color}`} />
             {STATUS_LABELS[s]}
           </button>
         ))}
-      </div>
+      </ScrollRow>
 
       <div aria-live="polite">
         {info && <p className="mt-4 italic text-ivory-200">{info}</p>}

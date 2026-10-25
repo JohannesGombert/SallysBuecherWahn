@@ -263,6 +263,22 @@
   .animate-glow {
     animation: glow 3.2s ease-in-out infinite;
   }
+  /* weiches Ausblenden am Rand wischbarer Leisten (siehe ScrollRow) */
+  .fade-r {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 56px), transparent);
+  }
+  .fade-l {
+    -webkit-mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to left, #000 calc(100% - 40px), transparent);
+  }
+  .fade-x {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 56px), transparent);
+    mask-image: linear-gradient(to right, transparent, #000 40px, #000 calc(100% - 56px), transparent);
+  }
+  .animate-nudge {
+    animation: nudge 2.4s ease-in-out infinite;
+  }
   .scrollbar-none {
     scrollbar-width: none;
   }
@@ -281,6 +297,10 @@
 }
 @keyframes sky-drift-b {
   to { background-position: -380px 360px; }
+}
+@keyframes nudge {
+  0%, 60%, 100% { transform: translate(0, -50%); opacity: 0.7; }
+  30% { transform: translate(3px, -50%); opacity: 1; }
 }
 @keyframes star-pulse {
   0%, 100% { opacity: 0.25; transform: scale(0.6); }
