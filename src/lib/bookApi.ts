@@ -98,9 +98,41 @@ async function lookupOpenLibrary(isbn: string): Promise<BookLookupResult | null>
   }
 }
 
-/** Freitextsuche (Titel/Autor) über Google Books, liefert mehrere Treffer. */
+/** Freitextsuche (Titel/Autor): Google Books, sonst Open Library. Liefert mehrere Treffer. */
 export async function searchBooks(query: string): Promise<BookLookupResult[]> {
   if (!query.trim()) return []
+  const google = await searchGoogle(query).catch(() => [])
+  if (google.length) return google
+  // Google Books drosselt ohne API-Key gern (429) – dann Open Library fragen
+  return searchOpenLibrary(query).catch(() => [])
+}
+
+async function searchOpenLibrary(query: string): Promise<BookLookupResult[]> {
+  const res = await fetch(
+    `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}&limit=20` +
+      '&fields=title,author_name,isbn,cover_i,first_publish_year,publisher,number_of_pages_median,subject',
+  )
+  if (!res.ok) return []
+  const data = await res.json()
+  return (data.docs ?? []).map((d: any): BookLookupResult => {
+    const isbns: string[] = d.isbn ?? []
+    // deutsche Ausgabe bevorzugen, sonst irgendeine ISBN-13
+    const isbn = isbns.find((i) => i.startsWith('9783')) ?? isbns.find((i) => i.length === 13) ?? isbns[0] ?? null
+    return {
+      isbn,
+      title: d.title ?? 'Unbekannter Titel',
+      authors: d.author_name ?? [],
+      cover_url: d.cover_i ? `https://covers.openlibrary.org/b/id/${d.cover_i}-L.jpg` : null,
+      description: null,
+      publisher: d.publisher?.[0] ?? null,
+      published_date: d.first_publish_year ? String(d.first_publish_year) : null,
+      page_count: d.number_of_pages_median ?? null,
+      categories: (d.subject ?? []).slice(0, 5),
+    }
+  })
+}
+
+async function searchGoogle(query: string): Promise<BookLookupResult[]> {
   const res = await fetch(
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
       query,
