@@ -1,44 +1,43 @@
 import { useId } from 'react'
 
-// Siegel des Grimoires (Logo, siehe docs/logo.md): doppelter Goldring mit vier Rauten,
-// darin eine frei schwebende Mondsichel mit Stern über einem aufgeschlagenen Buch.
-// small: kräftigere Linien ohne Feinheiten, für Größen unter ~48 px.
+// Logo (Claude-Design-Fassung, siehe docs/logo.md): große Mondsichel, die ein
+// aufgeschlagenes Buch umfängt, dazu ein Stern. small: kräftigere Linien, ohne
+// Sternpunkte und Textzeilen, für Größen unter ~48 px.
+const CRESCENT = 'M31.21 4.01A28 28 0 1 0 59.13 38.92A23.5 23.5 0 1 1 31.21 4.01Z'
+const STAR = 'M46 11.6Q46.6 14.4 49.4 15Q46.6 15.6 46 18.4Q45.4 15.6 42.6 15Q45.4 14.4 46 11.6Z'
+const BOOK =
+  'M37 30.4C33.7 28.7 29.3 28.3 26 29V38C29.3 37.3 33.7 37.8 37 39.6Z' +
+  'M37 30.4C40.3 28.7 44.7 28.3 48 29V38C44.7 37.3 40.3 37.8 37 39.6Z' +
+  'M37 30.4V39.6'
+const LINES =
+  'M28 31.6C30.4 31.2 32.8 31.4 35 32.2M28 34C30.4 33.6 32.8 33.8 35 34.6' +
+  'M46 31.6C43.6 31.2 41.2 31.4 39 32.2M46 34C43.6 33.6 41.2 33.8 39 34.6'
+const BOOK_TRANSFORM = 'translate(37 34.5) scale(1.2) translate(-37 -34.5)'
+
 export function Emblem({ className = 'h-10 w-10', small = false }: { className?: string; small?: boolean }) {
-  const id = useId()
-  const g = `gold-${id}`
+  const gid = `gold-${useId().replace(/:/g, '')}`
+  const gold = `url(#${gid})`
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
       <defs>
-        <linearGradient id={g} x1="0" y1="0" x2="0" y2="1">
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor="#fbf1d4" />
           <stop offset=".5" stopColor="#d9b25f" />
           <stop offset="1" stopColor="#94702c" />
         </linearGradient>
       </defs>
-      <circle cx="32" cy="32" r="29" fill="none" stroke={`url(#${g})`} strokeWidth={small ? 2.6 : 1.4} />
+      <path d={CRESCENT} fill={gold} />
+      <path d={STAR} fill="#fbf1d4" />
       {!small && (
         <>
-          <circle cx="32" cy="32" r="25.6" fill="none" stroke="#d9b25f" strokeWidth=".6" opacity=".6" />
-          <path
-            d="M32 1.6l1.4 1.4-1.4 1.4-1.4-1.4zM32 59.6l1.4 1.4-1.4 1.4-1.4-1.4zM1.6 32l1.4-1.4 1.4 1.4-1.4 1.4zM59.6 32l1.4-1.4 1.4 1.4-1.4 1.4z"
-            fill="#f0d99a"
-          />
+          <circle cx="31" cy="17" r=".6" fill="#f0d99a" />
+          <circle cx="53" cy="24" r=".5" fill="#f0d99a" />
+          <circle cx="39" cy="20" r=".45" fill="#f0d99a" />
         </>
       )}
-      <g transform="translate(32 33) scale(.66) translate(-32 -31)">
-        <path d="M33.5 9.5a10 10 0 1 0 8.2 15.9 8 8 0 1 1-8.2-15.9z" fill={`url(#${g})`} />
-        <path d="M46 7.5l1.1 3.1 3.1 1.1-3.1 1.1L46 15.9l-1.1-3.1-3.1-1.1 3.1-1.1z" fill="#fbf1d4" />
-        <g fill="none" stroke={`url(#${g})`} strokeWidth={small ? 3.6 : 2.4} strokeLinejoin="round" strokeLinecap="round">
-          <path d="M32 52c-6-3.2-13.5-3.8-22-2V34c8.5-1.8 16-1.2 22 2 6-3.2 13.5-3.8 22-2v16c-8.5-1.8-16-1.2-22 2z" />
-          <path d="M32 36v16" />
-          {!small && (
-            <path
-              d="M15 39.5c4.5-.8 8.5-.4 12 1M15 44c4.5-.8 8.5-.4 12 1M37 40.5c3.5-1.4 7.5-1.8 12-1M37 45c3.5-1.4 7.5-1.8 12-1"
-              strokeWidth="1.3"
-              opacity=".55"
-            />
-          )}
-        </g>
+      <g transform={BOOK_TRANSFORM} fill="none" stroke={gold} strokeLinejoin="round" strokeLinecap="round">
+        <path d={BOOK} strokeWidth={small ? 2.2 : 1.3} />
+        {!small && <path d={LINES} strokeWidth={0.7} opacity={0.55} />}
       </g>
     </svg>
   )
