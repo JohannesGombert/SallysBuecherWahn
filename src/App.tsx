@@ -17,6 +17,7 @@ import { NightSky } from './components/NightSky'
 import { GrimoireOpening } from './components/Grimoire'
 import { MoonPhase } from './components/MoonPhase'
 import { Settings } from './components/Settings'
+import { Recommendations } from './components/Recommendations'
 import { ScrollRow } from './components/ScrollRow'
 import { Sigil } from './components/Sigil'
 import { STATUS_SIGIL } from './components/status'
@@ -33,6 +34,7 @@ export default function App() {
   const [adding, setAdding] = useState(false)
   const [showStats, setShowStats] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
+  const [showRecs, setShowRecs] = useState(false)
   const [opening, setOpening] = useState(false)
   const [nameForm, setNameForm] = useState({ open: false, fn: '', ln: '', saving: false })
   const prevSession = useRef<'unset' | 'none' | 'active'>('unset')
@@ -130,7 +132,11 @@ export default function App() {
           <nav className="flex items-center gap-1">
             <button onClick={() => setShowStats(true)} className="btn-icon w-auto gap-2 px-3" aria-label="Chronik öffnen">
               <Sigil name="scroll" />
-              <span className="hidden font-display text-[12px] font-semibold uppercase tracking-[0.14em] sm:inline">Chronik</span>
+              <span className="hidden font-display text-[12px] font-semibold uppercase tracking-[0.14em] md:inline">Chronik</span>
+            </button>
+            <button onClick={() => setShowRecs(true)} className="btn-icon w-auto gap-2 px-3" aria-label="Empfehlungen öffnen">
+              <Sigil name="star" />
+              <span className="hidden font-display text-[12px] font-semibold uppercase tracking-[0.14em] md:inline">Empfehlungen</span>
             </button>
             <button onClick={() => setShowSettings(true)} className="btn-icon" aria-label="Einstellungen: was das Grimoire mitschreibt">
               <Sigil name="gear" />
@@ -266,6 +272,7 @@ export default function App() {
       </button>
 
       {showStats && <Chronicle s={stats} onClose={() => setShowStats(false)} />}
+      {showRecs && <Recommendations books={books} onAdded={load} onClose={() => setShowRecs(false)} />}
       {showSettings && <Settings settings={settings} onClose={() => setShowSettings(false)} />}
 
       {adding && (
