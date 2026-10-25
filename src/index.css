@@ -110,17 +110,25 @@
     background: linear-gradient(180deg, transparent, rgba(255, 250, 235, 0.85), transparent);
   }
 
-  /* Sternschnuppe: Kopf rechts, Schweif nach links, fliegt in Kopfrichtung */
+  /* Sternschnuppe: Kopf rechts, Schweif nach links, fliegt in Kopfrichtung,
+     am Ende verglüht der Schweif und der Kopf blitzt kurz auf */
   .shooting-star {
     position: absolute;
     width: 170px;
     height: 2px;
-    border-radius: 9999px;
-    background: linear-gradient(90deg, rgba(200, 220, 255, 0), rgba(225, 236, 255, 0.95));
     transform: rotate(var(--a));
     transform-origin: right center;
+    animation: shoot 2.6s cubic-bezier(0.3, 0.5, 0.45, 1) forwards;
+  }
+  .shooting-star::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 9999px;
+    background: linear-gradient(90deg, rgba(200, 220, 255, 0), rgba(225, 236, 255, 0.95));
     filter: drop-shadow(0 0 6px rgba(190, 215, 255, 0.85));
-    animation: shoot 1.2s cubic-bezier(0.25, 0.6, 0.35, 1) forwards;
+    transform-origin: right center;
+    animation: tail-burn 2.6s ease-in forwards;
   }
   .shooting-star::after {
     content: '';
@@ -133,6 +141,7 @@
     border-radius: 9999px;
     background: #fff;
     box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.9);
+    animation: head-flash 2.6s ease-out forwards;
   }
 
   /* Ledereinband des Grimoires */
@@ -279,8 +288,19 @@
 }
 @keyframes shoot {
   0% { opacity: 0; translate: 0 0; }
-  12% { opacity: 1; }
-  100% { opacity: 0; translate: var(--dx) var(--dy); }
+  8% { opacity: 1; }
+  82% { translate: var(--dx) var(--dy); }
+  100% { opacity: 1; translate: var(--dx) var(--dy); }
+}
+@keyframes tail-burn {
+  0%, 62% { opacity: 1; transform: scaleX(1); }
+  84% { opacity: 0; transform: scaleX(0.15); }
+  100% { opacity: 0; transform: scaleX(0); }
+}
+@keyframes head-flash {
+  0%, 78% { opacity: 1; transform: scale(1); box-shadow: 0 0 10px 3px rgba(255, 255, 255, 0.9); }
+  86% { opacity: 1; transform: scale(2.6); box-shadow: 0 0 22px 9px rgba(255, 248, 225, 0.95), 0 0 46px 18px rgba(180, 205, 255, 0.45); }
+  100% { opacity: 0; transform: scale(0.4); box-shadow: 0 0 4px 1px rgba(255, 255, 255, 0); }
 }
 @keyframes rise {
   from { opacity: 0; transform: translateY(14px); }

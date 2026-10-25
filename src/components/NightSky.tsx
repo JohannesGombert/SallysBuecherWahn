@@ -35,7 +35,7 @@ export function NightSky({ shooting = true }: { shooting?: boolean }) {
         dist: rand(280, 520),
       }
       setShooters((list) => [...list, s])
-      setTimeout(() => setShooters((list) => list.filter((x) => x.id !== s.id)), 1400)
+      setTimeout(() => setShooters((list) => list.filter((x) => x.id !== s.id)), 2800)
       timer = setTimeout(spawn, rand(5000, 13000))
     }
     timer = setTimeout(spawn, rand(1500, 4000))
