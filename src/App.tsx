@@ -11,6 +11,7 @@ import { BookDetail } from './components/BookDetail'
 import { BookTile } from './components/BookTile'
 import { Chronicle } from './components/Chronicle'
 import { Emblem, Flourish } from './components/Emblem'
+import { NightSky } from './components/NightSky'
 import { GrimoireOpening } from './components/Grimoire'
 import { MoonPhase } from './components/MoonPhase'
 import { Sigil } from './components/Sigil'
@@ -84,7 +85,7 @@ export default function App() {
   if (authLoading) {
     return (
       <div className="flex min-h-dvh items-center justify-center">
-        <div className="night-sky" />
+        <NightSky />
         <Emblem className="h-16 w-16 animate-float animate-glow" />
       </div>
     )
@@ -117,7 +118,7 @@ export default function App() {
 
   return (
     <>
-      <div className="night-sky" />
+      <NightSky />
 
       <header className="sticky top-0 z-30 border-b border-gold-400/15 bg-night-900/75 backdrop-blur-md">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-3 px-4 sm:px-6">

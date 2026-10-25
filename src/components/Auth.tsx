@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { COVER_SIZE, GrimoireCover } from './Grimoire'
 import { Sigil } from './Sigil'
+import { NightSky } from './NightSky'
 
 export function Auth() {
   const [email, setEmail] = useState('')
@@ -58,7 +59,7 @@ export function Auth() {
 
   return (
     <main className="flex min-h-dvh items-center justify-center px-2 py-6">
-      <div className="night-sky" />
+      <NightSky />
       <GrimoireCover className={`relative ${COVER_SIZE} animate-rise`}>
         {!isSupabaseConfigured && (
           <p className="mt-6 w-full rounded-xl border border-flame/40 bg-flame/10 p-3 text-sm text-flame">

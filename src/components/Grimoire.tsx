@@ -1,5 +1,6 @@
 import { useEffect, type ReactNode } from 'react'
 import { Corners, Emblem, Flourish } from './Emblem'
+import { NightSky } from './NightSky'
 
 // Gemeinsame Maße: Login-Einband und Öffnungs-Animation liegen exakt übereinander.
 export const COVER_SIZE = 'w-[min(92vw,440px)] min-h-[min(90dvh,640px)]'
@@ -48,7 +49,7 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
 
   return (
     <div className="opening fixed inset-0 z-50 flex items-center justify-center" aria-hidden="true">
-      <div className="night-sky" />
+      <NightSky shooting={false} />
       <div className={`relative h-[min(90dvh,640px)] ${COVER_SIZE}`}>
         {/* erste Seite hinter dem Deckel */}
         <div className="page absolute inset-0 flex flex-col items-center justify-center rounded-r-[1.4rem] text-center">
