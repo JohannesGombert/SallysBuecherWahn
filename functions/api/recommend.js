@@ -7,11 +7,11 @@ const MAX_AUTHORS = 4
 const MAX_GENRES = 3
 const PER_SEED = 6
 const CACHE_SECONDS = 6 * 60 * 60
+const FALLBACK_CACHE_SECONDS = 30 * 60
 
-const json = (data, status = 200) =>
+const json = (data, maxAge = CACHE_SECONDS) =>
   new Response(JSON.stringify(data), {
-    status,
-    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': `public, max-age=${CACHE_SECONDS}` },
+    headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': `public, max-age=${maxAge}` },
   })
 
 const list = (v, max) =>
@@ -64,7 +64,13 @@ async function google(q, key) {
   const url =
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}` +
     `&orderBy=newest&langRestrict=de&printType=books&maxResults=20&key=${key}`
-  const res = await fetch(url)
+  // Google antwortet Servern gelegentlich mit 503 – kurz nacheinander erneut versuchen
+  let res
+  for (let attempt = 0; attempt < 3; attempt++) {
+    res = await fetch(url)
+    if (res.status !== 503) break
+    await new Promise((r) => setTimeout(r, 250 * (attempt + 1)))
+  }
   if (!res.ok) {
     // Grund aus Googles Fehlerantwort (ohne Schlüssel) für die Diagnose mitgeben
     const err = await res.json().catch(() => ({}))
@@ -106,27 +112,6 @@ async function newest(kind, seed, key, errors) {
 
 export const onRequest = async ({ request, env, waitUntil }) => {
   const url = new URL(request.url)
-  // TEMP-DIAG: vorübergehende Diagnose, wird wieder entfernt
-  if (url.searchParams.has('diag')) {
-    const k = env.GOOGLE_BOOKS_KEY
-    const base = 'https://www.googleapis.com/books/v1/volumes?q='
-    const probe = async (label, u) => {
-      const r = await fetch(u)
-      const t = await r.text()
-      return `${label}: ${r.status} ${t.slice(0, 160).replace(/\s+/g, ' ')}`
-    }
-    const out = await Promise.all([
-      probe('einfach+key', `${base}isbn:9783453321342&key=${k}`),
-      probe('einfach+key+DE', `${base}isbn:9783453321342&country=DE&key=${k}`),
-      probe('alles+key+DE', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&langRestrict=de&printType=books&maxResults=20&country=DE&key=${k}`),
-      probe('einfach-ohne', `${base}isbn:9783453321342`),
-      probe('inauthor+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&key=${k}`),
-      probe('newest+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&key=${k}`),
-      probe('lang+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&langRestrict=de&key=${k}`),
-      probe('alles+key', `${base}${encodeURIComponent('inauthor:"Andy Weir"')}&orderBy=newest&langRestrict=de&printType=books&maxResults=20&key=${k}`),
-    ])
-    return new Response([`keyLaenge=${k ? k.length : 0}`, ...out].join(String.fromCharCode(10)))
-  }
   const authors = list(url.searchParams.get('authors'), MAX_AUTHORS)
   const genres = list(url.searchParams.get('genres'), MAX_GENRES)
   if (!authors.length && !genres.length) return json({ items: [], source: 'none' })
@@ -145,7 +130,11 @@ export const onRequest = async ({ request, env, waitUntil }) => {
     ...authors.map((a) => newest('author', a, key, errors)),
     ...genres.map((g) => newest('genre', g, key, errors)),
   ])
-  const res = json({ items: groups.flat(), source: key && !errors.size ? 'google' : 'openlibrary', errors: [...errors] })
+  // nach Google-Fehlern nur kurz cachen, damit Google bald wieder eine Chance bekommt
+  const res = json(
+    { items: groups.flat(), source: key && !errors.size ? 'google' : 'openlibrary', errors: [...errors] },
+    errors.size ? FALLBACK_CACHE_SECONDS : CACHE_SECONDS,
+  )
   waitUntil(cache.put(cacheKey, res.clone()))
   return res
 }
