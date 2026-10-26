@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Book } from '../types'
+import type { Book, ReadingStatus } from '../types'
 import { addBook } from '../lib/booksRepo'
 import { fetchWorks, type Recommendation } from '../lib/recommend'
 import { BookCover } from './BookCover'
@@ -22,7 +22,7 @@ export function AuthorWorks({
 }) {
   const [items, setItems] = useState<Recommendation[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [added, setAdded] = useState<Set<string>>(new Set())
+  const [added, setAdded] = useState<Map<string, ReadingStatus>>(new Map())
   // nur beim Öffnen laden; vorgemerkte Bücher sollen nicht aus der Liste springen
   const atOpen = useRef(books)
   const mine = books.filter((b) => b.authors.includes(author))
@@ -38,13 +38,13 @@ export function AuthorWorks({
     }
   }, [author])
 
-  async function wish(r: Recommendation, key: string) {
+  async function add(r: Recommendation, key: string, status: ReadingStatus) {
     try {
-      await addBook(r.book, 'wishlist')
-      setAdded((s) => new Set(s).add(key))
+      await addBook(r.book, status)
+      setAdded((m) => new Map(m).set(key, status))
       onAdded()
     } catch (e: any) {
-      setError(`Konnte nicht vorgemerkt werden: ${e?.message ?? e}`)
+      setError(`Konnte nicht eingeschrieben werden: ${e?.message ?? e}`)
     }
   }
 
@@ -76,7 +76,7 @@ export function AuthorWorks({
         <p className="mt-6 italic text-ivory-300">Keine weiteren deutschsprachigen Werke gefunden.</p>
       )}
       {items && items.length > 0 && (
-        <Group title="Weitere Werke" items={items} added={added} onWish={wish} reason={false} />
+        <Group title="Weitere Werke" items={items} added={added} onAdd={add} reason={false} />
       )}
     </Sheet>
   )
