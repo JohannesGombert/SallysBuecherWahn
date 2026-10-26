@@ -51,6 +51,14 @@ const PETALS: Petal[] = [
   [2, 62, 0.62, 1.1, 0.95, 0.62, 0.6, true, 'hell'],
 ]
 
+// Kränze der Vorderansicht von außen nach innen: Anzahl, Abstand zur Mitte, Größe, Drehung, Farbton
+const FRONT_RINGS: { n: number; dist: number; scale: number; turn: number; tone: 'tief' | 'mittel' | 'hell' }[] = [
+  { n: 8, dist: 3, scale: 0.6, turn: 0, tone: 'hell' },
+  { n: 7, dist: 2, scale: 0.48, turn: 24, tone: 'mittel' },
+  { n: 6, dist: 1.4, scale: 0.34, turn: 8, tone: 'mittel' },
+  { n: 5, dist: 0.8, scale: 0.22, turn: 40, tone: 'tief' },
+]
+
 export function RoseBloom({ pct, size = 112 }: { pct: number; size?: number }) {
   const id = useId().replace(/:/g, '')
   const f = clamp(pct / 100)
@@ -72,6 +80,10 @@ export function RoseBloom({ pct, size = 112 }: { pct: number; size?: number }) {
     )
   }
   const cup = openAt(f, 0.45)
+  // je offener, desto mehr neigt sich die Blüte zum Betrachter: Seitenansicht → frontal
+  const tilt = openAt(f, 0.4, 1)
+  const fx = bx
+  const fy = by - 13 // Mitte der Blüte in Vorderansicht
 
   return (
     <div className="relative shrink-0" style={{ width: size, height: size }}>
@@ -147,6 +159,7 @@ export function RoseBloom({ pct, size = 112 }: { pct: number; size?: number }) {
             </g>
           </g>
 
+          <g opacity={1 - clamp((tilt - 0.18) * 3.5)} transform={`translate(${bx} ${by}) scale(1 ${lerp(1, 0.75, tilt)}) translate(${-bx} ${-by})`}>
           {/* Kelchblätter hinten: umfassen die Knospe, biegen sich beim Aufblühen zurück */}
           {[-1, 1].map((s) => (
             <path key={s} d={SEPAL} transform={`translate(${bx} ${by + 1}) rotate(${s * lerp(24, 140, openAt(f, 0.1, 0.7))}) scale(.95)`} fill="#4f8a46" />
@@ -183,6 +196,36 @@ export function RoseBloom({ pct, size = 112 }: { pct: number; size?: number }) {
             <path key={s} d={SEPAL} transform={`translate(${bx} ${by + 1.5}) rotate(${s * lerp(10, 115, openAt(f, 0.1, 0.7))}) scale(.85)`} fill="#5d9a52" />
           ))}
           <ellipse cx={bx} cy={by + 1.6} rx="3.4" ry="2.6" fill="#6aa35c" />
+          </g>
+
+          {/* Vorderansicht: die Blüte dreht sich zum Betrachter, Blätter in Kränzen um das eingerollte Herz */}
+          {tilt > 0.05 && (
+            <g opacity={clamp((tilt - 0.12) * 3.5)} transform={`translate(${fx} ${fy}) scale(${lerp(0.55, 1, tilt)} ${lerp(0.3, 1, tilt)})`}>
+              {[0, 72, 144, 216, 288].map((a) => (
+                <path key={a} d={SEPAL} transform={`rotate(${a + 36}) translate(0 -6) scale(.95)`} fill="#4f8a46" />
+              ))}
+              {FRONT_RINGS.map(({ n, dist, scale, turn, tone }, ri) => (
+                <g key={ri}>
+                  {Array.from({ length: n }, (_, i) => (
+                    <path
+                      key={i}
+                      d={PETAL}
+                      transform={`rotate(${turn + (360 / n) * i}) translate(0 ${-dist}) scale(${scale})`}
+                      fill={`url(#${id}-${tone})`}
+                      stroke="#a8466c"
+                      strokeOpacity=".3"
+                      strokeWidth={0.5 / scale}
+                    />
+                  ))}
+                </g>
+              ))}
+              <circle r="4.6" fill={`url(#${id}-heart)`} />
+              <g fill="none" stroke="#8e3a5a" strokeOpacity=".7" strokeWidth=".55" strokeLinecap="round">
+                <path d="M-1.2-.6c1.2-1.2 3.4-.8 3.4.8s-2 2.4-3.6 1.6S-3 -1.6-1.4-3" />
+                <path d="M-4.6 1.2c.6 3 4.8 4.4 7.4 2" strokeOpacity=".45" />
+              </g>
+            </g>
+          )}
         </g>
 
         {f >= 1 &&
