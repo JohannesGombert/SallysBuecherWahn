@@ -24,7 +24,8 @@ export const onRequest = async ({ request, env }) => {
   const runs = []
   for (let i = 0; i < n; i++) {
     const t = Date.now()
-    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?${VARIANTS[v](q)}&key=${env.GOOGLE_BOOKS_KEY}`)
+    const key = url.searchParams.get('k') === '0' ? '' : `&key=${env.GOOGLE_BOOKS_KEY}`
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?${VARIANTS[v](q)}${key}`)
     const body = await res.json().catch(() => ({}))
     const items = body.items || []
     runs.push({
@@ -33,6 +34,7 @@ export const onRequest = async ({ request, env }) => {
       items: items.length,
       match: items.filter((it) => (it.volumeInfo?.authors || []).some((a) => a.toLowerCase().includes(last)) || (it.volumeInfo?.categories || []).some((c) => c.toLowerCase().includes(last))).length,
       ms: Date.now() - t,
+      sample: items.slice(0, 2).map((it) => `${it.volumeInfo?.title} / ${(it.volumeInfo?.authors || []).join(', ')}`),
     })
     await new Promise((r) => setTimeout(r, 700))
   }
