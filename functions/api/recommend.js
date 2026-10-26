@@ -1,6 +1,8 @@
 // Empfehlungen: /api/recommend?authors=A|B&genres=X|Y
 // Neuerscheinungen (letzte 2 Jahre, deutschsprachig) der Lieblingsautor:innen und -genres.
-// Alle Werke einer Autorin: /api/recommend?works=Name (ohne Jahresgrenze, bis zu 40 Titel).
+// Alle Werke einer Autorin: /api/recommend?works=Name&isbn=… – zuerst aus dem Katalog der
+// Deutschen Nationalbibliothek (vollständig für deutsche Bücher). Über die ISBN des angeklickten
+// Buchs wird die Person eindeutig bestimmt (GND-Nummer), damit Namensgleiche nicht mitkommen.
 // Google Books mit Schlüssel (GOOGLE_BOOKS_KEY) bleibt auf dem Server; ohne Schlüssel
 // oder bei Fehlern springt Open Library ein. Antworten werden 6 Stunden gecacht.
 
@@ -23,7 +25,8 @@ const list = (v, max) =>
     .filter(Boolean)
     .slice(0, max)
 
-const norm = (s) => s.toLowerCase().replace(/[^a-zäöüß]/g, '')
+// Akzente abtrennen und entfernen: die DNB speichert „é“ teils als e + Akzentzeichen
+const norm = (s) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z]/g, '')
 const minYear = () => new Date().getFullYear() - 2
 const yearOf = (d) => {
   const m = String(d || '').match(/\d{4}/)
@@ -93,6 +96,74 @@ async function openLibrary(params, max = 20) {
   return (data.docs || []).map(fromOpenLibrary)
 }
 
+// ── Deutsche Nationalbibliothek (SRU, MARC21) ──
+const DNB = 'https://services.dnb.de/sru/dnb?version=1.1&operation=searchRetrieve&recordSchema=MARC21-xml'
+
+const unxml = (s) =>
+  s
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/[\u0098\u009c]/g, '') // Nichtsortierzeichen („Die“ bei der Sortierung überspringen)
+    .trim()
+
+// alle Unterfelder `code` aller Felder `tag` eines Datensatzes
+function marc(rec, tag, code) {
+  const out = []
+  for (const f of rec.matchAll(new RegExp(`<datafield tag="${tag}"[^>]*>([^]*?)</datafield>`, 'g'))) {
+    for (const s of f[1].matchAll(new RegExp(`<subfield code="${code}">([^]*?)</subfield>`, 'g'))) out.push(unxml(s[1]))
+  }
+  return out
+}
+
+async function dnbRecords(query, max = 100) {
+  const res = await fetch(`${DNB}&maximumRecords=${max}&query=${encodeURIComponent(query)}`)
+  if (!res.ok) throw new Error(`DNB ${res.status}`)
+  return (await res.text()).split('type="Bibliographic">').slice(1)
+}
+
+const gndOf = (rec, tags = ['100', '700']) =>
+  tags.flatMap((t) => marc(rec, t, '0')).filter((v) => v.includes('/gnd/')).map((v) => v.split('/gnd/')[1])
+
+// „Kuhn, Julia“ → „Julia Kuhn“
+const personName = (n) => (n.includes(',') ? n.split(',').map((s) => s.trim()).reverse().join(' ') : n)
+
+function fromDnb(rec) {
+  const year = (marc(rec, '264', 'c')[0] || '').match(/\d{4}|\b\d{2}\b/)?.[0]
+  const isbn = marc(rec, '020', 'a').find((i) => /^97[89]\d{10}$/.test(i)) || null
+  return {
+    isbn,
+    // nur der Haupttitel; Untertitel sind bei Kinderbüchern oft Werbetext
+    title: marc(rec, '245', 'a')[0] || 'Unbekannter Titel',
+    authors: [...marc(rec, '100', 'a'), ...marc(rec, '700', 'a')].map(personName),
+    cover_url: null,
+    description: null,
+    publisher: marc(rec, '264', 'b')[0] || null,
+    published_date: year ? (year.length === 2 ? `20${year}` : year) : null,
+    page_count: Number((marc(rec, '300', 'a')[0] || '').match(/(\d+) Seiten/)?.[1]) || null,
+    categories: [],
+  }
+}
+
+/** Werke genau dieser Person aus dem DNB-Katalog (deutschsprachig, mit ISBN), neueste zuerst. */
+async function dnbWorks(name, isbn) {
+  let gnd = null
+  if (isbn) {
+    const [rec] = await dnbRecords(`num=${isbn}`, 1)
+    gnd = rec ? gndOf(rec, ['100']).find(Boolean) ?? null : null
+  }
+  const recs = await dnbRecords(`per="${name}" and mat=books`)
+  const target = norm(name)
+  return recs
+    .filter((r) => (gnd ? gndOf(r).includes(gnd) : marc(r, '100', 'a').some((a) => norm(personName(a)) === target)))
+    .filter((r) => marc(r, '041', 'a').every((l) => l === 'ger'))
+    .map(fromDnb)
+    .filter((b) => b.isbn)
+    .sort((a, b) => (yearOf(b.published_date) ?? 0) - (yearOf(a.published_date) ?? 0))
+}
+
 // Neuerscheinungen eines Suchbegriffs, beste Quelle zuerst; all: alle Jahre, mehr Treffer
 async function newest(kind, seed, key, errors, all = false) {
   const max = all ? MAX_WORKS : 20
@@ -127,6 +198,7 @@ async function newest(kind, seed, key, errors, all = false) {
 export const onRequest = async ({ request, env, waitUntil }) => {
   const url = new URL(request.url)
   const works = (url.searchParams.get('works') || '').trim().slice(0, 120)
+  const worksIsbn = (url.searchParams.get('isbn') || '').replace(/[^0-9X]/gi, '').slice(0, 13)
   const authors = works ? [] : list(url.searchParams.get('authors'), MAX_AUTHORS)
   const genres = works ? [] : list(url.searchParams.get('genres'), MAX_GENRES)
   if (!works && !authors.length && !genres.length) return json({ items: [], source: 'none' })
@@ -135,21 +207,29 @@ export const onRequest = async ({ request, env, waitUntil }) => {
   // Cache getrennt nach Quelle, damit nach dem Eintragen des Schlüssels keine alten Open-Library-Antworten bleiben
   const cacheUrl = new URL(url)
   cacheUrl.searchParams.set('_src', key ? 'google' : 'openlibrary')
-  cacheUrl.searchParams.set('_v', '2') // bei Änderungen an der Suche erhöhen, sonst bleiben alte Antworten 6 h
+  cacheUrl.searchParams.set('_v', '3') // bei Änderungen an der Suche erhöhen, sonst bleiben alte Antworten 6 h
   const cache = caches.default
   const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' })
   const hit = await cache.match(cacheKey)
   if (hit) return hit
 
   const errors = new Set()
+  // Werke: DNB zuerst; nur wenn sie nichts kennt, Google/Open Library
+  const dnb = works
+    ? await dnbWorks(works, worksIsbn).catch((e) => {
+        errors.add(e.message)
+        return []
+      })
+    : []
   const groups = await Promise.all([
-    ...(works ? [newest('author', works, key, errors, true)] : []),
+    ...(works && dnb.length ? [dnb.slice(0, 100).map((book) => ({ kind: 'author', seed: works, book }))] : []),
+    ...(works && !dnb.length ? [newest('author', works, key, errors, true)] : []),
     ...authors.map((a) => newest('author', a, key, errors)),
     ...genres.map((g) => newest('genre', g, key, errors)),
   ])
   // nach Google-Fehlern nur kurz cachen, damit Google bald wieder eine Chance bekommt
   const res = json(
-    { items: groups.flat(), source: key && !errors.size ? 'google' : 'openlibrary', errors: [...errors] },
+    { items: groups.flat(), source: dnb.length ? 'dnb' : key && !errors.size ? 'google' : 'openlibrary', errors: [...errors] },
     errors.size ? FALLBACK_CACHE_SECONDS : CACHE_SECONDS,
   )
   waitUntil(cache.put(cacheKey, res.clone()))

@@ -29,7 +29,8 @@ export function AuthorWorks({
 
   useEffect(() => {
     let alive = true
-    fetchWorks(author, atOpen.current)
+    const isbn = atOpen.current.find((b) => b.authors.includes(author) && b.isbn)?.isbn
+    fetchWorks(author, atOpen.current, isbn)
       .then((r) => alive && setItems(r))
       .catch((e) => alive && setError(e?.message ?? 'Die Werke lassen sich gerade nicht finden.'))
     return () => {
