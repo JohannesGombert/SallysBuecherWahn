@@ -177,7 +177,7 @@ function Row({
         {children}
         <span className="truncate">{label}</span>
       </span>
-      <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/5">
+      <div className="h-2 flex-1 overflow-hidden rounded-full bg-veil/5">
         <div className={`h-full rounded-full ${tint}`} style={{ width: `${(value / max) * 100}%` }} />
       </div>
       <span className="w-7 shrink-0 text-right text-[15px] tabular-nums text-ivory-200">{value}</span>

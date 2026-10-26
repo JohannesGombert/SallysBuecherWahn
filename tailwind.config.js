@@ -16,6 +16,7 @@ export default {
         rose: v('rose'),
         moss: v('moss'),
         danger: v('danger'),
+        veil: v('veil'), // feine Linien/Flächen: hell auf dunklen Designs, dunkel auf hellen
       },
       fontFamily: {
         display: ['var(--font-display)', 'Georgia', 'serif'],

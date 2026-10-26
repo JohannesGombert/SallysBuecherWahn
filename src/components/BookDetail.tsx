@@ -190,7 +190,7 @@ export function BookDetail({ book, settings, onChange, onDelete, onAuthor, onClo
           </label>
           {book.page_count ? (
             <div className="mt-3 flex items-center gap-3">
-              <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/5">
+              <div className="h-2 flex-1 overflow-hidden rounded-full bg-veil/5">
                 <div
                   className="h-full rounded-full bg-gradient-to-r from-gold-600 to-gold-300 transition-all"
                   style={{ width: `${pct(book.current_page, book.page_count)}%` }}

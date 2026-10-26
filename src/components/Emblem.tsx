@@ -20,6 +20,7 @@ export function Emblem({ className = 'h-10 w-10', small = false }: { className?:
   const gid = `gold-${useId().replace(/:/g, '')}`
   const gold = `url(#${gid})`
   if (theme === 'wald') return <OwlEmblem className={className} small={small} gid={gid} />
+  if (theme === 'rose') return <RoseEmblem className={className} small={small} gid={gid} />
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
       <defs>
@@ -74,6 +75,60 @@ export function Corners({ inset = 'inset-3', size = 'h-9 w-9' }: { inset?: strin
       <div className="absolute bottom-0 right-0 rotate-180">{piece}</div>
       <div className="absolute bottom-0 left-0 -rotate-90">{piece}</div>
     </div>
+  )
+}
+
+// Rosenblüte (Koordinaten 0–40, Mitte 20/20): äußere Blätter, innere Blätter, Spirale.
+// innerClass erlaubt der Öffnungs-Animation, die inneren Blätter extra aufgehen zu lassen.
+const ROSE_OUTER = [0, 72, 144, 216, 288]
+const ROSE_INNER = [36, 126, 216, 306]
+export function RoseFlower({ innerClass = '', spiral = true }: { innerClass?: string; spiral?: boolean }) {
+  const at = (deg: number, r: number) => [20 + r * Math.cos((deg * Math.PI) / 180), 20 + r * Math.sin((deg * Math.PI) / 180)]
+  return (
+    <g>
+      {ROSE_OUTER.map((d) => {
+        const [x, y] = at(d - 90, 7)
+        return <ellipse key={d} cx={x} cy={y} rx="8" ry="6.5" transform={`rotate(${d} ${x} ${y})`} fill="#eaa4b8" stroke="#c9718f" strokeWidth=".5" />
+      })}
+      <g className={innerClass}>
+        {ROSE_INNER.map((d) => {
+          const [x, y] = at(d - 90, 3.6)
+          return <ellipse key={d} cx={x} cy={y} rx="5.5" ry="4.5" transform={`rotate(${d} ${x} ${y})`} fill="#d97f9c" stroke="#b5557a" strokeWidth=".4" />
+        })}
+        <circle cx="20" cy="20" r="4.2" fill="#c2607f" />
+        {spiral && <path d="M20 17.6c2 0 3 1.5 2.4 3s-2.5 2-3.6 1-1-3 .7-3.7" fill="none" stroke="#7a3149" strokeWidth=".8" strokeLinecap="round" />}
+      </g>
+    </g>
+  )
+}
+
+const ROSE_BOOK_TRANSFORM = 'translate(32 46) scale(1.3) translate(-37 -34)'
+
+// Teesalon-Logo: Rose auf aufgeschlagenem Buch im ovalen Rahmen, Altrosa und Rosegold.
+function RoseEmblem({ className, small, gid }: { className: string; small: boolean; gid: string }) {
+  const roseGold = `url(#${gid})`
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#d48fa7" />
+          <stop offset=".5" stopColor="#b5557a" />
+          <stop offset="1" stopColor="#7a3149" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="32" cy="32" rx="27.5" ry="29.5" fill="#fffaf6" fillOpacity=".55" stroke={roseGold} strokeWidth={small ? 2 : 1.5} />
+      {!small && <ellipse cx="32" cy="32" rx="24.8" ry="26.8" fill="none" stroke={roseGold} strokeWidth=".6" opacity=".55" />}
+      <g transform={ROSE_BOOK_TRANSFORM} fill="#fffaf6" stroke={roseGold} strokeLinejoin="round" strokeLinecap="round">
+        <path d={BOOK} strokeWidth={small ? 1.8 : 1.1} />
+        {!small && <path d={LINES} strokeWidth={0.6} opacity={0.55} />}
+      </g>
+      <path d="M35 36L46 47" stroke="#6f9a6c" strokeWidth={small ? 1.8 : 1.3} strokeLinecap="round" />
+      <ellipse cx="42.5" cy="40.5" rx="4" ry="1.7" transform="rotate(-20 42.5 40.5)" fill="#7fae7a" />
+      {!small && <ellipse cx="39" cy="45" rx="3.2" ry="1.4" transform="rotate(50 39 45)" fill="#7fae7a" />}
+      <g transform="translate(13 11) scale(0.95)">
+        <RoseFlower spiral={!small} />
+      </g>
+    </svg>
   )
 }
 

@@ -144,7 +144,7 @@ function Toggle({
       aria-disabled={locked}
       onClick={() => !locked && onChange(!on)}
       className={`flex w-full items-start gap-4 rounded-xl border p-4 text-left transition ${
-        on ? 'border-gold-400/45 bg-gold-400/[0.06]' : 'border-white/10 hover:border-gold-400/30'
+        on ? 'border-gold-400/45 bg-gold-400/[0.06]' : 'border-veil/10 hover:border-gold-400/30'
       } ${locked ? 'cursor-default' : ''}`}
     >
       <span className="min-w-0 flex-1">
@@ -153,7 +153,7 @@ function Toggle({
       </span>
       <span
         className={`relative mt-1 h-7 w-12 shrink-0 rounded-full border transition ${
-          on ? 'border-gold-300/80 bg-gold-400/70' : 'border-white/15 bg-night-950/60'
+          on ? 'border-gold-300/80 bg-gold-400/70' : 'border-veil/15 bg-night-950/60'
         } ${locked ? 'opacity-60' : ''}`}
         aria-hidden="true"
       >
@@ -195,7 +195,7 @@ function DesignPicker() {
             aria-checked={theme === t.id}
             onClick={() => choose(t.id)}
             className={`rounded-xl border p-3 text-left transition ${
-              theme === t.id ? 'border-gold-300/80 bg-gold-400/10' : 'border-white/10 hover:border-gold-400/40'
+              theme === t.id ? 'border-gold-300/80 bg-gold-400/10' : 'border-veil/10 hover:border-gold-400/40'
             }`}
           >
             <ThemePreview id={t.id} />
@@ -213,7 +213,9 @@ function DesignPicker() {
 const PREVIEW: Record<Theme, { sky: [string, string]; bar: string; accent: string; light: string; covers: string[] }> = {
   nacht: { sky: ['#18224a', '#060916'], bar: '#0b1024', accent: '#d9b25f', light: '#fbf6ea', covers: ['#22336b', '#5e2a33', '#3b2a5e'] },
   wald: { sky: ['#1a3324', '#07120d'], bar: '#0c1a13', accent: '#cc8752', light: '#f4f7c4', covers: ['#2f4a2c', '#5a3a22', '#2e4f45'] },
+  rose: { sky: ['#fcf6f1', '#f1e0d7'], bar: '#f6ece6', accent: '#b9667f', light: '#5b3e4d', covers: ['#e3b5c1', '#d8c3e0', '#efd9c2'] },
 }
+const PREVIEW_PETALS = [[30, 30, 20], [110, 22, 70], [196, 52, -30], [44, 84, 110], [150, 96, 40]]
 const PREVIEW_STARS = [[18, 22], [52, 16], [96, 26], [140, 14], [176, 30], [34, 40], [120, 44], [206, 46]]
 const PREVIEW_FIRS = [[8, 34], [26, 46], [44, 30], [196, 38], [214, 50], [232, 32]]
 
@@ -222,7 +224,7 @@ function ThemePreview({ id }: { id: Theme }) {
   const c = PREVIEW[id]
   const gid = `preview-${id}`
   return (
-    <svg viewBox="0 0 240 110" className="block w-full rounded-lg ring-1 ring-white/10" aria-hidden="true">
+    <svg viewBox="0 0 240 110" className="block w-full rounded-lg ring-1 ring-veil/10" aria-hidden="true">
       <defs>
         <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stopColor={c.sky[0]} />
@@ -230,7 +232,16 @@ function ThemePreview({ id }: { id: Theme }) {
         </linearGradient>
       </defs>
       <rect width="240" height="110" fill={`url(#${gid})`} />
-      {id === 'nacht' ? (
+      {id === 'rose' ? (
+        <>
+          <path d="M0 16L70 16L20 110L0 110Z" fill="#fff1d6" opacity=".55" />
+          <path d="M84 16L110 16L56 110L36 110Z" fill="#fff1d6" opacity=".35" />
+          {PREVIEW_PETALS.map(([x, y, r]) => (
+            <path key={x} d="M0 5C-3 3-3-1-1-3C0-2 1-2 2-3C4-1 4 3 0 5Z" transform={`translate(${x} ${y}) rotate(${r}) scale(1.4)`} fill="#e8a5b9" />
+          ))}
+          <path d="M214 104C206 92 222 84 214 72" stroke="#fff" strokeWidth="3" strokeLinecap="round" fill="none" opacity=".8" />
+        </>
+      ) : id === 'nacht' ? (
         <>
           {PREVIEW_STARS.map(([x, y]) => (
             <circle key={x} cx={x} cy={y} r="0.9" fill="#fff" opacity=".8" />

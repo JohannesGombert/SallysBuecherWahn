@@ -7,6 +7,7 @@ import { useTheme, type Theme } from '../lib/theme'
 const LEATHER: Record<Theme, [string[], string]> = {
   nacht: [['#3b2a5e', '#1e3b63', '#5e2a33', '#24493b', '#4d3a1f', '#2c2f5e'], '#0c1431'],
   wald: [['#3d5a2e', '#5a3a22', '#2e4f45', '#6b4a24', '#4a3b2a', '#29452f'], '#0c1a13'],
+  rose: [['#f3cdd8', '#e2d0ea', '#d5e6dc', '#f4dfc6', '#ead3dd', '#f0d0c4'], '#d9a8b6'],
 }
 
 function tone(title: string, tones: string[]) {

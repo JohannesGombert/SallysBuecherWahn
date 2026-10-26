@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from 'react'
-import { Corners, Emblem, Flourish } from './Emblem'
+import { Corners, Emblem, Flourish, RoseFlower } from './Emblem'
 import { Sky } from './Sky'
 import { useTheme } from '../lib/theme'
 
@@ -49,17 +49,28 @@ const LEAVES: [number, number, number][] = [
   [-170, -210, 1.7], [150, -240, 1.85], [-220, -40, 2], [230, -110, 1.75], [40, -280, 1.95], [-90, -260, 2.1],
 ]
 
+// Teesalon: Rosen an den vier Buchecken [Position, Verzögerung]
+const ROSE_CORNERS: [string, number][] = [
+  ['-left-6 -top-6', 0],
+  ['-right-6 -top-6', 0.12],
+  ['-bottom-6 -right-6', 0.24],
+  ['-bottom-6 -left-6', 0.36],
+]
+
 /** Nach dem Login: Der Deckel schwingt auf, Licht strömt heraus, man taucht ins Buch ein.
- *  Im Wald liegt erst dichter Nebel, der aufreißt; ein Lichtkegel fällt auf das Buch, dann öffnet es sich. */
+ *  Im Wald liegt erst dichter Nebel, der aufreißt; ein Lichtkegel fällt auf das Buch, dann öffnet es sich.
+ *  Im Teesalon erblühen Rosen an den Buchecken, Blütenblätter wirbeln auf, dann öffnet es sich. */
 export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => void }) {
-  const forest = useTheme() === 'wald'
+  const theme = useTheme()
+  const forest = theme === 'wald'
+  const rose = theme === 'rose'
   useEffect(() => {
-    const t = setTimeout(onDone, forest ? 3500 : 2450)
+    const t = setTimeout(onDone, forest ? 3500 : rose ? 3400 : 2450)
     return () => clearTimeout(t)
-  }, [onDone, forest])
+  }, [onDone, forest, rose])
 
   return (
-    <div className={`opening fixed inset-0 z-50 flex overflow-hidden items-center justify-center ${forest ? 'forest' : ''}`} aria-hidden="true">
+    <div className={`opening fixed inset-0 z-50 flex overflow-hidden items-center justify-center ${forest ? 'forest' : rose ? 'rose' : ''}`} aria-hidden="true">
       <Sky shooting={false} />
       {forest && (
         <div className="light-cone">
@@ -76,7 +87,7 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
           <p className="gold-foil relative mt-3 px-6 font-display text-3xl font-bold">{name}</p>
           <Flourish className="relative mt-4 h-4 w-36" />
         </div>
-        {SPARKS.map(([x, y, d], i) => (
+        {!rose && SPARKS.map(([x, y, d], i) => (
           <span
             key={i}
             className={`spark absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full ${
@@ -97,11 +108,28 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
               <path d="M8 1C12 4 13 9 8 15C3 9 4 4 8 1Z" fill={i % 2 ? '#8a9a3a' : '#b5652f'} />
             </svg>
           ))}
+        {rose &&
+          SPARKS.map(([x, y, d], i) => (
+            <svg
+              key={i}
+              viewBox="0 0 16 16"
+              className="rise-leaf absolute left-1/2 top-1/2 h-4 w-4"
+              style={{ '--x': `${x * 1.2}px`, '--y': `${y * 1.2}px`, '--d': `${d + 0.5}s` } as React.CSSProperties}
+            >
+              <path d="M8 15C3 12 2 6 5 2C6.5 4 9.5 4 11 2C14 6 13 12 8 15Z" fill={i % 3 ? '#e8a5b9' : '#d27c97'} />
+            </svg>
+          ))}
         {/* Deckel: Vorderseite + Vorsatzpapier auf der Rückseite */}
         <div className="cover-door absolute inset-0">
           <GrimoireCover className="cover-face absolute inset-0" />
           <div className="cover-back endpaper absolute inset-0 rounded-l-[1.4rem] rounded-r-md border border-gold-500/25" />
         </div>
+        {rose &&
+          ROSE_CORNERS.map(([pos, d]) => (
+            <svg key={pos} viewBox="0 0 40 40" className={`bloom ${pos}`} style={{ '--d': `${d}s` } as React.CSSProperties}>
+              <RoseFlower innerClass="petals-inner" />
+            </svg>
+          ))}
       </div>
       {forest && (
         <>
