@@ -108,6 +108,7 @@ async function newest(kind, seed, key, errors, all = false) {
     const p = kind === 'author' ? `author=${encodeURIComponent(seed)}` : `subject=${encodeURIComponent(seed.toLowerCase())}`
     books = await openLibrary(p, max).catch(() => [])
   }
+  if (all) errors.add('DEBUG ' + books.length + ' ' + JSON.stringify(books.slice(0, 8).map((b) => [b.authors, b.published_date])))
   const recent = all ? books : books.filter((b) => (yearOf(b.published_date) ?? 0) >= minYear())
   // bei Autor:innen nur Treffer, die wirklich von ihnen sind (Namensgleichheit in Titeln ausschließen);
   // für „alle Werke“ muss der volle Name passen, sonst kommen alle mit gleichem Nachnamen
