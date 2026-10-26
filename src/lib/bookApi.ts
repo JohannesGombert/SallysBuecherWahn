@@ -17,10 +17,12 @@ function upgradeCover(url: string | undefined): string | null {
   return url.replace('http://', 'https://').replace('zoom=1', 'zoom=2')
 }
 
-// Optionaler Google-Books-API-Key (empfohlen für stabile Trefferquote auf
-// Mobilfunk). In .env als VITE_GOOGLE_BOOKS_KEY hinterlegen.
+// Google-Books-Schlüssel für Abfragen direkt aus dem Browser (VITE_GOOGLE_BOOKS_KEY).
+// Er steht im ausgelieferten Code und ist in der Google-Konsole auf die Website beschränkt.
+// Vom Server (Cloudflare) aus antwortet Google kaum zuverlässig, aus dem Browser schon.
 const GOOGLE_KEY = import.meta.env.VITE_GOOGLE_BOOKS_KEY as string | undefined
 const keyParam = GOOGLE_KEY ? `&key=${GOOGLE_KEY}` : ''
+export const hasGoogleKey = Boolean(GOOGLE_KEY)
 
 /**
  * Fragt zuerst unseren Server-Proxy (Cloudflare-Pages-Function: Google Books → DNB),
@@ -133,12 +135,15 @@ async function searchOpenLibrary(query: string): Promise<BookLookupResult[]> {
 }
 
 async function searchGoogle(query: string): Promise<BookLookupResult[]> {
+  return googleVolumes(query).catch(() => [])
+}
+
+/** Google-Books-Suche aus dem Browser; wirft bei Fehlern, damit Aufrufer ausweichen können. */
+export async function googleVolumes(query: string, params = 'maxResults=20&country=DE'): Promise<BookLookupResult[]> {
   const res = await fetch(
-    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(
-      query,
-    )}&maxResults=20&country=DE${keyParam}`,
+    `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(query)}&${params}${keyParam}`,
   )
-  if (!res.ok) return []
+  if (!res.ok) throw new Error(`Google ${res.status}`)
   const data = await res.json()
   return (data.items ?? []).map((raw: any): BookLookupResult => {
     const item = raw.volumeInfo ?? {}

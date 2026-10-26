@@ -1,4 +1,5 @@
 import type { Book, BookLookupResult } from '../types'
+import { googleVolumes, hasGoogleKey } from './bookApi'
 
 export interface Recommendation {
   kind: 'author' | 'genre'
@@ -57,16 +58,51 @@ export async function fetchWorks(author: string, books: Book[], isbn?: string | 
   const q = new URLSearchParams({ works: author, ...(isbn ? { isbn } : {}) })
   const res = await fetch(`/api/recommend?${q}`)
   if (!res.ok) throw new Error(`Werke nicht erreichbar (${res.status})`)
-  const data = (await res.json()) as { items: Recommendation[] }
+  const data = (await res.json()) as { items: Recommendation[]; source: string }
+  // kennt die Nationalbibliothek die Person nicht, Google aus dem Browser fragen (voller Name muss passen)
+  if (data.source !== 'dnb' && hasGoogleKey) {
+    const name = author.toLowerCase()
+    const google = await googleVolumes(`inauthor:"${author}"`, 'langRestrict=de&printType=books&maxResults=40&country=DE').catch(() => [])
+    const own = google.filter((b) => b.authors.some((a) => a.toLowerCase() === name))
+    if (own.length) return filterKnown(own.map((book) => ({ kind: 'author' as const, seed: author, book })), books)
+  }
   return filterKnown(data.items, books)
+}
+
+const NEWEST = 'orderBy=newest&langRestrict=de&printType=books&maxResults=20&country=DE'
+const yearOf = (d: string | null) => Number(d?.match(/\d{4}/)?.[0] ?? 0)
+
+/** Neuerscheinungen (letzte 2 Jahre) einer Autorin oder eines Genres direkt bei Google. */
+async function googleNewest(kind: Recommendation['kind'], seed: string): Promise<Recommendation[]> {
+  const minYear = new Date().getFullYear() - 2
+  const last = seed.toLowerCase().split(' ').pop() ?? ''
+  const books = await googleVolumes(kind === 'author' ? `inauthor:"${seed}"` : `subject:"${seed}"`, NEWEST)
+  return books
+    .filter((b) => yearOf(b.published_date) >= minYear)
+    .filter((b) => kind !== 'author' || b.authors.some((a) => a.toLowerCase().includes(last)))
+    .slice(0, 6)
+    .map((book) => ({ kind, seed, book }))
 }
 
 export async function fetchRecommendations(books: Book[]): Promise<{ items: Recommendation[]; source: string }> {
   const { authors, genres } = seedsFrom(books)
   if (!authors.length && !genres.length) return { items: [], source: 'none' }
-  const q = new URLSearchParams({ authors: authors.join('|'), genres: genres.join('|') })
-  const res = await fetch(`/api/recommend?${q}`)
-  if (!res.ok) throw new Error(`Empfehlungen nicht erreichbar (${res.status})`)
-  const data = (await res.json()) as { items: Recommendation[]; source: string }
-  return { items: filterKnown(data.items, books), source: data.source }
+  const seeds = [
+    ...authors.map((s) => ({ kind: 'author' as const, s })),
+    ...genres.map((s) => ({ kind: 'genre' as const, s })),
+  ]
+  // zuerst Google aus dem Browser; was dort fehlt oder scheitert, holt der Server (Open Library)
+  const google = hasGoogleKey ? await Promise.all(seeds.map((x) => googleNewest(x.kind, x.s).catch(() => []))) : []
+  const missing = seeds.filter((_, i) => !google[i]?.length)
+  let server: { items: Recommendation[]; source: string } = { items: [], source: 'google' }
+  if (missing.length) {
+    const q = new URLSearchParams({
+      authors: missing.filter((x) => x.kind === 'author').map((x) => x.s).join('|'),
+      genres: missing.filter((x) => x.kind === 'genre').map((x) => x.s).join('|'),
+    })
+    const res = await fetch(`/api/recommend?${q}`)
+    if (!res.ok && !google.some((g) => g.length)) throw new Error(`Empfehlungen nicht erreichbar (${res.status})`)
+    if (res.ok) server = await res.json()
+  }
+  return { items: filterKnown([...google.flat(), ...server.items], books), source: server.source }
 }
