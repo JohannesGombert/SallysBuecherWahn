@@ -198,11 +198,7 @@ function DesignPicker() {
               theme === t.id ? 'border-gold-300/80 bg-gold-400/10' : 'border-white/10 hover:border-gold-400/40'
             }`}
           >
-            <span className="flex h-12 overflow-hidden rounded-lg ring-1 ring-white/10" aria-hidden="true">
-              {t.colors.map((c) => (
-                <span key={c} className="flex-1" style={{ background: c }} />
-              ))}
-            </span>
+            <ThemePreview id={t.id} />
             <span className="mt-2.5 block font-medium text-ivory-50">{t.name}</span>
             <span className="block text-[15px] leading-snug text-ivory-300">{t.hint}</span>
           </button>
@@ -210,6 +206,62 @@ function DesignPicker() {
       </div>
       {error && <p className="mt-2 text-danger">{error}</p>}
     </section>
+  )
+}
+
+// Feste Farben je Design, damit jede Vorschau unabhängig vom aktiven Design stimmt
+const PREVIEW: Record<Theme, { sky: [string, string]; bar: string; accent: string; light: string; covers: string[] }> = {
+  nacht: { sky: ['#18224a', '#060916'], bar: '#0b1024', accent: '#d9b25f', light: '#fbf6ea', covers: ['#22336b', '#5e2a33', '#3b2a5e'] },
+  wald: { sky: ['#1a3324', '#07120d'], bar: '#0c1a13', accent: '#cc8752', light: '#f4f7c4', covers: ['#2f4a2c', '#5a3a22', '#2e4f45'] },
+}
+const PREVIEW_STARS = [[18, 22], [52, 16], [96, 26], [140, 14], [176, 30], [34, 40], [120, 44], [206, 46]]
+const PREVIEW_FIRS = [[8, 34], [26, 46], [44, 30], [196, 38], [214, 50], [232, 32]]
+
+/** Miniatur der Bibliothek im jeweiligen Design: Kopfzeile, Himmel, drei Bücher, Knopf. */
+function ThemePreview({ id }: { id: Theme }) {
+  const c = PREVIEW[id]
+  const gid = `preview-${id}`
+  return (
+    <svg viewBox="0 0 240 110" className="block w-full rounded-lg ring-1 ring-white/10" aria-hidden="true">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor={c.sky[0]} />
+          <stop offset="1" stopColor={c.sky[1]} />
+        </linearGradient>
+      </defs>
+      <rect width="240" height="110" fill={`url(#${gid})`} />
+      {id === 'nacht' ? (
+        <>
+          {PREVIEW_STARS.map(([x, y]) => (
+            <circle key={x} cx={x} cy={y} r="0.9" fill="#fff" opacity=".8" />
+          ))}
+          <path d="M150 34l38-14" stroke="#cfe0ff" strokeWidth="1" strokeLinecap="round" opacity=".7" />
+          <circle cx="212" cy="26" r="9" fill="#cfe0ff" />
+          <circle cx="216" cy="23" r="8" fill={c.sky[0]} />
+        </>
+      ) : (
+        <>
+          <circle cx="212" cy="26" r="9" fill="#dfe6cf" opacity=".35" />
+          {PREVIEW_FIRS.map(([x, h]) => (
+            <path key={x} d={`M${x} ${110 - h}l${h * 0.3} ${h}h-${h * 0.6}z`} fill="#102a1c" />
+          ))}
+          {PREVIEW_STARS.map(([x, y]) => (
+            <circle key={x} cx={x + 6} cy={y + 34} r="1.2" fill={c.light} opacity=".85" />
+          ))}
+          <ellipse cx="120" cy="104" rx="140" ry="10" fill="#cfe0cf" opacity=".12" />
+        </>
+      )}
+      <rect width="240" height="16" fill={c.bar} opacity=".9" />
+      <circle cx="10" cy="8" r="4" fill={c.accent} />
+      <rect x="18" y="6" width="44" height="4" rx="2" fill={c.accent} opacity=".85" />
+      {c.covers.map((col, i) => (
+        <g key={col}>
+          <rect x={62 + i * 40} y="30" width="30" height="45" rx="2" fill={col} stroke={c.accent} strokeOpacity=".7" />
+          <rect x={68 + i * 40} y="80" width="18" height="2.5" rx="1" fill={c.light} opacity=".6" />
+        </g>
+      ))}
+      <rect x="182" y="90" width="48" height="12" rx="6" fill={c.accent} />
+    </svg>
   )
 }
 

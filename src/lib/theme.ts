@@ -5,9 +5,9 @@ import { useSyncExternalStore } from 'react'
 
 export type Theme = 'nacht' | 'wald'
 
-export const THEMES: { id: Theme; name: string; hint: string; colors: string[] }[] = [
-  { id: 'nacht', name: 'Nacht-Grimoire', hint: 'Mitternachtsblau, Blattgold, Sternschnuppen.', colors: ['#0b1024', '#24305f', '#d9b25f', '#cfe0ff'] },
-  { id: 'wald', name: 'Verwunschener Wald', hint: 'Tannengrün, Kupfer, Glühwürmchen im Nebel.', colors: ['#0c1a13', '#22442f', '#cc8752', '#a3dca2'] },
+export const THEMES: { id: Theme; name: string; hint: string }[] = [
+  { id: 'nacht', name: 'Nacht-Grimoire', hint: 'Mitternachtsblau, Blattgold, Sternschnuppen.' },
+  { id: 'wald', name: 'Verwunschener Wald', hint: 'Tannengrün, Kupfer, Glühwürmchen im Nebel.' },
 ]
 
 const THEME_COLOR: Record<Theme, string> = { nacht: '#0b1024', wald: '#0c1a13' }
