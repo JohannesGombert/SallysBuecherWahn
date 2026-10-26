@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { useAuth } from './hooks/useAuth'
 import { supabase } from './lib/supabase'
 import { fetchBooks } from './lib/booksRepo'
@@ -28,8 +28,9 @@ type Filter = 'all' | ReadingStatus
 export default function App() {
   const { session, user, loading: authLoading } = useAuth()
   // Design aus dem Konto übernehmen, damit es der Leseratte auf jedes Gerät folgt
+  // (vor dem ersten Zeichnen, sonst blitzt kurz das alte Design auf)
   const accountTheme = user?.user_metadata?.theme
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (accountTheme) setTheme(asTheme(accountTheme))
   }, [accountTheme])
   const [books, setBooks] = useState<Book[]>([])
@@ -46,8 +47,9 @@ export default function App() {
   const prevSession = useRef<'unset' | 'none' | 'active'>('unset')
   const endOpening = useCallback(() => setOpening(false), [])
 
-  // Das Grimoire öffnet sich nur beim frischen Login (nicht beim Neuladen mit Session)
-  useEffect(() => {
+  // Das Grimoire öffnet sich nur beim frischen Login (nicht beim Neuladen mit Session).
+  // useLayoutEffect: die Animation steht, bevor die Bibliothek zum ersten Mal gezeichnet wird.
+  useLayoutEffect(() => {
     if (authLoading) return
     const now = session ? 'active' : 'none'
     const prev = prevSession.current
