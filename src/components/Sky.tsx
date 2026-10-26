@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useTheme } from '../lib/theme'
 import { NightSky } from './NightSky'
+import { RoseGarden } from './RoseGarden'
 
 /** Hintergrund passend zum gewählten Design. */
 export function Sky({ shooting = true }: { shooting?: boolean }) {
@@ -128,34 +129,7 @@ function ForestSky({ leaves = true }: { leaves?: boolean }) {
   )
 }
 
-// Rosengarten am unteren Rand (viewBox 1200×300): Hecke aus Bögen, darin Rosen
-function hedge(top: number, bump: number, width: number) {
-  let d = `M0 300V${top}`
-  for (let x = 0; x < 1200; x += width) d += `Q${x + width / 2} ${top - bump} ${x + width} ${top}`
-  return d + 'V300Z'
-}
-// [x, y, Größe, Farbe]
-const GARDEN_BACK: [number, number, number, string][] = [
-  [40, 150, 7, '#f2c4d1'], [120, 132, 6, '#e8a5b9'], [210, 150, 7, '#f6d6de'], [300, 128, 6, '#e8a5b9'],
-  [390, 148, 7, '#f2c4d1'], [480, 130, 6, '#d98aa3'], [580, 150, 7, '#f6d6de'], [670, 126, 6, '#e8a5b9'],
-  [760, 146, 7, '#f2c4d1'], [850, 132, 6, '#d98aa3'], [950, 150, 7, '#f6d6de'], [1040, 128, 6, '#e8a5b9'], [1140, 146, 7, '#f2c4d1'],
-]
-const GARDEN_FRONT: [number, number, number, string][] = [
-  [20, 228, 11, '#d98aa3'], [95, 205, 9, '#e8a5b9'], [165, 236, 12, '#c96f8f'], [250, 214, 10, '#f2c4d1'],
-  [930, 220, 10, '#e8a5b9'], [1010, 200, 9, '#c96f8f'], [1090, 232, 12, '#d98aa3'], [1170, 210, 10, '#f2c4d1'],
-]
-
-function GardenRose({ x, y, r, c }: { x: number; y: number; r: number; c: string }) {
-  return (
-    <g>
-      <circle cx={x} cy={y} r={r} fill={c} />
-      <circle cx={x} cy={y} r={r * 0.62} fill="#fff" opacity=".22" />
-      <path d={`M${x - r * 0.35} ${y}a${r * 0.35} ${r * 0.35} 0 1 1 ${r * 0.35} ${r * 0.35}`} fill="none" stroke="#9e4a68" strokeOpacity=".45" strokeWidth={r * 0.14} />
-    </g>
-  )
-}
-
-const PETAL_GAP: [number, number] = [2200, 5500]
+const PETAL_GAP: [number, number] = [600, 1600]
 const STEAM_GAP: [number, number] = [6000, 12000]
 const PETAL_COLORS = ['#e8a5b9', '#f2c4d1', '#d98aa3', '#f6d6de']
 
@@ -181,18 +155,7 @@ function TeaRoomSky({ drift = true }: { drift?: boolean }) {
     <div className="tea-sky" aria-hidden="true">
       <div className="sunbeam" />
       <div className="sunbeam b" />
-      <svg className="forest-trees h-[30vh]" viewBox="0 0 1200 300" preserveAspectRatio="xMidYMax slice">
-        <path d={hedge(150, 40, 90)} fill="#cfdcc4" />
-        {GARDEN_BACK.map(([x, y, r, c]) => (
-          <GardenRose key={x} x={x} y={y} r={r} c={c} />
-        ))}
-        {/* Büsche vorn links und rechts, die Mitte bleibt frei für das Regal */}
-        <path d="M0 300V215Q40 160 95 185Q150 150 205 200Q260 175 300 300Z" fill="#a9c49f" />
-        <path d="M1200 300V200Q1150 160 1095 185Q1040 150 985 195Q930 180 890 300Z" fill="#a9c49f" />
-        {GARDEN_FRONT.map(([x, y, r, c]) => (
-          <GardenRose key={x} x={x} y={y} r={r} c={c} />
-        ))}
-      </svg>
+      <RoseGarden animals={drift} />
       {flecks.map((f, i) => (
         <span
           key={i}

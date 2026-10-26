@@ -801,3 +801,45 @@
   20% { opacity: 0.95; }
   100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(320deg) scale(1); }
 }
+
+/* ── Rosen-Teesalon: Tiere (Position setzt RoseGarden per transform) ───── */
+.critter {
+  position: absolute;
+  left: -40px;
+  top: -60px;
+  width: 80px;
+  height: 70px;
+  transform-origin: 40px 60px; /* Füße als Bezugspunkt */
+  will-change: transform;
+}
+.critter[data-moving='true'] .sit,
+.critter[data-moving='false'] .fly {
+  display: none;
+}
+.critter .wing {
+  transform-box: fill-box;
+  transform-origin: 100% 100%;
+  animation: wing-flap 0.18s ease-in-out infinite alternate;
+}
+.critter[data-moving='false'] .head {
+  transform-box: fill-box;
+  transform-origin: 30% 80%;
+  animation: peck 2.4s ease-in-out infinite;
+}
+.critter.squirrel[data-moving='false'] .tail {
+  transform-box: fill-box;
+  transform-origin: 90% 95%;
+  animation: tail-flick 1.4s ease-in-out infinite;
+}
+@keyframes wing-flap {
+  from { transform: scaleY(1); }
+  to { transform: scaleY(-0.6); }
+}
+@keyframes peck {
+  0%, 70%, 100% { transform: none; }
+  78%, 90% { transform: rotate(28deg); }
+}
+@keyframes tail-flick {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(10deg); }
+}
