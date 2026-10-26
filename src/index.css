@@ -262,6 +262,12 @@
     @apply inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-ivory-200 transition hover:bg-white/5 hover:text-gold-200;
   }
 
+  /* vom Browser ausgefüllte Felder (E-Mail, Passwort) nicht graublau einfärben */
+  .field:-webkit-autofill {
+    -webkit-box-shadow: 0 0 0 1000px rgb(var(--night-900)) inset;
+    -webkit-text-fill-color: rgb(var(--ivory-50));
+    caret-color: rgb(var(--ivory-50));
+  }
   .field {
     @apply w-full rounded-xl border border-gold-500/25 bg-night-950/55 px-4 py-3 text-[17px] text-ivory-50 outline-none transition placeholder:text-ivory-300/55 focus:border-gold-300/80 focus:ring-4 focus:ring-gold-400/15;
   }
@@ -517,38 +523,102 @@
   to { transform: translateX(14px) rotate(40deg); }
 }
 
-/* ── Verwunschener Wald: Lichtung im Nebel (nach dem Login) ────────────── */
+/* ── Verwunschener Wald: Lichtung im Nebel (nach dem Login) ──────────────
+   0–0,75 s dichter Nebel · bis 2,3 s reißt er auf · ab 0,6 s Lichtkegel ·
+   ab 1,45 s öffnet sich das Buch · ab 2,7 s Eintauchen (gesamt 3,5 s) */
+.opening.forest {
+  animation-delay: 2.7s;
+}
+.opening.forest .cover-door {
+  animation-delay: 1.45s;
+}
+.opening.forest .first-page-glow {
+  animation-delay: 1.6s;
+}
 .opening .mist {
   position: absolute;
-  inset-block: -10%;
-  width: 95%;
-  z-index: 20;
-  background: radial-gradient(ellipse at center, rgba(215, 230, 215, 0.85), rgba(170, 195, 175, 0.45) 45%, transparent 72%);
-  filter: blur(14px);
+  top: -25%;
+  height: 150%;
+  width: 80%;
+  z-index: 30;
+  background: radial-gradient(ellipse at center, rgba(208, 224, 210, 0.97), rgba(160, 188, 168, 0.75) 50%, transparent 76%);
+  filter: blur(22px);
+  animation:
+    mist-in 0.35s ease-out both,
+    var(--away) 1.55s cubic-bezier(0.6, 0, 0.3, 1) 0.75s forwards;
 }
 .opening .mist-l {
-  left: -30%;
-  animation: mist-l 1.2s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+  left: -18%;
+  --away: mist-l;
 }
 .opening .mist-r {
-  right: -30%;
-  animation: mist-r 1.2s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+  right: -18%;
+  --away: mist-r;
 }
 .opening .light-cone {
   position: absolute;
   left: 50%;
-  top: -40vh;
-  width: 120%;
-  height: calc(100% + 40vh);
+  top: -35vh;
+  z-index: 20;
+  width: min(150vw, 980px);
+  height: 135vh;
   translate: -50% 0;
-  background: linear-gradient(180deg, rgba(250, 236, 200, 0.28), rgba(250, 236, 200, 0.08) 70%, transparent);
-  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
-  filter: blur(6px);
-  animation: fade 0.9s ease-out 0.35s both;
+  rotate: -9deg;
+  transform-origin: 50% 0;
+  /* weicher Lichtfächer von oben, der nach unten ausläuft */
+  background: conic-gradient(
+    from 162deg at 50% 0%,
+    transparent 0deg,
+    rgba(255, 240, 200, 0.4) 13deg,
+    rgba(255, 240, 200, 0.4) 23deg,
+    transparent 36deg
+  );
+  -webkit-mask-image: linear-gradient(#000 40%, transparent 95%);
+  mask-image: linear-gradient(#000 40%, transparent 95%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: light-cone 2.7s ease-out 0.55s both;
+}
+.opening .dust {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  border-radius: 9999px;
+  background: #fff6dc;
+  box-shadow: 0 0 6px 2px rgba(255, 240, 200, 0.6);
+  animation: dust 3s ease-in-out var(--d) infinite;
+}
+.opening .rise-firefly {
+  background: #f4f7c4;
+  box-shadow: 0 0 10px 4px rgba(214, 236, 140, 0.75);
+}
+.opening .rise-leaf {
+  animation: leaf-rise 1.6s ease-out var(--d, 1.7s) both;
+}
+@keyframes mist-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes mist-l {
-  to { transform: translateX(-90%); opacity: 0; }
+  to { transform: translateX(-85%); opacity: 0; }
 }
 @keyframes mist-r {
-  to { transform: translateX(90%); opacity: 0; }
+  to { transform: translateX(85%); opacity: 0; }
+}
+@keyframes light-cone {
+  0% { opacity: 0; }
+  30% { opacity: 1; }
+  45% { opacity: 0.8; }
+  60% { opacity: 1; }
+  100% { opacity: 0.75; }
+}
+@keyframes dust {
+  0%, 100% { opacity: 0; translate: 0 0; }
+  50% { opacity: 0.9; }
+  99% { translate: 14px 90px; }
+}
+@keyframes leaf-rise {
+  0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.5); }
+  20% { opacity: 0.95; }
+  100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(320deg) scale(1); }
 }

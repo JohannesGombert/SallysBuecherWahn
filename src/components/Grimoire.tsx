@@ -41,20 +41,34 @@ const SPARKS: [number, number, number][] = [
   [-30, -150, 0.95], [60, -120, 1.05], [-80, 90, 1.1], [0, 220, 0.8],
 ]
 
+// Wald: Staub im Lichtkegel [links %, oben %, Verzögerung] und Blätter, die aus den Seiten steigen [x, y, Verzögerung]
+const DUST: [number, number, number][] = [
+  [46, 12, 0.6], [52, 22, 1.4], [49, 34, 0.9], [55, 45, 2], [44, 52, 1.2], [58, 60, 0.7], [41, 70, 1.7], [53, 78, 1],
+]
+const LEAVES: [number, number, number][] = [
+  [-170, -210, 1.7], [150, -240, 1.85], [-220, -40, 2], [230, -110, 1.75], [40, -280, 1.95], [-90, -260, 2.1],
+]
+
 /** Nach dem Login: Der Deckel schwingt auf, Licht strömt heraus, man taucht ins Buch ein.
- *  Im Wald zieht vorher der Nebel beiseite und ein Lichtkegel fällt auf die Lichtung. */
+ *  Im Wald liegt erst dichter Nebel, der aufreißt; ein Lichtkegel fällt auf das Buch, dann öffnet es sich. */
 export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => void }) {
   const forest = useTheme() === 'wald'
   useEffect(() => {
-    const t = setTimeout(onDone, 2450)
+    const t = setTimeout(onDone, forest ? 3500 : 2450)
     return () => clearTimeout(t)
-  }, [onDone])
+  }, [onDone, forest])
 
   return (
-    <div className="opening fixed inset-0 z-50 flex items-center justify-center" aria-hidden="true">
+    <div className={`opening fixed inset-0 z-50 flex items-center justify-center ${forest ? 'forest' : ''}`} aria-hidden="true">
       <Sky shooting={false} />
+      {forest && (
+        <div className="light-cone">
+          {DUST.map(([l, t, d]) => (
+            <span key={l} className="dust" style={{ left: `${l}%`, top: `${t}%`, '--d': `${d}s` } as React.CSSProperties} />
+          ))}
+        </div>
+      )}
       <div className={`relative h-[min(90dvh,640px)] ${COVER_SIZE}`}>
-        {forest && <div className="light-cone pointer-events-none" />}
         {/* erste Seite hinter dem Deckel */}
         <div className="page absolute inset-0 flex flex-col items-center justify-center rounded-r-[1.4rem] text-center">
           <div className="first-page-glow pointer-events-none absolute -inset-16 rounded-full bg-[radial-gradient(circle,rgba(240,217,154,0.55),rgba(143,184,255,0.18)_45%,transparent_70%)]" />
@@ -65,22 +79,36 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
         {SPARKS.map(([x, y, d], i) => (
           <span
             key={i}
-            className="spark absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full bg-gold-100 shadow-[0_0_10px_3px_rgba(240,217,154,0.8)]"
-            style={{ '--x': `${x}px`, '--y': `${y}px`, '--d': `${d}s` } as React.CSSProperties}
+            className={`spark absolute left-1/2 top-1/2 h-1.5 w-1.5 rounded-full ${
+              forest ? 'rise-firefly' : 'bg-gold-100 shadow-[0_0_10px_3px_rgba(240,217,154,0.8)]'
+            }`}
+            // im Wald öffnet sich das Buch später, die Glühwürmchen folgen
+            style={{ '--x': `${x}px`, '--y': `${y}px`, '--d': `${forest ? d + 0.95 : d}s` } as React.CSSProperties}
           />
         ))}
+        {forest &&
+          LEAVES.map(([x, y, d], i) => (
+            <svg
+              key={i}
+              viewBox="0 0 16 16"
+              className="rise-leaf absolute left-1/2 top-1/2 h-4 w-4"
+              style={{ '--x': `${x}px`, '--y': `${y}px`, '--d': `${d}s` } as React.CSSProperties}
+            >
+              <path d="M8 1C12 4 13 9 8 15C3 9 4 4 8 1Z" fill={i % 2 ? '#8a9a3a' : '#b5652f'} />
+            </svg>
+          ))}
         {/* Deckel: Vorderseite + Vorsatzpapier auf der Rückseite */}
         <div className="cover-door absolute inset-0">
           <GrimoireCover className="cover-face absolute inset-0" />
           <div className="cover-back endpaper absolute inset-0 rounded-l-[1.4rem] rounded-r-md border border-gold-500/25" />
         </div>
-        {forest && (
-          <>
-            <div className="mist mist-l" />
-            <div className="mist mist-r" />
-          </>
-        )}
       </div>
+      {forest && (
+        <>
+          <div className="mist mist-l" />
+          <div className="mist mist-r" />
+        </>
+      )}
     </div>
   )
 }
