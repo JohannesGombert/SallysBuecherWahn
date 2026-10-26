@@ -13,6 +13,8 @@ export function Recommendations({ books, onAdded, onClose }: { books: Book[]; on
   const [items, setItems] = useState<Recommendation[] | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [added, setAdded] = useState<Map<string, ReadingStatus>>(new Map())
+  const [round, setRound] = useState(0)
+  const top = useRef<HTMLParagraphElement>(null)
   // nur beim Öffnen laden; spätere Änderungen an books (z. B. vorgemerkt) nicht neu abfragen
   const atOpen = useRef(books)
 
@@ -36,12 +38,15 @@ export function Recommendations({ books, onAdded, onClose }: { books: Book[]; on
     }
   }
 
-  const byAuthor = items?.filter((r) => r.kind === 'author') ?? []
-  const byGenre = items?.filter((r) => r.kind === 'genre') ?? []
+  // je Runde pro Autor:in bzw. Genre die nächsten paar Treffer aus dem geladenen Vorrat
+  const shown = items ? batch(items, round) : []
+  const hasMore = items ? batch(items, round + 1).length > 0 : false
+  const byAuthor = shown.filter((r) => r.kind === 'author')
+  const byGenre = shown.filter((r) => r.kind === 'genre')
 
   return (
     <Sheet title="Die Sterne empfehlen" onClose={onClose} wide>
-      <p className="pt-1 italic text-ivory-200">
+      <p ref={top} className="scroll-mt-4 pt-1 italic text-ivory-200">
         Neuerscheinungen der letzten zwei Jahre, passend zu den Büchern, die du gelesen hast und magst.
       </p>
 
@@ -58,8 +63,45 @@ export function Recommendations({ books, onAdded, onClose }: { books: Book[]; on
 
       {byAuthor.length > 0 && <Group title="Neu von deinen Autor:innen" items={byAuthor} added={added} onAdd={add} />}
       {byGenre.length > 0 && <Group title="Neu in deinen Genres" items={byGenre} added={added} onAdd={add} />}
+
+      {items && items.length > 0 && (
+        <div className="mt-6 border-t border-gold-400/15 pt-5 text-center">
+          {hasMore ? (
+            <button
+              onClick={() => {
+                setRound((n) => n + 1)
+                top.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+              }}
+              className="btn-quiet"
+            >
+              <Sigil name="star" className="h-4 w-4" />
+              Neue Empfehlungen
+            </button>
+          ) : (
+            <p className="italic text-ivory-300">Mehr verraten die Sterne heute nicht. Schau bald wieder vorbei.</p>
+          )}
+          {round > 0 && (
+            <button onClick={() => setRound(0)} className="btn mt-2 w-full text-ivory-300 hover:text-ivory-50">
+              Zurück zu den ersten Empfehlungen
+            </button>
+          )}
+        </div>
+      )}
     </Sheet>
   )
+}
+
+const PER_ROUND = 3
+
+/** Runde n: aus jeder Autor:in bzw. jedem Genre die Treffer n·3 bis n·3+2. */
+function batch(items: Recommendation[], round: number): Recommendation[] {
+  const seen = new Map<string, number>()
+  return items.filter((r) => {
+    const k = r.kind + r.seed
+    const i = seen.get(k) ?? 0
+    seen.set(k, i + 1)
+    return i >= round * PER_ROUND && i < (round + 1) * PER_ROUND
+  })
 }
 
 // Status, mit denen ein Buch direkt in die Bibliothek kommt

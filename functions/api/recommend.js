@@ -6,9 +6,10 @@
 // Google Books mit Schlüssel (GOOGLE_BOOKS_KEY) bleibt auf dem Server; ohne Schlüssel
 // oder bei Fehlern springt Open Library ein. Antworten werden 6 Stunden gecacht.
 
-const MAX_AUTHORS = 4
-const MAX_GENRES = 3
-const PER_SEED = 6
+// genug Vorrat, damit „Neue Empfehlungen“ ohne weitere Anfragen nachlegen kann
+const MAX_AUTHORS = 6
+const MAX_GENRES = 4
+const PER_SEED = 12
 const MAX_WORKS = 40
 const CACHE_SECONDS = 6 * 60 * 60
 const FALLBACK_CACHE_SECONDS = 30 * 60
@@ -207,7 +208,7 @@ export const onRequest = async ({ request, env, waitUntil }) => {
   // Cache getrennt nach Quelle, damit nach dem Eintragen des Schlüssels keine alten Open-Library-Antworten bleiben
   const cacheUrl = new URL(url)
   cacheUrl.searchParams.set('_src', key ? 'google' : 'openlibrary')
-  cacheUrl.searchParams.set('_v', '3') // bei Änderungen an der Suche erhöhen, sonst bleiben alte Antworten 6 h
+  cacheUrl.searchParams.set('_v', '4') // bei Änderungen an der Suche erhöhen, sonst bleiben alte Antworten 6 h
   const cache = caches.default
   const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' })
   const hit = await cache.match(cacheKey)

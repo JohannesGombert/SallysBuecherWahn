@@ -28,7 +28,7 @@ export function seedsFrom(books: Book[]): { authors: string[]; genres: string[] 
       if (g && !GENERIC.test(g)) genres.set(g, (genres.get(g) ?? 0) + w)
     }
   }
-  return { authors: rank(authors, 4), genres: rank(genres, 3) }
+  return { authors: rank(authors, 6), genres: rank(genres, 4) }
 }
 
 const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9äöüß]/g, '')
@@ -80,7 +80,7 @@ async function googleNewest(kind: Recommendation['kind'], seed: string): Promise
   return books
     .filter((b) => yearOf(b.published_date) >= minYear)
     .filter((b) => kind !== 'author' || b.authors.some((a) => a.toLowerCase().includes(last)))
-    .slice(0, 6)
+    .slice(0, 12)
     .map((book) => ({ kind, seed, book }))
 }
 
