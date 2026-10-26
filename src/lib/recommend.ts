@@ -51,6 +51,14 @@ export function filterKnown(items: Recommendation[], books: Book[]): Recommendat
   return out
 }
 
+/** Alle Werke einer Autorin aus dem Katalog, ohne Doppelte (Ausgaben) und ohne eigene Bücher. */
+export async function fetchWorks(author: string, books: Book[]): Promise<Recommendation[]> {
+  const res = await fetch(`/api/recommend?works=${encodeURIComponent(author)}`)
+  if (!res.ok) throw new Error(`Werke nicht erreichbar (${res.status})`)
+  const data = (await res.json()) as { items: Recommendation[] }
+  return filterKnown(data.items, books)
+}
+
 export async function fetchRecommendations(books: Book[]): Promise<{ items: Recommendation[]; source: string }> {
   const { authors, genres } = seedsFrom(books)
   if (!authors.length && !genres.length) return { items: [], source: 'none' }

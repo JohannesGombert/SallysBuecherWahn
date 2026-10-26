@@ -61,16 +61,18 @@ export function Recommendations({ books, onAdded, onClose }: { books: Book[]; on
   )
 }
 
-function Group({
+export function Group({
   title,
   items,
   added,
   onWish,
+  reason = true,
 }: {
   title: string
   items: Recommendation[]
   added: Set<string>
   onWish: (r: Recommendation, key: string) => void
+  reason?: boolean // „Weil du … liest“ anzeigen
 }) {
   return (
     <section className="mt-6">
@@ -91,9 +93,11 @@ function Group({
                   {r.book.authors.join(', ') || 'Unbekannt'}
                   {year ? ` · ${year}` : ''}
                 </p>
-                <p className="mt-1 text-sm text-gold-200/90">
-                  {r.kind === 'author' ? `Weil du ${r.seed} liest` : `Neu in ${r.seed}`}
-                </p>
+                {reason && (
+                  <p className="mt-1 text-sm text-gold-200/90">
+                    {r.kind === 'author' ? `Weil du ${r.seed} liest` : `Neu in ${r.seed}`}
+                  </p>
+                )}
                 <div className="mt-2 flex flex-wrap gap-2">
                   <button
                     onClick={() => onWish(r, key)}

@@ -11,6 +11,7 @@ import { STATUS_LABELS, STATUS_ORDER } from './types'
 import { Auth } from './components/Auth'
 import { AddBook } from './components/AddBook'
 import { BookDetail } from './components/BookDetail'
+import { AuthorWorks } from './components/AuthorWorks'
 import { BookTile } from './components/BookTile'
 import { Chronicle } from './components/Chronicle'
 import { Emblem, Flourish } from './components/Emblem'
@@ -42,6 +43,7 @@ export default function App() {
   const [showStats, setShowStats] = useState(false)
   const [showSettings, setShowSettings] = useState(false)
   const [showRecs, setShowRecs] = useState(false)
+  const [author, setAuthor] = useState<string | null>(null)
   const [opening, setOpening] = useState(false)
   const [nameForm, setNameForm] = useState({ open: false, fn: '', ln: '', saving: false })
   const prevSession = useRef<'unset' | 'none' | 'active'>('unset')
@@ -302,10 +304,27 @@ export default function App() {
             setBooks((prev) => prev.map((x) => (x.id === b.id ? b : x)))
           }}
           onDelete={(id) => setBooks((prev) => prev.filter((x) => x.id !== id))}
+          onAuthor={(a) => {
+            setSelected(null)
+            setAuthor(a)
+          }}
           onClose={() => {
             setSelected(null)
             load() // frische Zahlen aus der DB, damit Statistik/Filter garantiert stimmen
           }}
+        />
+      )}
+
+      {author && (
+        <AuthorWorks
+          author={author}
+          books={books}
+          onOpenBook={(b) => {
+            setAuthor(null)
+            setSelected(b)
+          }}
+          onAdded={load}
+          onClose={() => setAuthor(null)}
         />
       )}
 

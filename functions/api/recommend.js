@@ -1,11 +1,13 @@
 // Empfehlungen: /api/recommend?authors=A|B&genres=X|Y
 // Neuerscheinungen (letzte 2 Jahre, deutschsprachig) der Lieblingsautor:innen und -genres.
+// Alle Werke einer Autorin: /api/recommend?works=Name (ohne Jahresgrenze, bis zu 40 Titel).
 // Google Books mit Schlüssel (GOOGLE_BOOKS_KEY) bleibt auf dem Server; ohne Schlüssel
 // oder bei Fehlern springt Open Library ein. Antworten werden 6 Stunden gecacht.
 
 const MAX_AUTHORS = 4
 const MAX_GENRES = 3
 const PER_SEED = 6
+const MAX_WORKS = 40
 const CACHE_SECONDS = 6 * 60 * 60
 const FALLBACK_CACHE_SECONDS = 30 * 60
 
@@ -21,6 +23,7 @@ const list = (v, max) =>
     .filter(Boolean)
     .slice(0, max)
 
+const norm = (s) => s.toLowerCase().replace(/[^a-zäöüß]/g, '')
 const minYear = () => new Date().getFullYear() - 2
 const yearOf = (d) => {
   const m = String(d || '').match(/\d{4}/)
@@ -60,10 +63,10 @@ function fromOpenLibrary(d) {
   }
 }
 
-async function google(q, key) {
+async function google(q, key, max = 20) {
   const url =
     `https://www.googleapis.com/books/v1/volumes?q=${encodeURIComponent(q)}` +
-    `&orderBy=newest&langRestrict=de&printType=books&maxResults=20&key=${key}`
+    `&orderBy=newest&langRestrict=de&printType=books&maxResults=${max}&key=${key}`
   // Google antwortet Servern gelegentlich mit 503 – kurz nacheinander erneut versuchen
   let res
   for (let attempt = 0; attempt < 3; attempt++) {
@@ -80,9 +83,9 @@ async function google(q, key) {
   return (data.items || []).map(fromGoogle)
 }
 
-async function openLibrary(params) {
+async function openLibrary(params, max = 20) {
   const url =
-    `https://openlibrary.org/search.json?${params}&language=ger&sort=new&limit=20` +
+    `https://openlibrary.org/search.json?${params}&language=ger&sort=new&limit=${max}` +
     '&fields=title,author_name,isbn,cover_i,first_publish_year,publisher,number_of_pages_median,subject'
   const res = await fetch(url, { headers: { 'User-Agent': 'SallysBuecherWahn/1.0 (+https://sallysbuecherwahn.pages.dev)' } })
   if (!res.ok) return []
@@ -90,31 +93,36 @@ async function openLibrary(params) {
   return (data.docs || []).map(fromOpenLibrary)
 }
 
-// Neuerscheinungen eines Suchbegriffs, beste Quelle zuerst
-async function newest(kind, seed, key, errors) {
+// Neuerscheinungen eines Suchbegriffs, beste Quelle zuerst; all: alle Jahre, mehr Treffer
+async function newest(kind, seed, key, errors, all = false) {
+  const max = all ? MAX_WORKS : 20
   let books = []
   if (key) {
     const q = kind === 'author' ? `inauthor:"${seed}"` : `subject:"${seed}"`
-    books = await google(q, key).catch((e) => {
+    books = await google(q, key, max).catch((e) => {
       errors.add(e.message)
       return []
     })
   }
   if (!books.length) {
     const p = kind === 'author' ? `author=${encodeURIComponent(seed)}` : `subject=${encodeURIComponent(seed.toLowerCase())}`
-    books = await openLibrary(p).catch(() => [])
+    books = await openLibrary(p, max).catch(() => [])
   }
-  const recent = books.filter((b) => (yearOf(b.published_date) ?? 0) >= minYear())
-  // bei Autor:innen nur Treffer, die wirklich von ihnen sind (Namensgleichheit in Titeln ausschließen)
-  const own = kind === 'author' ? recent.filter((b) => b.authors.some((a) => a.toLowerCase().includes(seed.toLowerCase().split(' ').pop()))) : recent
-  return own.slice(0, PER_SEED).map((book) => ({ kind, seed, book }))
+  const recent = all ? books : books.filter((b) => (yearOf(b.published_date) ?? 0) >= minYear())
+  // bei Autor:innen nur Treffer, die wirklich von ihnen sind (Namensgleichheit in Titeln ausschließen);
+  // für „alle Werke“ muss der volle Name passen, sonst kommen alle mit gleichem Nachnamen
+  const name = norm(seed)
+  const matches = (a) => (all ? norm(a) === name : a.toLowerCase().includes(seed.toLowerCase().split(' ').pop()))
+  const own = kind === 'author' ? recent.filter((b) => b.authors.some(matches)) : recent
+  return own.slice(0, all ? MAX_WORKS : PER_SEED).map((book) => ({ kind, seed, book }))
 }
 
 export const onRequest = async ({ request, env, waitUntil }) => {
   const url = new URL(request.url)
-  const authors = list(url.searchParams.get('authors'), MAX_AUTHORS)
-  const genres = list(url.searchParams.get('genres'), MAX_GENRES)
-  if (!authors.length && !genres.length) return json({ items: [], source: 'none' })
+  const works = (url.searchParams.get('works') || '').trim().slice(0, 120)
+  const authors = works ? [] : list(url.searchParams.get('authors'), MAX_AUTHORS)
+  const genres = works ? [] : list(url.searchParams.get('genres'), MAX_GENRES)
+  if (!works && !authors.length && !genres.length) return json({ items: [], source: 'none' })
 
   const key = env.GOOGLE_BOOKS_KEY
   // Cache getrennt nach Quelle, damit nach dem Eintragen des Schlüssels keine alten Open-Library-Antworten bleiben
@@ -127,6 +135,7 @@ export const onRequest = async ({ request, env, waitUntil }) => {
 
   const errors = new Set()
   const groups = await Promise.all([
+    ...(works ? [newest('author', works, key, errors, true)] : []),
     ...authors.map((a) => newest('author', a, key, errors)),
     ...genres.map((g) => newest('genre', g, key, errors)),
   ])

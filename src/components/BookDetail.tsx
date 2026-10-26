@@ -18,10 +18,11 @@ interface Props {
   settings: TrackingSettings
   onChange: (book: Book) => void
   onDelete: (id: string) => void
+  onAuthor: (name: string) => void
   onClose: () => void
 }
 
-export function BookDetail({ book, settings, onChange, onDelete, onClose }: Props) {
+export function BookDetail({ book, settings, onChange, onDelete, onAuthor, onClose }: Props) {
   const [notes, setNotes] = useState(book.notes ?? '')
   const [page, setPage] = useState(book.current_page != null ? String(book.current_page) : '')
   const [saved, setSaved] = useState(false)
@@ -100,7 +101,22 @@ export function BookDetail({ book, settings, onChange, onDelete, onClose }: Prop
         </div>
         <div className="min-w-0 flex-1">
           <h3 className="text-[1.6rem] font-semibold leading-tight text-ivory-50">{book.title}</h3>
-          <p className="mt-1 italic text-ivory-200">{book.authors.join(', ') || 'Unbekannt'}</p>
+          <p className="mt-1 italic text-ivory-200">
+            {book.authors.length === 0
+              ? 'Unbekannt'
+              : book.authors.map((a, i) => (
+                  <span key={a}>
+                    {i > 0 && ', '}
+                    <button
+                      onClick={() => onAuthor(a)}
+                      className="italic text-gold-200 underline decoration-gold-400/40 underline-offset-4 transition hover:decoration-gold-300"
+                      aria-label={`Alle Werke von ${a}`}
+                    >
+                      {a}
+                    </button>
+                  </span>
+                ))}
+          </p>
           <p className="mt-1 text-[15px] text-ivory-300">
             {[book.publisher, book.published_date, book.page_count ? `${book.page_count} Seiten` : null]
               .filter(Boolean)
