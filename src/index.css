@@ -535,25 +535,45 @@
 .opening.forest .first-page-glow {
   animation-delay: 1.6s;
 }
-.opening .mist {
+/* Nebelbänke: auf der Login-Seite ruhen sie an den Rändern (--rest), beim Öffnen
+   quellen sie über das Buch und ziehen dann beiseite */
+.mist {
   position: absolute;
   top: -25%;
   height: 150%;
   width: 80%;
-  z-index: 30;
+  pointer-events: none;
   background: radial-gradient(ellipse at center, rgba(208, 224, 210, 0.97), rgba(160, 188, 168, 0.75) 50%, transparent 76%);
   filter: blur(22px);
-  animation:
-    mist-in 0.35s ease-out both,
-    var(--away) 1.55s cubic-bezier(0.6, 0, 0.3, 1) 0.75s forwards;
 }
-.opening .mist-l {
+.mist-l {
   left: -18%;
+  --rest: -34%;
   --away: mist-l;
 }
-.opening .mist-r {
+.mist-r {
   right: -18%;
+  --rest: 34%;
   --away: mist-r;
+}
+.mist.resting {
+  opacity: 0.5;
+  transform: translateX(var(--rest));
+  animation: mist-breathe 9s ease-in-out infinite alternate;
+}
+.mist-r.resting {
+  animation-delay: -4.5s;
+}
+/* schmale Bildschirme: Nebel weiter am Rand, damit das Formular klar bleibt */
+@media (max-width: 640px) {
+  .mist-l { --rest: -48%; }
+  .mist-r { --rest: 48%; }
+}
+.opening .mist {
+  z-index: 30;
+  animation:
+    mist-in 0.5s ease-out both,
+    var(--away) 1.55s cubic-bezier(0.6, 0, 0.3, 1) 0.75s forwards;
 }
 .opening .light-cone {
   position: absolute;
@@ -596,8 +616,12 @@
   animation: leaf-rise 1.6s ease-out var(--d, 1.7s) both;
 }
 @keyframes mist-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from { opacity: 0.5; transform: translateX(var(--rest)); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes mist-breathe {
+  from { opacity: 0.42; transform: translateX(var(--rest)); }
+  to { opacity: 0.58; transform: translateX(calc(var(--rest) * 0.8)); }
 }
 @keyframes mist-l {
   to { transform: translateX(-85%); opacity: 0; }

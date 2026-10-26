@@ -59,7 +59,7 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
   }, [onDone, forest])
 
   return (
-    <div className={`opening fixed inset-0 z-50 flex items-center justify-center ${forest ? 'forest' : ''}`} aria-hidden="true">
+    <div className={`opening fixed inset-0 z-50 flex overflow-hidden items-center justify-center ${forest ? 'forest' : ''}`} aria-hidden="true">
       <Sky shooting={false} />
       {forest && (
         <div className="light-cone">

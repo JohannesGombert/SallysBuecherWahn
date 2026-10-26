@@ -3,8 +3,10 @@ import { supabase, isSupabaseConfigured } from '../lib/supabase'
 import { COVER_SIZE, GrimoireCover } from './Grimoire'
 import { Sigil } from './Sigil'
 import { Sky } from './Sky'
+import { useTheme } from '../lib/theme'
 
 export function Auth() {
+  const forest = useTheme() === 'wald'
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
@@ -60,6 +62,13 @@ export function Auth() {
   return (
     <main className="flex min-h-dvh items-center justify-center px-2 py-6">
       <Sky />
+      {forest && (
+        // Nebel an den Rändern; beim Öffnen des Grimoires quillt er auf und lichtet sich
+        <div className="pointer-events-none fixed inset-0 z-20 overflow-hidden" aria-hidden="true">
+          <div className="mist mist-l resting" />
+          <div className="mist mist-r resting" />
+        </div>
+      )}
       <GrimoireCover className={`relative ${COVER_SIZE} animate-rise`}>
         {!isSupabaseConfigured && (
           <p className="mt-6 w-full rounded-xl border border-flame/40 bg-flame/10 p-3 text-sm text-flame">
