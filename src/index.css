@@ -473,6 +473,7 @@
 .tea-sky {
   position: fixed;
   inset: 0;
+  container-type: size; /* für die Umrechnung Szene → Bildschirm (tea-steam) */
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
@@ -800,6 +801,29 @@
   0% { opacity: 0; transform: translate(0, 0) rotate(0deg) scale(0.5); }
   20% { opacity: 0.95; }
   100% { opacity: 0; transform: translate(var(--x), var(--y)) rotate(320deg) scale(1); }
+}
+
+/* Dampf über Teekanne und Tasse: Szenen-Koordinaten (--x/--y in 1600×1000, unten verankert,
+   wie preserveAspectRatio="xMidYMax slice") in Bildschirmpunkte umrechnen */
+.tea-steam {
+  --k: max(100cqw / 1600, 100cqh / 1000);
+  position: absolute;
+  left: calc(var(--x) * var(--k) + (100cqw - 1600 * var(--k)) / 2);
+  top: calc(100cqh - (1000 - var(--y)) * var(--k));
+  width: calc(14 * var(--k));
+  height: calc(42 * var(--k));
+  translate: -50% -100%;
+  filter: blur(1.5px);
+  animation: tea-steam 3.4s ease-out var(--d, 0s) infinite;
+}
+.tea-steam > svg {
+  width: 100%;
+  height: 100%;
+}
+@keyframes tea-steam {
+  0% { opacity: 0; transform: translateY(20%) scaleX(0.7); }
+  35% { opacity: 0.75; }
+  100% { opacity: 0; transform: translateY(-45%) scaleX(1.3) skewX(10deg); }
 }
 
 /* ── Rosen-Teesalon: Tiere (Position setzt RoseGarden per transform) ───── */

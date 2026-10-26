@@ -92,6 +92,17 @@ export function RoseGarden({ animals = true }: { animals?: boolean }) {
   return (
     <>
       <Scene />
+      {/* Dampf über Kanne und Tasse – als eigene kleine Elemente, die Szene bleibt unbewegt */}
+      {[
+        [...onTable(1088, 818), 0],
+        [...onTable(1112, 846), -1.6],
+      ].map(([x, y, d]) => (
+        <span key={x} className="tea-steam" style={{ '--x': x, '--y': y, '--d': `${d}s` } as React.CSSProperties}>
+          <svg viewBox="0 0 20 60" fill="none">
+            <path d="M10 60C4 48 16 40 10 28S6 10 12 0" stroke="#fff" strokeWidth="3" strokeLinecap="round" />
+          </svg>
+        </span>
+      ))}
       {/* Tiere in eigener Ebene: sonst müsste der Browser die teuren Laubfilter bei jedem Bild neu rechnen */}
       {animals && <Critters />}
     </>
@@ -218,9 +229,72 @@ const Scene = memo(function Scene() {
           ))}
         </g>
       ))}
+
+      <g transform={TABLE_TRANSFORM}>
+        <TeaTable />
+      </g>
     </svg>
   )
 })
+
+// Bistrotisch mit Spitzendecke, Teekanne und Tasse (rechts neben dem Buch, auf dem Desktop sichtbar)
+// gezeichnet um (1070, 966); verschoben und vergrößert, damit er auf dem Desktop neben dem Buch steht
+const TABLE_SHIFT = 140
+const TABLE_SCALE = 1.35
+const TABLE_TRANSFORM = `translate(1070 966) scale(${TABLE_SCALE}) translate(-1070 -966) translate(${TABLE_SHIFT} 0)`
+// Punkt der Tischzeichnung → Szenen-Koordinate (für den Dampf über Kanne und Tasse)
+const onTable = (x: number, y: number) => [1070 + (x + TABLE_SHIFT - 1070) * TABLE_SCALE, 966 + (y - 966) * TABLE_SCALE] as const
+const LACE = Array.from({ length: 15 }, (_, i) => 1000 + i * 10)
+
+function TeaTable() {
+  return (
+    <g>
+      <defs>
+        <linearGradient id="rg-iron" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#d9d2c6" />
+          <stop offset=".5" stopColor="#fbf7f0" />
+          <stop offset="1" stopColor="#cfc6b8" />
+        </linearGradient>
+        <radialGradient id="rg-china" cx="35%" cy="30%" r="75%">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset=".7" stopColor="#f3ece6" />
+          <stop offset="1" stopColor="#d8cbc3" />
+        </radialGradient>
+      </defs>
+      {/* Schatten auf dem Rasen */}
+      <ellipse cx="1070" cy="968" rx="80" ry="10" fill="#2f5a2c" opacity=".3" />
+      {/* Fuß: Säule mit geschwungenen Füßen */}
+      <path d="M1064 868V948M1076 868V948" stroke="url(#rg-iron)" strokeWidth="6" />
+      <path d="M1070 940C1050 944 1036 952 1026 966M1070 940C1090 944 1104 952 1114 966M1070 944V966" fill="none" stroke="#e6dfd4" strokeWidth="5" strokeLinecap="round" />
+      {/* Tischplatte mit Spitzendecke */}
+      <ellipse cx="1070" cy="862" rx="74" ry="15" fill="#efe6dc" />
+      <path d={`M996 862${LACE.map((x) => `Q${x + 5} ${878} ${x + 10} 870`).join('')}L1144 862Z`} fill="#fffaf6" stroke="#e7d9cf" strokeWidth="1" />
+      <ellipse cx="1070" cy="858" rx="74" ry="14" fill="#fffaf6" stroke="#eadcd2" strokeWidth="1" />
+      {/* Teekanne: Porzellan mit Rosenmuster */}
+      <g transform="translate(1052 842)">
+        <ellipse cx="0" cy="14" rx="18" ry="3.5" fill="#d8cbc3" />
+        <path d="M17-6C28-8 32-20 38-24C36-16 32-2 16 4Z" fill="url(#rg-china)" stroke="#d8cbc3" strokeWidth=".8" />
+        <path d="M-17-8C-30-10-31 8-18 6" fill="none" stroke="#e9e1da" strokeWidth="4" strokeLinecap="round" />
+        <ellipse cx="0" cy="0" rx="19" ry="15" fill="url(#rg-china)" stroke="#d8cbc3" strokeWidth=".8" />
+        <ellipse cx="0" cy="-13" rx="11" ry="3.5" fill="#efe6dc" stroke="#d8cbc3" strokeWidth=".8" />
+        <circle cx="0" cy="-18" r="3" fill="url(#rg-china)" stroke="#d8cbc3" strokeWidth=".8" />
+        <path d="M-17 1Q0 6 17 1" fill="none" stroke="#d4a14f" strokeWidth="1.2" opacity=".8" />
+        <use href="#rg-rose" x="-6" y="-7" width="12" height="12" />
+        <use href="#rg-rose" x="-13" y="-3" width="7" height="7" />
+        <use href="#rg-rose" x="6" y="-3" width="7" height="7" />
+      </g>
+      {/* Tasse auf Untertasse */}
+      <g transform="translate(1112 852)">
+        <ellipse cx="0" cy="5" rx="14" ry="3.6" fill="url(#rg-china)" stroke="#d8cbc3" strokeWidth=".8" />
+        <path d="M-9-6H9C9 2 5 5 0 5S-9 2-9-6Z" fill="url(#rg-china)" stroke="#d8cbc3" strokeWidth=".8" />
+        <path d="M9-3C14-4 14 2 8 2" fill="none" stroke="#e9e1da" strokeWidth="2" />
+        <ellipse cx="0" cy="-6" rx="9" ry="2.4" fill="#b57a45" />
+        <path d="M-9-2Q0 1 9-2" fill="none" stroke="#d4a14f" strokeWidth=".8" opacity=".8" />
+        <use href="#rg-rose" x="-3" y="-3" width="6" height="6" />
+      </g>
+    </g>
+  )
+}
 
 // ── Tiere ─────────────────────────────────────────────────────────────────
 type Plan = {
