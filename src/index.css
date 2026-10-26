@@ -463,6 +463,20 @@
     inset 10px 0 18px -8px rgba(120, 50, 80, 0.3),
     0 40px 80px -40px rgba(120, 60, 80, 0.55);
 }
+/* Suche und Reiter liegen über dem bunten Garten: hell hinterlegen, damit die Schrift lesbar bleibt */
+[data-theme='rose'] .field,
+[data-theme='rose'] .tab {
+  background-color: rgba(255, 250, 247, 0.88);
+  backdrop-filter: blur(6px);
+  box-shadow: 0 6px 18px -12px rgba(120, 60, 80, 0.5);
+}
+[data-theme='rose'] .field::placeholder {
+  color: rgb(var(--ivory-300) / 0.9);
+}
+[data-theme='rose'] .tab-on {
+  background-color: rgba(255, 236, 242, 0.95);
+}
+
 [data-theme='rose'] .page {
   box-shadow:
     0 24px 60px -28px rgba(120, 60, 80, 0.45),
