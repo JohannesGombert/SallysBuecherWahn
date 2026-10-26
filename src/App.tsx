@@ -5,7 +5,7 @@ import { fetchBooks } from './lib/booksRepo'
 import { computeStats } from './lib/stats'
 import { goalProgress, planText } from './lib/goals'
 import { readSettings } from './lib/settings'
-import { asTheme, setTheme } from './lib/theme'
+import { asTheme, setTheme, useTheme } from './lib/theme'
 import type { Book, ReadingStatus } from './types'
 import { STATUS_LABELS, STATUS_ORDER } from './types'
 import { Auth } from './components/Auth'
@@ -18,6 +18,7 @@ import { Emblem, Flourish } from './components/Emblem'
 import { Sky } from './components/Sky'
 import { GrimoireOpening } from './components/Grimoire'
 import { MoonPhase } from './components/MoonPhase'
+import { RoseBloom } from './components/RoseBloom'
 import { Settings } from './components/Settings'
 import { Recommendations } from './components/Recommendations'
 import { ScrollRow } from './components/ScrollRow'
@@ -28,6 +29,7 @@ type Filter = 'all' | ReadingStatus
 
 export default function App() {
   const { session, user, loading: authLoading } = useAuth()
+  const theme = useTheme()
   // Design aus dem Konto übernehmen, damit es der Leseratte auf jedes Gerät folgt
   // (vor dem ersten Zeichnen, sonst blitzt kurz das alte Design auf)
   const accountTheme = user?.user_metadata?.theme
@@ -191,7 +193,11 @@ export default function App() {
 
           {(books.length > 0 || settings.goal) && (
             <div className="flex items-center gap-5">
-              <MoonPhase pct={goal ? goal.pct : stats.pctRead} size={120} />
+              {theme === 'rose' ? (
+                <RoseBloom pct={goal ? goal.pct : stats.pctRead} size={120} />
+              ) : (
+                <MoonPhase pct={goal ? goal.pct : stats.pctRead} size={120} />
+              )}
               <div>
                 {goal ? (
                   <>
