@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { DEFAULT_SETTINGS, type TrackingSettings } from '../lib/settings'
 import { deleteAllBooks } from '../lib/booksRepo'
 import { Sheet } from './Sheet'
+import { THEMES, setTheme, useTheme, type Theme } from '../lib/theme'
 
 /** Jede Leseratte entscheidet selbst, was das Grimoire mitschreibt. */
 export function Settings({
@@ -34,7 +35,10 @@ export function Settings({
   }
 
   return (
-    <Sheet title="Was das Grimoire mitschreibt" onClose={onClose}>
+    <Sheet title="Einstellungen" onClose={onClose}>
+      <DesignPicker />
+
+      <h3 className="rubric mt-8">Was das Grimoire mitschreibt</h3>
       <p className="pt-1 italic text-ivory-200">Schalte nur ein, was du verfolgen möchtest. Du kannst es jederzeit wieder ändern.</p>
 
       <div className="mt-5 space-y-3">
@@ -160,6 +164,52 @@ function Toggle({
         />
       </span>
     </button>
+  )
+}
+
+/** Design wechseln: wirkt sofort und wird im Konto gespeichert. */
+function DesignPicker() {
+  const theme = useTheme()
+  const [error, setError] = useState<string | null>(null)
+
+  async function choose(t: Theme) {
+    if (t === theme) return
+    const before = theme
+    setTheme(t)
+    setError(null)
+    const { error } = await supabase.auth.updateUser({ data: { theme: t } })
+    if (error) {
+      setTheme(before)
+      setError(`Design nicht gespeichert: ${error.message}`)
+    }
+  }
+
+  return (
+    <section className="pt-1">
+      <h3 className="rubric">Design</h3>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Design">
+        {THEMES.map((t) => (
+          <button
+            key={t.id}
+            role="radio"
+            aria-checked={theme === t.id}
+            onClick={() => choose(t.id)}
+            className={`rounded-xl border p-3 text-left transition ${
+              theme === t.id ? 'border-gold-300/80 bg-gold-400/10' : 'border-white/10 hover:border-gold-400/40'
+            }`}
+          >
+            <span className="flex h-12 overflow-hidden rounded-lg ring-1 ring-white/10" aria-hidden="true">
+              {t.colors.map((c) => (
+                <span key={c} className="flex-1" style={{ background: c }} />
+              ))}
+            </span>
+            <span className="mt-2.5 block font-medium text-ivory-50">{t.name}</span>
+            <span className="block text-[15px] leading-snug text-ivory-300">{t.hint}</span>
+          </button>
+        ))}
+      </div>
+      {error && <p className="mt-2 text-danger">{error}</p>}
+    </section>
   )
 }
 

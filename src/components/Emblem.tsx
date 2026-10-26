@@ -1,4 +1,5 @@
 import { useId } from 'react'
+import { useTheme } from '../lib/theme'
 
 // Logo (Claude-Design-Fassung, siehe docs/logo.md): große Mondsichel, die ein
 // aufgeschlagenes Buch umfängt, dazu ein Stern. small: kräftigere Linien, ohne
@@ -15,8 +16,10 @@ const LINES =
 const BOOK_TRANSFORM = 'translate(37 34.5) scale(1.2) translate(-37 -34.5)'
 
 export function Emblem({ className = 'h-10 w-10', small = false }: { className?: string; small?: boolean }) {
+  const theme = useTheme()
   const gid = `gold-${useId().replace(/:/g, '')}`
   const gold = `url(#${gid})`
+  if (theme === 'wald') return <OwlEmblem className={className} small={small} gid={gid} />
   return (
     <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
       <defs>
@@ -47,9 +50,9 @@ export function Emblem({ className = 'h-10 w-10', small = false }: { className?:
 export function Flourish({ className = 'h-4 w-40' }: { className?: string }) {
   return (
     <svg viewBox="0 0 160 16" className={className} fill="none" aria-hidden="true">
-      <path d="M4 8h54M102 8h54" stroke="#d9b25f" strokeOpacity=".55" strokeWidth="1" />
-      <path d="M62 8l4-4 4 4-4 4zM90 8l4-4 4 4-4 4z" fill="#d9b25f" fillOpacity=".7" />
-      <path d="M80 2l1.6 4.4L86 8l-4.4 1.6L80 14l-1.6-4.4L74 8l4.4-1.6z" fill="#f0d99a" />
+      <path d="M4 8h54M102 8h54" className="stroke-gold-400" strokeOpacity=".55" strokeWidth="1" />
+      <path d="M62 8l4-4 4 4-4 4zM90 8l4-4 4 4-4 4z" className="fill-gold-400" fillOpacity=".7" />
+      <path d="M80 2l1.6 4.4L86 8l-4.4 1.6L80 14l-1.6-4.4L74 8l4.4-1.6z" className="fill-gold-200" />
     </svg>
   )
 }
@@ -58,10 +61,10 @@ export function Flourish({ className = 'h-4 w-40' }: { className?: string }) {
 export function Corners({ inset = 'inset-3', size = 'h-9 w-9' }: { inset?: string; size?: string }) {
   const piece = (
     <svg viewBox="0 0 40 40" className={size} fill="none" aria-hidden="true">
-      <path d="M2 22V8a6 6 0 0 1 6-6h14" stroke="#d9b25f" strokeOpacity=".75" strokeWidth="1.5" />
-      <path d="M8 16V12a4 4 0 0 1 4-4h4" stroke="#d9b25f" strokeOpacity=".45" strokeWidth="1" />
-      <path d="M2 2l5 5" stroke="#f0d99a" strokeOpacity=".7" strokeWidth="1" />
-      <circle cx="12.5" cy="12.5" r="1.6" fill="#f0d99a" fillOpacity=".8" />
+      <path d="M2 22V8a6 6 0 0 1 6-6h14" className="stroke-gold-400" strokeOpacity=".75" strokeWidth="1.5" />
+      <path d="M8 16V12a4 4 0 0 1 4-4h4" className="stroke-gold-400" strokeOpacity=".45" strokeWidth="1" />
+      <path d="M2 2l5 5" className="stroke-gold-200" strokeOpacity=".7" strokeWidth="1" />
+      <circle cx="12.5" cy="12.5" r="1.6" className="fill-gold-200" fillOpacity=".8" />
     </svg>
   )
   return (
@@ -71,5 +74,65 @@ export function Corners({ inset = 'inset-3', size = 'h-9 w-9' }: { inset?: strin
       <div className="absolute bottom-0 right-0 rotate-180">{piece}</div>
       <div className="absolute bottom-0 left-0 -rotate-90">{piece}</div>
     </div>
+  )
+}
+
+// Wald-Logo: Eule auf aufgeschlagenem Buch im Blattkranz, Kupfer statt Gold.
+const WREATH = [100, 117, 134, 151, 168, 185, 202, 219, 236].flatMap((deg) => [deg, 180 - deg])
+const OWL_TUFTS = 'M23.4 23.5L24.4 15.6L28.8 20.6ZM40.6 23.5L39.6 15.6L35.2 20.6Z'
+const OWL_BEAK = 'M32 30.6L30.7 32.8L32 35L33.3 32.8Z'
+const OWL_WINGS = 'M23.4 28C21.8 33.5 22.8 39 26.4 42.6M40.6 28C42.2 33.5 41.2 39 37.6 42.6'
+const OWL_FEATHERS = 'M29 37.2l1.2 1.2 1.2-1.2M32.6 37.2l1.2 1.2 1.2-1.2M30.8 40l1.2 1.2 1.2-1.2'
+const OWL_BOOK_TRANSFORM = 'translate(32 50.5) scale(1.3) translate(-37 -34)'
+
+function OwlEmblem({ className, small, gid }: { className: string; small: boolean; gid: string }) {
+  const copper = `url(#${gid})`
+  return (
+    <svg viewBox="0 0 64 64" className={className} aria-hidden="true">
+      <defs>
+        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#fbe9d6" />
+          <stop offset=".5" stopColor="#cc8752" />
+          <stop offset="1" stopColor="#844d2a" />
+        </linearGradient>
+      </defs>
+      {!small &&
+        WREATH.map((deg) => {
+          const r = (deg * Math.PI) / 180
+          const x = 32 + 27.5 * Math.cos(r)
+          const y = 33 + 27.5 * Math.sin(r)
+          // Blätter schräg zur Kranzlinie, links und rechts gespiegelt
+          const tilt = deg + (Math.cos(r) < 0 ? 60 : -60)
+          return <ellipse key={deg} cx={x} cy={y} rx="3.4" ry="1.4" transform={`rotate(${tilt} ${x} ${y})`} fill="#a3dca2" fillOpacity=".75" />
+        })}
+      <path d={OWL_TUFTS} fill={copper} />
+      <ellipse cx="32" cy="33" rx="9.6" ry="11.2" fill={copper} />
+      {!small && <path d={OWL_WINGS} fill="none" stroke="#3b2414" strokeOpacity=".45" strokeWidth=".8" strokeLinecap="round" />}
+      {!small && <path d={OWL_FEATHERS} fill="none" stroke="#3b2414" strokeOpacity=".5" strokeWidth=".7" strokeLinecap="round" strokeLinejoin="round" />}
+      <g fill="#120c07">
+        <circle cx="28.2" cy="28.2" r={small ? 3.4 : 3.8} />
+        <circle cx="35.8" cy="28.2" r={small ? 3.4 : 3.8} />
+      </g>
+      <g fill="#f4f7c4">
+        <circle cx="28.2" cy="28.2" r="2.2" />
+        <circle cx="35.8" cy="28.2" r="2.2" />
+      </g>
+      <g fill="#120c07">
+        <circle cx="28.6" cy="28.4" r="1.1" />
+        <circle cx="36.2" cy="28.4" r="1.1" />
+      </g>
+      <path d={OWL_BEAK} fill="#5e361d" />
+      <g transform={OWL_BOOK_TRANSFORM} fill="#0c1a13" stroke={copper} strokeLinejoin="round" strokeLinecap="round">
+        <path d={BOOK} strokeWidth={small ? 1.8 : 1.1} />
+        {!small && <path d={LINES} strokeWidth={0.6} opacity={0.55} />}
+      </g>
+      {!small && (
+        <g fill="#f4f7c4">
+          <circle cx="50" cy="13" r=".9" />
+          <circle cx="14" cy="16" r=".7" />
+          <circle cx="54" cy="21" r=".5" />
+        </g>
+      )}
+    </svg>
   )
 }

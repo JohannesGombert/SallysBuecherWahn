@@ -4,11 +4,47 @@
 
 /* ── Grundlagen ─────────────────────────────────────────────────────────── */
 @layer base {
+  /* Design „Nacht-Grimoire“ (Standard); Farben als RGB-Kanäle für Tailwinds Deckkraft-Stufen */
   :root {
     color-scheme: dark;
+    --night-950: 6 9 22; --night-900: 11 16 36; --night-800: 15 22 48; --night-700: 24 34 74; --night-600: 36 48 95; --night-500: 52 67 122;
+    --gold-100: 248 236 201; --gold-200: 240 217 154; --gold-300: 230 198 122; --gold-400: 217 178 95; --gold-500: 185 143 62; --gold-600: 148 112 44; --gold-700: 107 79 30;
+    --ivory-50: 251 246 234; --ivory-100: 239 230 210; --ivory-200: 217 205 178; --ivory-300: 179 168 143;
+    --moon-200: 207 224 255; --moon-300: 169 198 255; --moon-400: 143 184 255;
+    --flame: 242 166 90;
+    --rose: 232 160 196;
+    --moss: 132 209 165;
+    --danger: 239 122 104;
+    --font-display: 'Cinzel';
+    --leather: #22336b, #142048 50%, #0c1431;
+    --leather-sheen: rgba(160, 190, 255, 0.1);
+    --endpaper: #1a2350, #0e1534;
+    --page: #151e44, #0f1633;
+    --foil: #fbf1d4 0%, #e6c67a 42%, #b98f3e 62%, #f0d99a 100%;
+    --btn: #f3dfa6, #d9b25f 55%, #b98f3e;
+  }
+  /* Design „Verwunschener Wald“: Tannengrün, Kupfer, Moos, Märchenschrift */
+  [data-theme='wald'] {
+    --night-950: 7 18 13; --night-900: 12 26 19; --night-800: 16 35 26; --night-700: 24 51 37; --night-600: 34 68 47; --night-500: 47 90 62;
+    --gold-100: 249 230 211; --gold-200: 239 200 162; --gold-300: 226 167 118; --gold-400: 204 135 82; --gold-500: 168 102 58; --gold-600: 132 77 42; --gold-700: 94 54 29;
+    --ivory-50: 248 245 231; --ivory-100: 236 231 209; --ivory-200: 211 206 178; --ivory-300: 171 169 142;
+    --moon-200: 225 233 216; --moon-300: 198 214 187; --moon-400: 169 195 157;
+    --flame: 240 179 106;
+    --rose: 219 162 185;
+    --moss: 163 220 162;
+    --danger: 238 128 104;
+    --font-display: 'IM Fell English SC';
+    --leather: #2f4a2c, #1d331f 50%, #102015;
+    --leather-sheen: rgba(214, 236, 170, 0.09);
+    --endpaper: #22382a, #12221a;
+    --page: #15281d, #0f1e16;
+    --foil: #fbe9d6 0%, #e2a776 42%, #a8663a 62%, #efc8a2 100%;
+    --btn: #f3cfa9, #cc8752 55%, #a8663a;
+    /* die Märchenschrift gibt es nur in einer Stärke – kein künstliches Fett */
+    font-synthesis: none;
   }
   html {
-    background: #060916;
+    background: rgb(var(--night-950));
     -webkit-tap-highlight-color: transparent;
   }
   body {
@@ -19,7 +55,7 @@
     min-height: 100dvh;
   }
   ::selection {
-    background: rgba(217, 178, 95, 0.35);
+    background: rgb(var(--gold-400) / 0.35);
   }
   :focus-visible {
     outline: 2px solid theme('colors.gold.300');
@@ -47,7 +83,7 @@
     pointer-events: none;
     background:
       radial-gradient(ellipse 90% 55% at 50% -10%, rgba(88, 118, 210, 0.28), transparent 65%),
-      radial-gradient(ellipse 50% 40% at 95% 105%, rgba(217, 178, 95, 0.1), transparent 70%),
+      radial-gradient(ellipse 50% 40% at 95% 105%, rgb(var(--gold-400) / 0.1), transparent 70%),
       linear-gradient(#0b1024, #060916 85%);
   }
   .night-sky::before,
@@ -70,7 +106,7 @@
   .night-sky::after {
     background-image:
       radial-gradient(circle at 71px 113px, rgba(255, 255, 255, 0.95) 0 1px, transparent 2px),
-      radial-gradient(circle at 287px 61px, rgba(240, 217, 154, 0.9) 0 1.2px, transparent 2.6px),
+      radial-gradient(circle at 287px 61px, rgb(var(--gold-200) / 0.9) 0 1.2px, transparent 2.6px),
       radial-gradient(circle at 193px 301px, rgba(207, 224, 255, 0.95) 0 0.9px, transparent 1.8px),
       radial-gradient(circle at 331px 233px, rgba(255, 255, 255, 0.8) 0 1px, transparent 2px);
     background-size: 380px 360px;
@@ -147,10 +183,10 @@
   /* Ledereinband des Grimoires */
   .leather {
     background:
-      radial-gradient(ellipse at 28% 18%, rgba(160, 190, 255, 0.1), transparent 55%),
+      radial-gradient(ellipse at 28% 18%, var(--leather-sheen), transparent 55%),
       radial-gradient(ellipse at 75% 95%, rgba(0, 0, 0, 0.5), transparent 60%),
       url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.5'/></svg>"),
-      linear-gradient(140deg, #22336b, #142048 50%, #0c1431);
+      linear-gradient(140deg, var(--leather));
     box-shadow:
       inset 0 0 0 1px rgba(255, 255, 255, 0.05),
       inset 0 0 80px rgba(0, 0, 0, 0.65),
@@ -167,32 +203,32 @@
   }
   .tooled::before {
     inset: 14px;
-    border: 1.5px solid rgba(217, 178, 95, 0.55);
-    box-shadow: 0 0 12px rgba(217, 178, 95, 0.12);
+    border: 1.5px solid rgb(var(--gold-400) / 0.55);
+    box-shadow: 0 0 12px rgb(var(--gold-400) / 0.12);
   }
   .tooled::after {
     inset: 21px;
-    border: 1px solid rgba(217, 178, 95, 0.25);
+    border: 1px solid rgb(var(--gold-400) / 0.25);
   }
 
   /* Vorsatzpapier (Innenseite des Deckels) */
   .endpaper {
     background:
-      radial-gradient(circle at 30% 30%, rgba(217, 178, 95, 0.12) 0 2px, transparent 3px) 0 0 / 26px 26px,
-      linear-gradient(140deg, #1a2350, #0e1534);
+      radial-gradient(circle at 30% 30%, rgb(var(--gold-400) / 0.12) 0 2px, transparent 3px) 0 0 / 26px 26px,
+      linear-gradient(140deg, var(--endpaper));
   }
 
   /* Seiten / Tafeln im Buch */
   .page {
-    background: linear-gradient(180deg, #151e44, #0f1633);
-    border: 1px solid rgba(217, 178, 95, 0.2);
+    background: linear-gradient(180deg, var(--page));
+    border: 1px solid rgb(var(--gold-400) / 0.2);
     box-shadow:
       0 30px 70px -25px rgba(0, 0, 0, 0.85),
       inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 
   .gold-foil {
-    background: linear-gradient(180deg, #fbf1d4 0%, #e6c67a 42%, #b98f3e 62%, #f0d99a 100%);
+    background: linear-gradient(180deg, var(--foil));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -208,16 +244,16 @@
   }
   .btn-gold {
     @apply btn text-night-900;
-    background: linear-gradient(180deg, #f3dfa6, #d9b25f 55%, #b98f3e);
+    background: linear-gradient(180deg, var(--btn));
     box-shadow:
       0 0 0 1px rgba(255, 236, 190, 0.35) inset,
-      0 10px 28px -10px rgba(217, 178, 95, 0.65);
+      0 10px 28px -10px rgb(var(--gold-400) / 0.65);
   }
   .btn-gold:not(:disabled):hover {
     filter: brightness(1.08);
     box-shadow:
       0 0 0 1px rgba(255, 236, 190, 0.45) inset,
-      0 12px 34px -8px rgba(217, 178, 95, 0.8);
+      0 12px 34px -8px rgb(var(--gold-400) / 0.8);
   }
   .btn-quiet {
     @apply btn border border-gold-400/35 text-gold-200 hover:border-gold-300/70 hover:bg-gold-400/10;
@@ -339,8 +375,8 @@
   50% { transform: translateY(-6px); }
 }
 @keyframes glow {
-  0%, 100% { filter: drop-shadow(0 0 6px rgba(217, 178, 95, 0.35)); }
-  50% { filter: drop-shadow(0 0 16px rgba(240, 217, 154, 0.75)); }
+  0%, 100% { filter: drop-shadow(0 0 6px rgb(var(--gold-400) / 0.35)); }
+  50% { filter: drop-shadow(0 0 16px rgb(var(--gold-200) / 0.75)); }
 }
 
 /* ── Das Grimoire öffnet sich (nach dem Login) ──────────────────────────── */
@@ -379,4 +415,140 @@
 }
 @keyframes opening-zoom {
   to { opacity: 0; transform: scale(2.2); }
+}
+
+/* ── Verwunschener Wald: Hintergrund ───────────────────────────────────── */
+.forest-sky {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -5%, rgba(150, 190, 140, 0.16), transparent 65%),
+    radial-gradient(ellipse 60% 40% at 10% 100%, rgba(204, 135, 82, 0.08), transparent 70%),
+    linear-gradient(#0f2219, #07120d 80%);
+}
+/* blasser Mond hinter den Ästen */
+.forest-moon {
+  position: absolute;
+  top: 7%;
+  right: 12%;
+  width: 92px;
+  height: 92px;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 40% 38%, #eef0dc, #c9d2b4 60%, #a8b597);
+  opacity: 0.32;
+  box-shadow: 0 0 60px 18px rgba(220, 232, 196, 0.12);
+  filter: blur(0.6px);
+}
+.forest-trees {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  width: 100%;
+}
+.fog {
+  position: absolute;
+  left: -50%;
+  width: 200%;
+  height: 34vh;
+  border-radius: 50%;
+  background: radial-gradient(ellipse at center, rgba(200, 220, 200, 0.12), transparent 65%);
+  filter: blur(8px);
+}
+.fog-a {
+  bottom: 4vh;
+  animation: fog-drift 70s ease-in-out infinite alternate;
+}
+.fog-b {
+  bottom: 18vh;
+  opacity: 0.7;
+  animation: fog-drift 95s ease-in-out -30s infinite alternate-reverse;
+}
+.firefly {
+  position: absolute;
+  width: var(--s);
+  height: var(--s);
+  border-radius: 9999px;
+  background: #f4f7c4;
+  box-shadow:
+    0 0 6px 2px rgba(236, 245, 160, 0.8),
+    0 0 18px 6px rgba(190, 220, 110, 0.25);
+  animation:
+    firefly-glow var(--t) ease-in-out var(--d) infinite,
+    firefly-roam calc(var(--t) * 4) ease-in-out var(--d) infinite alternate;
+}
+/* fallendes Blatt: sinkt und pendelt, dreht sich dabei */
+.leaf {
+  position: absolute;
+  top: -30px;
+  width: 16px;
+  height: 16px;
+  animation: leaf-fall var(--t) linear forwards;
+}
+.leaf > svg {
+  width: 100%;
+  height: 100%;
+  animation: leaf-sway 2.6s ease-in-out infinite alternate;
+}
+@keyframes fog-drift {
+  from { transform: translateX(-12%); }
+  to { transform: translateX(12%); }
+}
+@keyframes firefly-glow {
+  0%, 100% { opacity: 0.1; }
+  45%, 60% { opacity: 1; }
+}
+@keyframes firefly-roam {
+  0% { translate: 0 0; }
+  33% { translate: var(--x) calc(var(--y) * -0.5); }
+  66% { translate: calc(var(--x) * -0.6) var(--y); }
+  100% { translate: calc(var(--x) * 0.4) calc(var(--y) * 0.3); }
+}
+@keyframes leaf-fall {
+  0% { opacity: 0; transform: translate(0, 0); }
+  8% { opacity: 0.85; }
+  85% { opacity: 0.85; }
+  100% { opacity: 0; transform: translate(var(--dx), 110vh); }
+}
+@keyframes leaf-sway {
+  from { transform: translateX(-14px) rotate(-35deg); }
+  to { transform: translateX(14px) rotate(40deg); }
+}
+
+/* ── Verwunschener Wald: Lichtung im Nebel (nach dem Login) ────────────── */
+.opening .mist {
+  position: absolute;
+  inset-block: -10%;
+  width: 95%;
+  z-index: 20;
+  background: radial-gradient(ellipse at center, rgba(215, 230, 215, 0.85), rgba(170, 195, 175, 0.45) 45%, transparent 72%);
+  filter: blur(14px);
+}
+.opening .mist-l {
+  left: -30%;
+  animation: mist-l 1.2s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+}
+.opening .mist-r {
+  right: -30%;
+  animation: mist-r 1.2s cubic-bezier(0.5, 0, 0.3, 1) forwards;
+}
+.opening .light-cone {
+  position: absolute;
+  left: 50%;
+  top: -40vh;
+  width: 120%;
+  height: calc(100% + 40vh);
+  translate: -50% 0;
+  background: linear-gradient(180deg, rgba(250, 236, 200, 0.28), rgba(250, 236, 200, 0.08) 70%, transparent);
+  clip-path: polygon(42% 0, 58% 0, 100% 100%, 0 100%);
+  filter: blur(6px);
+  animation: fade 0.9s ease-out 0.35s both;
+}
+@keyframes mist-l {
+  to { transform: translateX(-90%); opacity: 0; }
+}
+@keyframes mist-r {
+  to { transform: translateX(90%); opacity: 0; }
 }

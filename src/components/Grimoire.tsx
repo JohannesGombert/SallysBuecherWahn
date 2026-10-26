@@ -1,6 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { Corners, Emblem, Flourish } from './Emblem'
-import { NightSky } from './NightSky'
+import { Sky } from './Sky'
+import { useTheme } from '../lib/theme'
 
 // Gemeinsame Maße: Login-Einband und Öffnungs-Animation liegen exakt übereinander.
 export const COVER_SIZE = 'w-[min(92vw,440px)] min-h-[min(90dvh,640px)]'
@@ -40,8 +41,10 @@ const SPARKS: [number, number, number][] = [
   [-30, -150, 0.95], [60, -120, 1.05], [-80, 90, 1.1], [0, 220, 0.8],
 ]
 
-/** Nach dem Login: Der Deckel schwingt auf, Licht strömt heraus, man taucht ins Buch ein. */
+/** Nach dem Login: Der Deckel schwingt auf, Licht strömt heraus, man taucht ins Buch ein.
+ *  Im Wald zieht vorher der Nebel beiseite und ein Lichtkegel fällt auf die Lichtung. */
 export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => void }) {
+  const forest = useTheme() === 'wald'
   useEffect(() => {
     const t = setTimeout(onDone, 2450)
     return () => clearTimeout(t)
@@ -49,8 +52,9 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
 
   return (
     <div className="opening fixed inset-0 z-50 flex items-center justify-center" aria-hidden="true">
-      <NightSky shooting={false} />
+      <Sky shooting={false} />
       <div className={`relative h-[min(90dvh,640px)] ${COVER_SIZE}`}>
+        {forest && <div className="light-cone pointer-events-none" />}
         {/* erste Seite hinter dem Deckel */}
         <div className="page absolute inset-0 flex flex-col items-center justify-center rounded-r-[1.4rem] text-center">
           <div className="first-page-glow pointer-events-none absolute -inset-16 rounded-full bg-[radial-gradient(circle,rgba(240,217,154,0.55),rgba(143,184,255,0.18)_45%,transparent_70%)]" />
@@ -70,6 +74,12 @@ export function GrimoireOpening({ name, onDone }: { name: string; onDone: () => 
           <GrimoireCover className="cover-face absolute inset-0" />
           <div className="cover-back endpaper absolute inset-0 rounded-l-[1.4rem] rounded-r-md border border-gold-500/25" />
         </div>
+        {forest && (
+          <>
+            <div className="mist mist-l" />
+            <div className="mist mist-r" />
+          </>
+        )}
       </div>
     </div>
   )
