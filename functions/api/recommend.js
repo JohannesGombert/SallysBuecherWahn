@@ -135,6 +135,7 @@ export const onRequest = async ({ request, env, waitUntil }) => {
   // Cache getrennt nach Quelle, damit nach dem Eintragen des Schlüssels keine alten Open-Library-Antworten bleiben
   const cacheUrl = new URL(url)
   cacheUrl.searchParams.set('_src', key ? 'google' : 'openlibrary')
+  cacheUrl.searchParams.set('_v', '2') // bei Änderungen an der Suche erhöhen, sonst bleiben alte Antworten 6 h
   const cache = caches.default
   const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' })
   const hit = await cache.match(cacheKey)
