@@ -96,26 +96,32 @@ async function openLibrary(params, max = 20) {
 // Neuerscheinungen eines Suchbegriffs, beste Quelle zuerst; all: alle Jahre, mehr Treffer
 async function newest(kind, seed, key, errors, all = false) {
   const max = all ? MAX_WORKS : 20
-  let books = []
-  if (key) {
-    const q = kind === 'author' ? `inauthor:"${seed}"` : `subject:"${seed}"`
-    books = await google(q, key, max).catch((e) => {
-      errors.add(e.message)
-      return []
-    })
-  }
-  if (!books.length) {
-    const p = kind === 'author' ? `author=${encodeURIComponent(seed)}` : `subject=${encodeURIComponent(seed.toLowerCase())}`
-    books = await openLibrary(p, max).catch(() => [])
-  }
-  if (all) errors.add('DEBUG ' + books.length + ' ' + JSON.stringify(books.slice(0, 8).map((b) => [b.authors, b.published_date])))
-  const recent = all ? books : books.filter((b) => (yearOf(b.published_date) ?? 0) >= minYear())
   // bei Autor:innen nur Treffer, die wirklich von ihnen sind (Namensgleichheit in Titeln ausschließen);
   // für „alle Werke“ muss der volle Name passen, sonst kommen alle mit gleichem Nachnamen
   const name = norm(seed)
-  const matches = (a) => (all ? norm(a) === name : a.toLowerCase().includes(seed.toLowerCase().split(' ').pop()))
-  const own = kind === 'author' ? recent.filter((b) => b.authors.some(matches)) : recent
-  return own.slice(0, all ? MAX_WORKS : PER_SEED).map((book) => ({ kind, seed, book }))
+  const last = seed.toLowerCase().split(' ').pop()
+  const byAuthor = (a) => (all ? norm(a) === name : a.toLowerCase().includes(last))
+  const keep = (books) =>
+    books
+      .filter((b) => all || (yearOf(b.published_date) ?? 0) >= minYear())
+      .filter((b) => kind !== 'author' || b.authors.some(byAuthor))
+
+  let books = []
+  if (key) {
+    const q = kind === 'author' ? `inauthor:"${seed}"` : `subject:"${seed}"`
+    books = keep(
+      await google(q, key, max).catch((e) => {
+        errors.add(e.message)
+        return []
+      }),
+    )
+  }
+  // Google liefert manchmal fremde Treffer statt eines Fehlers – dann ebenfalls Open Library fragen
+  if (!books.length) {
+    const p = kind === 'author' ? `author=${encodeURIComponent(seed)}` : `subject=${encodeURIComponent(seed.toLowerCase())}`
+    books = keep(await openLibrary(p, max).catch(() => []))
+  }
+  return books.slice(0, all ? MAX_WORKS : PER_SEED).map((book) => ({ kind, seed, book }))
 }
 
 export const onRequest = async ({ request, env, waitUntil }) => {
